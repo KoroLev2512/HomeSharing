@@ -1,0 +1,74 @@
+@import "../../../styles/variables";
+
+.infoContent {
+  display: flex;
+  flex-wrap: wrap;
+
+  & > div {
+    padding-right: 24px;
+  }
+
+  & > div:last-child {
+    padding-right: 0;
+  }
+}
+
+.headingWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  padding: 20px;
+  height: 40px;
+  border-bottom: 1px solid var(--Grey-200, #E2E2E2);
+}
+
+.button {
+  position: absolute;
+  right: 0;
+  height: 40px;
+  margin-right: 20px;
+}
+
+.wrapper {
+  display: flex;
+  height: 100dvh;
+}
+
+.roomList {
+  display: flex;
+  margin: 12px 20px;
+  align-items: flex-start;
+  gap: 12px;
+  align-self: stretch;
+  width: 50%;
+}
+
+.roomCard {
+  border-left: 1px solid var(--Grey-200, #E2E2E2);
+}
+
+.image {
+  width: 100px;
+  height: 100px;
+  border-radius: var(--borderRadius-tremor-default, 8px);
+}
+
+.description {
+  gap: 5px;
+}
+
+.dates {
+  color: var(--Grey-500, #757575);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 510;
+  line-height: 16px;
+  margin-bottom: 10px;
+}
+
+.location {
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 510;
+  line-height: 20px;
+}
