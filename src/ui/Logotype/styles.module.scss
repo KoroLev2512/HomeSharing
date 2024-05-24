@@ -1,0 +1,17 @@
+.wrapper {
+  gap: 16px;
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+}
+
+.logotext {
+  display: flex;
+  text-align: center;
+  min-height: 32px;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 32px;
+}
+

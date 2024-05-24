@@ -24,13 +24,13 @@
 // headings
 
 @mixin heading-1 {
-  font-size: 32px;
+  font-size: 2em;
   font-family: "Semibold", serif;
   //  color: var(--main-color);
 }
 
 @mixin heading-2 {
-  font-size: 28px;
+  font-size: 1.2em;
   font-family: "Semibold", serif;
   //  color: var(--main-color);
 }
