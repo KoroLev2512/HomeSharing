@@ -3,6 +3,7 @@ import {ServerGuard} from "@/guards/ServerGuard";
 import AppWrapper from "@/ui/Wrappers/AppWrapper";
 
 import '../../styles/globals.scss'
+import '../../styles/tags.scss'
 
 function App({ Component, pageProps }: AppProps) {
     return (
