@@ -1,18 +1,17 @@
 import React from "react";
-import { GRAY_COLOR } from "@/ui/const/colors";
 import { IconProps } from "./types";
 
 export const PlugIcon = (
     {
-        color = GRAY_COLOR,
-        height = 24,
-        width = 24,
+        color = "gray",
+        height = 48,
+        width = 48,
     }: IconProps) => {
     return (
         <svg
             width={width}
             height={height}
-            viewBox="0 0 24 24"
+            viewBox="0 0 48 48"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
         >
@@ -22,7 +21,7 @@ export const PlugIcon = (
                 strokeWidth="0.75"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                fill="black"
+                fill="#545454"
             />
         </svg>
     );

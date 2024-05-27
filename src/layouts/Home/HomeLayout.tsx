@@ -7,6 +7,7 @@ import {Section} from "@/ui/Section"
 import {FlatCardList} from "@/entities/Flat/FlatCardList";
 
 import styles from "./styles.module.scss";
+import {PlugIcon} from "@/lib/icons/PlugIcon";
 
 interface IProps {
     children?: React.ReactNode;
@@ -27,8 +28,11 @@ export const HomeLayout: React.FC = () => {
             <Section>
                 <div className={styles.wrapper}>
                     <FlatCardList/>
-                    <div className={styles.roomCard}>
-                        eee
+                    <div className={styles.plug}>
+                        <PlugIcon/>
+                        <div className={styles.plugText}>
+                            Выберите объект из списка чтобы увидеть информацию о нем.
+                        </div>
                     </div>
                 </div>
             </Section>
