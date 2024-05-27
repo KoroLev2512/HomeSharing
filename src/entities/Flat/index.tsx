@@ -1,9 +1,9 @@
 import {FlatCard} from "./FlatCard";
-import {FlatList} from "./FlatList";
+import {FlatCardList} from "./FlatCardList";
 import FlatRequests from "./FlatRequests";
 
 export {
     FlatCard,
-    FlatList,
+    FlatCardList,
     FlatRequests
 };
