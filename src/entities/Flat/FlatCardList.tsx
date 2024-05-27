@@ -6,7 +6,7 @@ import {FlatCard} from "@/entities/Flat/FlatCard";
 
 export interface ITag {
     name: string;
-    text: string
+    text: string;
 }
 const tags: Record<string, ITag> = {
     lilac: {name: 'lilac-tag', text: 'Квартира занята'},
