@@ -32,6 +32,7 @@
 .wrapper {
   display: flex;
   height: 100dvh;
+  background: var(--secondary-background-color);
 }
 
 .roomList {
@@ -44,7 +45,10 @@
 }
 
 .roomCard {
+  display: flex;
+  background: var(--primary-background-color);
   border-left: 1px solid var(--Grey-200, #E2E2E2);
+  //width: 50%;
 }
 
 .image {
