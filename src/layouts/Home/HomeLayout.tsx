@@ -42,7 +42,7 @@ export const HomeLayout: React.FC = () => {
                         </div>
                     </div>
                     <div className={styles.roomCard}>
-                        vvvv
+                        eee
                     </div>
                 </div>
             </Section>
