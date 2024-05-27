@@ -28,7 +28,7 @@ export const HomeLayout: React.FC = () => {
                 <div className={styles.wrapper}>
                     <FlatCardList/>
                     <div className={styles.roomCard}>
-                        vvvv
+                        eee
                     </div>
                 </div>
             </Section>
