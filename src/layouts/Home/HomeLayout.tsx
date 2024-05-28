@@ -1,13 +1,15 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Image from "next/image";
 import {Title} from "@/ui/Title";
 import {User} from "@/entities/User";
 import {SecondaryButton} from "@/ui/Button";
 import {Section} from "@/ui/Section"
-import {FlatCardList} from "@/entities/Flat/FlatCardList";
+import {FlatCardList} from "@/entities/FlatCard/FlatCardList";
 
 import styles from "./styles.module.scss";
 import {PlugIcon} from "@/lib/icons/PlugIcon";
+import {IFlatCard} from "@/lib/store/flats";
+import {Flat} from "@/entities/Flat";
 
 interface IProps {
     children?: React.ReactNode;
@@ -15,6 +17,7 @@ interface IProps {
 }
 
 export const HomeLayout: React.FC = () => {
+    const [selectedFlat, setSelectedFlat] = useState<IFlatCard | null>(null);
     return (
         <>
             <Section margin={0}>
@@ -27,13 +30,16 @@ export const HomeLayout: React.FC = () => {
             </Section>
             <Section>
                 <div className={styles.wrapper}>
-                    <FlatCardList/>
-                    <div className={styles.plug}>
-                        <PlugIcon/>
-                        <div className={styles.plugText}>
-                            Выберите объект из списка чтобы увидеть информацию о нем.
-                        </div>
-                    </div>
+                    <FlatCardList setSelectedFlat={setSelectedFlat} selectedFlat={selectedFlat}/>
+                    {selectedFlat ?
+                        <Flat flat={selectedFlat}/>
+                        :
+                        <div className={styles.plug}>
+                            <PlugIcon/>
+                            <div className={styles.plugText}>
+                                Выберите объект из списка чтобы увидеть информацию о нем.
+                            </div>
+                        </div>}
                 </div>
             </Section>
         </>
