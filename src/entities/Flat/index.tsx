@@ -1,9 +1,5 @@
-import {FlatCard} from "./FlatCard";
-import {FlatCardList} from "./FlatCardList";
-import FlatRequests from "./FlatRequests";
+import {Flat} from "./Flat";
 
 export {
-    FlatCard,
-    FlatCardList,
-    FlatRequests
+    Flat
 };
