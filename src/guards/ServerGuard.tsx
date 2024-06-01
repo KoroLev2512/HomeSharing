@@ -8,8 +8,9 @@ import Router, {useRouter} from "next/router";
 import {NavigationBar} from "@/ui/NavigationBar";
 import {ContentWrapper} from "@/ui/ContentWraper";
 import {PageWrapper} from "@/ui/PageWrapper";
+import {SessionProvider} from "next-auth/react"
 
-export const ServerGuard = ({ children }: { children: JSX.Element }) => {
+export const ServerGuard = ({ children, pageProps: { session, ...pageProps } }: { children: JSX.Element, pageProps: any }) => {
     const [getUser, user, error] = useUserStore(store => [store.getUser, store.user, store.error]);
     const {route} = useRouter();
     const isOpenPath = ["/error", "/logger"].includes(route);
@@ -48,12 +49,14 @@ export const ServerGuard = ({ children }: { children: JSX.Element }) => {
 
     if (serverLoading || (isNull(user) && !isOpenPath)) {
         return(
-            <PageWrapper>
-                <NavigationBar />
-                <ContentWrapper>
-                    <Loader/>
-                </ContentWrapper>
-            </PageWrapper>
+            <SessionProvider session={session}>
+                <PageWrapper>
+                    <NavigationBar />
+                    <ContentWrapper>
+                        <Loader/>
+                    </ContentWrapper>
+                </PageWrapper>
+            </SessionProvider>
         );
     }
 

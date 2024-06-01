@@ -14,16 +14,22 @@ export const Input: FC<Props> = ({
                                      children,
                                      label,
                                      className,
+                                     icon,
                                      ...restProps
                                  }) => {
     return (
-        <div className={className}>
-            <Text as={"p"}>{label}</Text>
-            <input
-                className={classNames(styles.input)}
-                value={children}
-                {...restProps}
-            />
+        <div className={classNames(styles.input_all)}>
+            <div className={className}>
+                {icon ? icon : null}
+                <Text as={"p"}>
+                    {label}
+                </Text>
+                <input
+                    className={classNames(styles.input)}
+                    value={children}
+                    {...restProps}
+                />
+            </div>
         </div>
     );
 };

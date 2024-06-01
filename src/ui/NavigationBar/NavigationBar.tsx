@@ -10,12 +10,14 @@ import {compact} from "lodash";
 import {HomeIcon} from "@/lib/icons/HomeIcon";
 import {MessageIcon} from "@/lib/icons/MessageIcon"
 import {SearchIcon} from "@/lib/icons/SearchIcon";
-import {useIfUserRole} from "@/entities/User";
-import {Input} from "@/ui/Input";
-
-import styles from "./styles.module.scss";
 import {NotifyIcon} from "@/lib/icons/NotifyIcon";
 import {SettingsIcon} from "@/lib/icons/SettingsIcon";
+import {useIfUserRole} from "@/entities/User";
+import {Input} from "@/ui/Input";
+import {Burger} from "@/ui/Burger";
+
+import styles from "./styles.module.scss";
+import burger from "@/ui/Burger/Burger";
 
 const NavigationBarToggle = (): JSX.Element => {
     const [toggleMenuPage, menuPageIsOpen, toggleProfilePage, profilePageIsClose] = useAppStore(state => [state.toggleMenuPage, state.menuPageIsOpen, state.toggleProfilePage, state.profilePageIsClose]);
@@ -28,6 +30,9 @@ const NavigationBarToggle = (): JSX.Element => {
                 }
             }}
         >
+            <Burger
+                menuPageIsOpen={menuPageIsOpen}
+            />
         </div>
     );
 };
@@ -46,18 +51,19 @@ export const NavigationBar = (): JSX.Element => {
     return (
         <div className={classNames(styles.container, {[styles.closedBar]: menuPageIsOpen})}>
             <div className={styles.header}>
-                <NavigationBarToggle/>
-                <div
-                    className={classNames(styles.toggle, {[styles.toggleBeforeOpen]: menuPageIsOpen}, [styles.logoContainer])}>
+                <div className={classNames(styles.toggle, {[styles.toggleBeforeOpen]: menuPageIsOpen}, [styles.logoContainer])}>
                     <Logotype/>
+                </div>
+                <div className={classNames(styles.burgerBtnOpen, {[styles.burgerBtnClose]: menuPageIsOpen})}>
+                    <NavigationBarToggle/>
                 </div>
             </div>
             <Input
                 type="text"
                 placeholder="Найти"
-                className={styles.input}
+                className={classNames(styles.input, {[styles.inputClose]: menuPageIsOpen})}
                 // onChange={handleChange}
-                // icon={<SearchIcon/>}
+                icon={<SearchIcon/>}
             />
             <div className={classNames(styles, {[styles.navigationWrapper]: menuPageIsOpen})} onClick={() => {
                 toggleMenuPage(false);

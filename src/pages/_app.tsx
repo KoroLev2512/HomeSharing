@@ -7,7 +7,7 @@ import '@/../styles/tags.scss'
 
 function App({ Component, pageProps }: AppProps) {
     return (
-        <ServerGuard>
+        <ServerGuard pageProps={pageProps}>
             <AppWrapper>
                 <Component {...pageProps} />
             </AppWrapper>
