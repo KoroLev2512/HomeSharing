@@ -1,4 +1,3 @@
-import Image from "next/image";
 import React, {Dispatch, SetStateAction} from "react";
 import styles from "./styles.module.scss";
 import {CalendarIcon} from "@/lib/icons/CalendarIcon";
@@ -26,10 +25,10 @@ export const FlatCard = ({flat, setSelectedFlat, selectedFlat}: IProps) => {
                 className={styles.image}
             />
             <div className={styles.description}>
-                {flat.tag && <div className={`${styles.tag} ${flat.tag.name}`}>{flat.tag.text}</div>}
+                {flat.tagFlat && <div className={`${styles.tag} ${flat.tagFlat.name}`}>{flat.tagFlat.text}</div>}
                 <div className={styles.dates}>
                     <div className={styles.descriptionIcon}><CalendarIcon/></div>
-                    <div className={styles.datesText}>{flat.date}</div>
+                    <div className={styles.datesText}>{flat.dateRange}</div>
                 </div>
                 <div className={styles.location}>
                     <div className={styles.locationIcon}><LocationIcon/></div>

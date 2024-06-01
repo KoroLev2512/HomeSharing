@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import Image from "next/image";
 import {Title} from "@/ui/Title";
 import {User} from "@/entities/User";
 import {SecondaryButton} from "@/ui/Button";
@@ -28,7 +27,7 @@ export const HomeLayout: React.FC = () => {
                     </SecondaryButton>
                 </div>
             </Section>
-            <Section>
+            <Section margin={0}>
                 <div className={styles.wrapper}>
                     <FlatCardList setSelectedFlat={setSelectedFlat} selectedFlat={selectedFlat}/>
                     {selectedFlat ?
