@@ -8,6 +8,7 @@ import {FlatCardList} from "@/entities/Flat/FlatCardList";
 
 import styles from "./styles.module.scss";
 import {PlugIcon} from "@/lib/icons/PlugIcon";
+import Link from "next/link";
 
 interface IProps {
     children?: React.ReactNode;
@@ -20,9 +21,11 @@ export const HomeLayout: React.FC = () => {
             <Section margin={0}>
                 <div className={styles.headingWrapper}>
                     <Title/>
-                    <SecondaryButton onClick={() => console.log("Выйти")} className={styles.button}>
-                        Выйти
-                    </SecondaryButton>
+                    <Link href={"/api/auth/signin"}>
+                        <SecondaryButton onClick={() => console.log("Выйти")} className={styles.button}>
+                            Войти
+                        </SecondaryButton>
+                    </Link>
                 </div>
             </Section>
             <Section>
