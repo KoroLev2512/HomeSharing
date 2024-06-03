@@ -1,6 +1,11 @@
 import React from "react";
 import styles from "./styles.module.scss";
 import {IFlatCard} from "@/lib/store/flats";
+import {BinIcon} from "@/lib/icons/BinIcon";
+import {CloseIcon} from "@/lib/icons/CloseIcon";
+import {CopyIcon} from "@/lib/icons/CopyIcon";
+import {EditIcon} from "@/lib/icons/EditIcon";
+import {LockFlatIcon} from "@/lib/icons/LockFlatIcon";
 
 interface IProps {
     flat: IFlatCard;
@@ -16,20 +21,24 @@ export const Flat = ({flat}: IProps) => {
                 <div className={styles.titleWrapper}>
                     <p className={styles.title}>Информация о квартире</p>
                     <div className={styles.titleIcons}>
-                        <div>!</div>
-                        <div>X</div>
+                        <button type="button" className={styles.iconButton}>
+                            <EditIcon/>
+                        </button>
+                        <button type="button" className={styles.iconButton}>
+                            <CloseIcon/>
+                        </button>
                     </div>
                 </div>
 
                 <img
-                    src="/rooms/room.png"
+                    src="/flat_image.png"
                     alt="Изображение квартиры"
                     className={styles.image}
                 />
 
                 <div className={styles.buttons}>
                     <button className={`${styles.button} ${styles.openButton}`}>
-                        <div>ICON</div>
+                        <button type="button" className={styles.iconButton}><LockFlatIcon/></button>
                         Открыть
                     </button>
                     <button className={`${styles.button} ${styles.orderButton}`}>Заказать уборку</button>
@@ -65,14 +74,14 @@ export const Flat = ({flat}: IProps) => {
                                 <div className={styles.descriptionPropertyName}>Имя сети:</div>
                                 <div className={styles.dateText}>ИМЯ СЕТИ</div>
                             </div>
-                            <div className={styles.wifiIcon}>ICON</div>
+                            <button className={`${styles.wifiIcon} ${styles.iconButton}`}><CopyIcon/></button>
                         </div>
                         <div className={styles.wifi}>
                             <div className={styles.wifiText}>
                                 <div className={styles.descriptionPropertyName}>Пароль:</div>
                                 <div className={styles.dateText}>Пароль</div>
                             </div>
-                            <div className={styles.wifiIcon}>ICON</div>
+                            <div className={`${styles.wifiIcon} ${styles.iconButton}`}><CopyIcon/></div>
                         </div>
                     </div>
 
@@ -87,7 +96,7 @@ export const Flat = ({flat}: IProps) => {
                                         <div className={styles.personRole}>{person.role}</div>
                                     </div>
                                 </div>
-                                <button type="button">ICON</button>
+                                <button className={styles.iconButton} type="button"><BinIcon/></button>
                             </div>
                         )}
                     </div>
