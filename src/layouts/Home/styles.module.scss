@@ -31,7 +31,7 @@
 
 .wrapper {
   display: flex;
-  height: 100dvh;
+  height: calc(100dvh - 80px);
   background: var(--secondary-background-color);
 }
 
