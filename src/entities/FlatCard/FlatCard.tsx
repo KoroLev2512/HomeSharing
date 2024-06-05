@@ -20,7 +20,7 @@ export const FlatCard = ({flat, setSelectedFlat, selectedFlat}: IProps) => {
             onClick={() => setSelectedFlat(flat)}
         >
             <img
-                src="/rooms/room.png"
+                src={flat.img}
                 alt="Изображение квартиры"
                 className={styles.image}
             />
