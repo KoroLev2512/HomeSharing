@@ -31,7 +31,7 @@
 .title {
   display: block;
   color: #000;
-  font-family: "Medium";
+  font-family: "Medium", serif;
   font-size: 20px;
   line-height: 28px;
   margin-right: 8px;
@@ -62,7 +62,7 @@
   text-align: center;
   font-size: 16px;
   line-height: 20px;
-  font-family: "Medium";
+  font-family: "Medium", serif;
 }
 
 .openButton {
@@ -87,19 +87,19 @@
   gap: 8px;
   border-radius: 4px;
   width: fit-content;
-  font-family: Medium;
+  font-family: "Medium", serif;
 }
 
 .description {
   font-size: 16px;
   line-height: 20px;
-  font-family: Medium;
+  font-family: "Medium", serif;
 
   &Title {
     color: #545454;
     font-size: 16px;
     line-height: 20px;
-    font-family: Medium;
+    font-family: "Medium", serif;
   }
 
   &Body {
@@ -161,10 +161,10 @@
 @media (max-width: 1064px) {
   .flatCardList {
     width: 70%;
-  }
 
     &:hover {
-    cursor: pointer;
+      cursor: pointer;
+    }
   }
 }
 
