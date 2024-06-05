@@ -37,6 +37,9 @@ export const HomeLayout: React.FC = () => {
                             Выберите объект из списка чтобы увидеть информацию о нем.
                         </div>
                     </div>
+                    <div className={styles.roomCard}>
+                        eee
+                    </div>
                 </div>
             </Section>
         </>
