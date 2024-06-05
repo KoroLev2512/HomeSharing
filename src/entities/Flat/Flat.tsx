@@ -31,7 +31,7 @@ export const Flat = ({flat}: IProps) => {
                 </div>
 
                 <img
-                    src="/flat_image.png"
+                    src={flat.img}
                     alt="Изображение квартиры"
                     className={styles.image}
                 />
