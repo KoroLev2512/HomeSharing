@@ -72,14 +72,14 @@ export const Flat = ({flat}: IProps) => {
                         <div className={styles.wifi}>
                             <div className={styles.wifiText}>
                                 <div className={styles.descriptionPropertyName}>Имя сети:</div>
-                                <div className={styles.dateText}>ИМЯ СЕТИ</div>
+                                <div className={styles.dateText}>WI-FI_CHAIKOVSKOGO</div>
                             </div>
                             <button className={`${styles.wifiIcon} ${styles.iconButton}`}><CopyIcon/></button>
                         </div>
                         <div className={styles.wifi}>
                             <div className={styles.wifiText}>
                                 <div className={styles.descriptionPropertyName}>Пароль:</div>
-                                <div className={styles.dateText}>Пароль</div>
+                                <div className={styles.dateText}>12345678</div>
                             </div>
                             <div className={`${styles.wifiIcon} ${styles.iconButton}`}><CopyIcon/></div>
                         </div>
@@ -90,7 +90,11 @@ export const Flat = ({flat}: IProps) => {
                         {flat.persons.map((person) =>
                             <div className={styles.personCard} key={person.id}>
                                 <div className={styles.personWrapper}>
-                                    <div>ICON</div>
+                                    <img
+                                        src={person.icon}
+                                        alt="Аватарка пользователя"
+                                        className={styles.avatar}
+                                    />
                                     <div className={styles.person}>
                                         <div className={styles.personName}>{person.name}</div>
                                         <div className={styles.personRole}>{person.role}</div>
