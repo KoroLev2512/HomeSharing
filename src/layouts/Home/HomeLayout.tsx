@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import {Title} from "@/ui/Title";
 import {User} from "@/entities/User";
 import {SecondaryButton} from "@/ui/Button";
 import {Section} from "@/ui/Section"
@@ -22,7 +21,6 @@ export const HomeLayout: React.FC = () => {
         <>
             <Section margin={0}>
                 <div className={styles.headingWrapper}>
-                    <Title/>
                     <Link href={"/api/auth/signin"}>
                         <SecondaryButton onClick={() => console.log("Выйти")} className={styles.button}>
                             Войти
