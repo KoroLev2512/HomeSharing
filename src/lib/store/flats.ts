@@ -16,26 +16,14 @@ export const testPersons: IPerson[] = [
         id: 1,
         name: 'Мария Петрова',
         role: 'Пользователь',
-        icon: 'ICON'
+        icon: '/users/user_1.png'
     },
     {
         id: 2,
         name: 'Александр Сидоров',
         role: 'Пользователь',
-        icon: 'ICON'
+        icon: '/users/user_2.png'
     },
-    {
-        id: 3,
-        name: 'Мария Сидоров',
-        role: 'Пользователь',
-        icon: 'ICON'
-    },
-    {
-        id: 4,
-        name: 'Александр Петрова',
-        role: 'Пользователь',
-        icon: 'ICON'
-    }
 ]
 
 export interface IFlatCard {
@@ -78,6 +66,20 @@ export const flats: IFlatCard[] = [
     },
     {
         id: 2,
+        address: `Санкт-Петербург, улица Чайковского, 26`,
+        dateRange: '12 июнь. 2024 – 17 июнь. 2024',
+        dateStart: '12.06.2024',
+        dateEnd: '27.06.2024',
+        tagFlat: tags.green,
+        tagLock: tags.yellow,
+        isDisabled: false,
+        wifiLogin: 'Super Wi-Fi Network',
+        wifiPass: 'Nf,ehtnrf31',
+        persons: testPersons,
+        img: "/rooms/room6.png",
+    },
+    {
+        id: 3,
         address: 'Санкт-Петербург, Днепропетровская улица, 3',
         dateRange: '6 июнь. 2024 – 12 июнь. 2024',
         dateStart: '6.08.2024',
@@ -91,7 +93,7 @@ export const flats: IFlatCard[] = [
         img: "/rooms/room2.jpg",
     },
     {
-        id: 3,
+        id: 4,
         address: 'Санкт-Петербург, Загородный проспект, 24',
         dateRange: '4 июнь. 2024 – 5 июнь. 2024',
         dateStart: '4.06.2024',
@@ -105,7 +107,7 @@ export const flats: IFlatCard[] = [
         img: "/rooms/room3.jpg",
     },
     {
-        id: 4,
+        id: 5,
         address: `Санкт-Петербург, Гончарная улица, 9`,
         dateRange: '5 июнь. 2024 – 7 июнь. 2024',
         dateStart: '5.06.2024',
@@ -119,7 +121,7 @@ export const flats: IFlatCard[] = [
         img: "/rooms/room4.jpg",
     },
     {
-        id: 5,
+        id: 6,
         address: `Санкт-Петербург, 26-я Васильевского острова линия, 7`,
         dateRange: '8 июнь. 2024 – 10 июнь. 2024',
         dateStart: '8.06.2024',
@@ -131,20 +133,6 @@ export const flats: IFlatCard[] = [
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
         img: "/rooms/room5.jpg",
-    },
-    {
-        id: 6,
-        address: `Санкт-Петербург, улица Чайковского, 26`,
-        dateRange: '12 июнь. 2024 – 17 июнь. 2024',
-        dateStart: '12.06.2024',
-        dateEnd: '27.06.2024',
-        tagFlat: tags.green,
-        tagLock: tags.yellow,
-        isDisabled: false,
-        wifiLogin: 'Super Wi-Fi Network',
-        wifiPass: 'Nf,ehtnrf31',
-        persons: testPersons,
-        img: "/rooms/room6.png",
     },
     {
         id: 7,

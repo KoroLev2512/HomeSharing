@@ -38,7 +38,7 @@ const AppWrapper = (props: Layout) => {
     return (
         <PageWrapper>
             <Head>
-                <title>ITMO.Events личный кабинет</title>
+                <title>LockBox: Личный кабинет</title>
             </Head>
             <NavigationBar />
             <ContentWrapper>{children}</ContentWrapper>
