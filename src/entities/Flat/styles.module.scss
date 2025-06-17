@@ -1,19 +1,18 @@
-@import "../../../styles/variables";
+@use "../../styles/variables";
 
 .flat {
-
-  &Wrapper {
-    width: calc(50% - 40px);
-    display: flex;
-    justify-content: center;
-  }
-
   width: 100%;
   max-width: 900px;
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  &Wrapper {
+    width: calc(50% - 40px);
+    display: flex;
+    justify-content: center;
+  }
 }
 
 .image {
@@ -40,7 +39,7 @@
 
 .titleIcons {
   display: flex;
-  gap: 8px
+  gap: 8px;
 }
 
 .buttons {
@@ -114,7 +113,7 @@
   }
 
   &PropertyName {
-    color: #545454
+    color: #545454;
   }
 }
 
@@ -159,7 +158,6 @@
     font-style: normal;
     font-weight: 510;
     line-height: 20px;
-
   }
 }
 
@@ -172,4 +170,3 @@
     }
   }
 }
-

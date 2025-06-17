@@ -1,53 +1,35 @@
-import React, {useEffect, useState} from "react";
+"use client";
+import React, {useEffect} from "react";
 import WorkerPage from "@/layouts/Errors/503";
-import {useMountEffect} from "@/hooks/useMountEffect";
 import Loader from "@/ui/Loader/Loader";
 import {useUserStore} from "@/entities/User";
 import {isNull, isString} from "lodash";
-import Router, {useRouter} from "next/router";
+import {usePathname} from "next/navigation";
 import {NavigationBar} from "@/ui/NavigationBar";
 import {ContentWrapper} from "@/ui/ContentWraper";
 import {PageWrapper} from "@/ui/PageWrapper";
 import {SessionProvider} from "next-auth/react"
 
-export const ServerGuard = ({ children, pageProps: { session, ...pageProps } }: { children: JSX.Element, pageProps: any }) => {
-    const [getUser, user, error] = useUserStore(store => [store.getUser, store.user, store.error]);
-    const {route} = useRouter();
-    const isOpenPath = ["/error", "/logger"].includes(route);
+export const ServerGuard = ({ children, pageProps: { session } }: { children: JSX.Element, pageProps: any }) => {
+    const user = useUserStore(store => store.user);
+    const error = useUserStore(store => store.error);
+    const getUser = useUserStore(store => store.getUser);
+    const pathname = usePathname() ?? "";
+    const isOpenPath = ["/error", "/logger"].includes(pathname);
+
     useEffect(() => {
         if (!isString(error) && error?.status === 403 && !isOpenPath) {
             window.location.replace("/api/login");
         }
-    }, [error, isOpenPath, route, user]);
+    }, [error, isOpenPath, pathname]);
 
-    useMountEffect(() => {
+    useEffect(() => {
         if (!isOpenPath) {
             getUser();
         }
-    });
+    }, [isOpenPath, getUser]);
 
-    const [serverLoading, setServerLoading] = useState(false);
-
-    useMountEffect(() => {
-        if (!isOpenPath) {
-            const start = () => {
-                setServerLoading(true);
-            };
-            const end = () => {
-                setServerLoading(false);
-            };
-            Router.events.on("routeChangeStart", start);
-            Router.events.on("routeChangeComplete", end);
-            Router.events.on("routeChangeError", end);
-            return () => {
-                Router.events.off("routeChangeStart", start);
-                Router.events.off("routeChangeComplete", end);
-                Router.events.off("routeChangeError", end);
-            };
-        }
-    });
-
-    if (serverLoading || (isNull(user) && !isOpenPath)) {
+    if (isNull(user) && !isOpenPath) {
         return(
             <SessionProvider session={session}>
                 <PageWrapper>

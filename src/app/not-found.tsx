@@ -1,7 +1,6 @@
 import Image from "next/image";
 import React from "react";
 import { Message, MessageProps } from "@/ui/Card/Message";
-import { Section } from "@/ui/Section";
 import ErrorIcon from "../../public/icons/non_objects.svg";
 
 const notFoundMessage: MessageProps = {
@@ -21,7 +20,7 @@ const notFoundMessage: MessageProps = {
 const NotFoundPage = () => {
 	return (
 		<div>
-			хуйня
+			Страница не найдена
 		</div>
 	);
 };

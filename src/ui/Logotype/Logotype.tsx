@@ -1,18 +1,16 @@
 import React from "react";
-import { Text } from "@/ui/Text";
-
+import Image from "next/image";
+import logo from "@/../public/icons/logo.svg";
 import styles from "./styles.module.scss";
 
 export const Logotype = () => {
     return (
         <div className={styles.wrapper}>
-            <img
-                src='/icons/logo.svg'
+            <Image
+                src={logo}
                 alt="logo"
+                width={90}
             />
-            <Text as="h2" className={styles.logotext}>
-                LockBox
-            </Text>
         </div>
     );
 };

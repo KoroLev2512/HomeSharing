@@ -1,8 +1,9 @@
+"use client";
+
 import Head from "next/head";
 import React, {useEffect} from "react";
 import {ContentWrapper} from "@//ui/ContentWraper"
 import {NavigationBar} from "@/ui/NavigationBar";
-import {useMountEffect} from "@/hooks/useMountEffect";
 import {useAppStore} from "@/lib/store/appStore";
 import {parseCookies} from "nookies";
 import { Layout } from "./types";
@@ -10,7 +11,9 @@ import {PageWrapper} from "@/ui/PageWrapper";
 
 const AppWrapper = (props: Layout) => {
     const {children} = props;
-    const [isDarkMode, toggleDarkMode, toggleProfilePage] = useAppStore(state => [state.isDarkMode, state.toggleDarkMode, state.toggleProfilePage, state.profilePageIsClose]);
+    const isDarkMode         = useAppStore(state => state.isDarkMode);
+    const toggleDarkMode     = useAppStore(state => state.toggleDarkMode);
+    const toggleProfilePage  = useAppStore(state => state.toggleProfilePage);
     const defaultTheme = parseCookies().theme || "light";
 
     useEffect(() => {
@@ -19,16 +22,16 @@ const AppWrapper = (props: Layout) => {
         }
     }, [toggleProfilePage]);
 
-    useMountEffect(() => {
+    useEffect(() => {
         if (defaultTheme) {
             toggleDarkMode(defaultTheme === "dark");
         } else {
             toggleDarkMode(false);
         }
-    });
+    }, [defaultTheme, toggleDarkMode]);
 
     useEffect(() => {
-        if (isDarkMode === true) {
+        if (isDarkMode) {
             document.documentElement.setAttribute("data-theme", "dark");
         } else {
             document.documentElement.removeAttribute("data-theme");

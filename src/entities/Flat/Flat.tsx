@@ -1,14 +1,15 @@
 import React from "react";
-import styles from "./styles.module.scss";
 import {IFlatCard} from "@/lib/store/flats";
 import {BinIcon} from "@/lib/icons/BinIcon";
 import {CloseIcon} from "@/lib/icons/CloseIcon";
 import {CopyIcon} from "@/lib/icons/CopyIcon";
 import {EditIcon} from "@/lib/icons/EditIcon";
 import {LockFlatIcon} from "@/lib/icons/LockFlatIcon";
+import Image, { StaticImageData } from "next/image";
+import styles from "./styles.module.scss";
 
 interface IProps {
-    flat: IFlatCard;
+    flat: Omit<IFlatCard, 'img'> & { img: StaticImageData };
 }
 
 export const Flat = ({flat}: IProps) => {
@@ -30,18 +31,22 @@ export const Flat = ({flat}: IProps) => {
                     </div>
                 </div>
 
-                <img
+                <Image
                     src={flat.img}
                     alt="Изображение квартиры"
                     className={styles.image}
+                    width={flat.img.width}
+                    height={flat.img.height}
                 />
 
                 <div className={styles.buttons}>
-                    <button className={`${styles.button} ${styles.openButton}`}>
-                        <button type="button" className={styles.iconButton}><LockFlatIcon/></button>
+                    <button type="button" className={`${styles.button} ${styles.openButton}`}>
+                        <span className={styles.iconButton}><LockFlatIcon/></span>
                         Открыть
                     </button>
-                    <button className={`${styles.button} ${styles.orderButton}`}>Заказать уборку</button>
+                    <button type="button" className={`${styles.button} ${styles.orderButton}`}>
+                        Заказать уборку
+                    </button>
                 </div>
                 <div className={styles.description}>
                     <p className={styles.descriptionTitle}>О квартире</p>

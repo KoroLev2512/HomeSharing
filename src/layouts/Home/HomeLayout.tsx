@@ -1,5 +1,6 @@
+"use client";
+
 import React, {useState} from 'react';
-import {User} from "@/entities/User";
 import {SecondaryButton} from "@/ui/Button";
 import {Section} from "@/ui/Section"
 import {FlatCardList} from "@/entities/FlatCard/FlatCardList";
@@ -9,11 +10,6 @@ import {PlugIcon} from "@/lib/icons/PlugIcon";
 import {IFlatCard} from "@/lib/store/flats";
 import {Flat} from "@/entities/Flat";
 import Link from "next/link";
-
-interface IProps {
-    children?: React.ReactNode;
-    user: User | null;
-}
 
 export const HomeLayout: React.FC = () => {
     const [selectedFlat, setSelectedFlat] = useState<IFlatCard | null>(null);
@@ -39,7 +35,8 @@ export const HomeLayout: React.FC = () => {
                             <div className={styles.plugText}>
                                 Выберите объект из списка чтобы увидеть информацию о нем.
                             </div>
-                        </div>}
+                        </div>
+                    }
                 </div>
             </Section>
         </>

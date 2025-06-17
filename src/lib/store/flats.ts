@@ -1,8 +1,25 @@
+import { StaticImageData } from 'next/image';
+import room1 from '../../../public/rooms/room1.jpg';
+import room2 from '../../../public/rooms/room2.jpg';
+import room3 from '../../../public/rooms/room3.jpg';
+import room4 from '../../../public/rooms/room4.jpg';
+import room5 from '../../../public/rooms/room5.jpg';
+import room6 from '../../../public/rooms/room6.png';
+import room7 from '../../../public/rooms/room7.jpg';
+import room8 from '../../../public/rooms/room8.jpg';
+import room9 from '../../../public/rooms/room9.jpg';
+import room10 from '../../../public/rooms/room10.jpg';
+import room11 from '../../../public/rooms/room11.jpg';
+import room12 from '../../../public/rooms/room12.jpg';
+import room13 from '../../../public/rooms/room13.jpg';
+import room14 from '../../../public/rooms/room14.jpg';
+import room15 from '../../../public/rooms/room15.jpg';
+import room16 from '../../../public/rooms/room16.jpg';
+
 export interface ITag {
     name: string;
     text: string;
 }
-
 
 interface IPerson {
     id: number;
@@ -29,7 +46,7 @@ export const testPersons: IPerson[] = [
 export interface IFlatCard {
     id: number;
     address: string;
-    img: string;
+    img: StaticImageData;
     dateRange: string;
     dateStart: string;
     dateEnd: string;
@@ -62,7 +79,7 @@ export const flats: IFlatCard[] = [
         wifiLogin: 'LUX_APPARTS_12',
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
-        img: "/rooms/room1.jpg",
+        img: room1,
     },
     {
         id: 2,
@@ -76,7 +93,7 @@ export const flats: IFlatCard[] = [
         wifiLogin: 'Super Wi-Fi Network',
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
-        img: "/rooms/room6.png",
+        img: room6,
     },
     {
         id: 3,
@@ -90,7 +107,7 @@ export const flats: IFlatCard[] = [
         wifiLogin: 'Super Wi-Fi Network',
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
-        img: "/rooms/room2.jpg",
+        img: room2,
     },
     {
         id: 4,
@@ -104,7 +121,7 @@ export const flats: IFlatCard[] = [
         wifiLogin: 'Super Wi-Fi Network',
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
-        img: "/rooms/room3.jpg",
+        img: room3,
     },
     {
         id: 5,
@@ -118,7 +135,7 @@ export const flats: IFlatCard[] = [
         wifiLogin: 'Super Wi-Fi Network',
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
-        img: "/rooms/room4.jpg",
+        img: room4,
     },
     {
         id: 6,
@@ -132,7 +149,7 @@ export const flats: IFlatCard[] = [
         wifiLogin: 'Super Wi-Fi Network',
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
-        img: "/rooms/room5.jpg",
+        img: room5,
     },
     {
         id: 7,
@@ -146,7 +163,7 @@ export const flats: IFlatCard[] = [
         wifiLogin: 'Super Wi-Fi Network',
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
-        img: "/rooms/room7.jpg",
+        img: room7,
 
     },
     {
@@ -161,7 +178,7 @@ export const flats: IFlatCard[] = [
         wifiLogin: 'Super Wi-Fi Network',
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
-        img: "/rooms/room8.jpg",
+        img: room8,
 
     },
     {
@@ -176,7 +193,7 @@ export const flats: IFlatCard[] = [
         wifiLogin: 'Super Wi-Fi Network',
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
-        img: "/rooms/room9.jpg",
+        img: room9,
 
     },
     {
@@ -191,7 +208,7 @@ export const flats: IFlatCard[] = [
         wifiLogin: 'Super Wi-Fi Network',
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
-        img: "/rooms/room10.jpg",
+        img: room10,
 
     },
     {
@@ -206,7 +223,7 @@ export const flats: IFlatCard[] = [
         wifiLogin: 'Super Wi-Fi Network',
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
-        img: "/rooms/room11.jpg",
+        img: room11,
     },
     {
         id: 12,
@@ -220,7 +237,7 @@ export const flats: IFlatCard[] = [
         wifiLogin: 'Super Wi-Fi Network',
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
-        img: "/rooms/room12.jpg",
+        img: room12,
 
     },
     {
@@ -235,7 +252,7 @@ export const flats: IFlatCard[] = [
         wifiLogin: 'Super Wi-Fi Network',
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
-        img: "/rooms/room13.jpg",
+        img: room13,
     },
     {
         id: 14,
@@ -249,7 +266,7 @@ export const flats: IFlatCard[] = [
         wifiLogin: 'Super Wi-Fi Network',
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
-        img: "/rooms/room14.jpg",
+        img: room14,
 
     },
     {
@@ -264,7 +281,7 @@ export const flats: IFlatCard[] = [
         wifiLogin: 'Super Wi-Fi Network',
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
-        img: "/rooms/room15.jpg",
+        img: room15,
 
     },
     {
@@ -279,7 +296,7 @@ export const flats: IFlatCard[] = [
         wifiLogin: 'Super Wi-Fi Network',
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
-        img: "/rooms/room16.jpg",
+        img: room16,
 
     },
 

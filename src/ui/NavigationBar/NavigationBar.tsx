@@ -1,3 +1,5 @@
+"use client";
+
 import React, {useMemo} from "react";
 import {Logotype} from "@/ui/Logotype";
 import {Menu} from "@/ui/Menu";
@@ -5,7 +7,7 @@ import {MenuItem} from "@/ui/MenuItem";
 import { MenuItemProps } from "@/ui/MenuItem/types";
 import {useAppStore} from "@/lib/store/appStore";
 import classNames from "classnames";
-import {useRouter} from "next/router";
+import { usePathname } from "next/navigation";
 import {compact} from "lodash";
 import {HomeIcon} from "@/lib/icons/HomeIcon";
 import {MessageIcon} from "@/lib/icons/MessageIcon"
@@ -17,12 +19,15 @@ import {Input} from "@/ui/Input";
 import {Burger} from "@/ui/Burger";
 
 import styles from "./styles.module.scss";
-import burger from "@/ui/Burger/Burger";
 
 const NavigationBarToggle = (): JSX.Element => {
-    const [toggleMenuPage, menuPageIsOpen, toggleProfilePage, profilePageIsClose] = useAppStore(state => [state.toggleMenuPage, state.menuPageIsOpen, state.toggleProfilePage, state.profilePageIsClose]);
+    const toggleMenuPage = useAppStore(state => state.toggleMenuPage);
+    const menuPageIsOpen   = useAppStore(state => state.menuPageIsOpen);
+    const toggleProfilePage= useAppStore(state => state.toggleProfilePage);
+    const profilePageIsClose= useAppStore(state => state.profilePageIsClose);
     return (
         <div
+            className={styles.burger}
             onClick={() => {
                 toggleMenuPage();
                 if (profilePageIsClose && window.innerWidth <= 720) {
@@ -38,8 +43,9 @@ const NavigationBarToggle = (): JSX.Element => {
 };
 
 export const NavigationBar = (): JSX.Element => {
-    const [menuPageIsOpen, toggleMenuPage, toggleProfilePage] = useAppStore(state => [state.menuPageIsOpen, state.toggleMenuPage, state.toggleProfilePage]);
-    const {route} = useRouter();
+    const menuPageIsOpen = useAppStore(state => state.menuPageIsOpen);
+    const toggleMenuPage = useAppStore(state => state.toggleMenuPage);
+    const route = usePathname();
     const ifUser = useIfUserRole();
     const MenuItems: MenuItemProps[] = useMemo(() => compact([
         { icon: <HomeIcon />, name: "Главная", href: "/" },
@@ -73,7 +79,7 @@ export const NavigationBar = (): JSX.Element => {
                 }}>
                     <Menu>
                         {MenuItems.map((item, index) => (
-                            <MenuItem {...item} key={index} active={route}/>
+                            <MenuItem {...item} key={index} active={route ?? ""}/>
                         ))}
                     </Menu>
                 </div>

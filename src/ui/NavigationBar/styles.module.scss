@@ -1,16 +1,16 @@
-@import "../../../styles/colors.scss";
-@import "../../../styles/variables.scss";
+@use "../../styles/colors.scss";
+@use "../../styles/variables.scss";
 
 .container {
   display: flex;
   flex-direction: column;
-  width: $navigation_width;
+  width: variables.$navigation_width;
   box-sizing: content-box;
-  background-color: $secondary-background-color;
+  background-color: colors.$secondary-background-color;
   transition: width 0.3s;
   border-right: 1px solid var(--Grey-200, #E2E2E2);
   max-width: 300px;
-  height: 100vh;
+  height: 100dvh;
 }
 
 .navigation {
@@ -39,6 +39,10 @@
   transition: all 0.3s;
   overflow: hidden;
   flex: 1;
+}
+
+.burger {
+  cursor: pointer;
 }
 
 
@@ -89,7 +93,7 @@
 
 @media (max-width: 720px) {
   .container {
-    border-bottom: 1px solid $secondary-gray-color;
+    border-bottom: 1px solid colors.$secondary-gray-color;
     width: auto;
     padding: 0;
   }

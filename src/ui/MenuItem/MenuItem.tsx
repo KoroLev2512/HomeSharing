@@ -6,7 +6,8 @@ import classNames from "classnames";
 import { useAppStore } from "@/lib/store/appStore";
 
 const MenuItemComponent = ({ icon, name, href = "#", active }: MenuItemProps & { active: string }) => {
-    const [menuPageIsOpen, toggleMenuPage] = useAppStore(state => [state.menuPageIsOpen, state.toggleMenuPage]);
+    const menuPageIsOpen = useAppStore(state => state.menuPageIsOpen);
+    const toggleMenuPage = useAppStore(state => state.toggleMenuPage);
     return (
         <div
             className={classNames(styles.menuItem, {[styles.openNav]: menuPageIsOpen, [styles.active]: href === active})}

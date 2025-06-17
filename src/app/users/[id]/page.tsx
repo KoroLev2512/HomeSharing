@@ -2,7 +2,7 @@ export default function () {
 
     return (
         <div>
-            Пользователь
+            Профиль пользователя
         </div>
     );
 }

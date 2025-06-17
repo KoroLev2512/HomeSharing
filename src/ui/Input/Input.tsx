@@ -5,8 +5,8 @@ import { Text } from "@/ui/Text";
 import styles from "./style.module.scss";
 
 interface Props extends React.InputHTMLAttributes<HTMLInputElement>{
-    children: string;
-    label: string;
+    children?: string;
+    label?: string;
     icon?: React.ReactNode;
 }
 

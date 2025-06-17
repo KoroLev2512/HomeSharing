@@ -4,11 +4,11 @@ import {Message, MessageProps} from "@/ui/Card/Message";
 import styles from "./errors.styles.module.scss";
 
 const WorkerMessage: MessageProps = {
-    description: "Сейчас наш сервис не доступен. Не волнуйтесь, крыша не обвалилась. Мы просто решили сделать этот сайт немного лучше. Скоро всё будет работать",
+    description: "Сейчас наш сервис не доступен. Не волнуйтесь, мы просто решили сделать этот сайт немного лучше. Скоро всё будет работать",
     title: "Внимание! Проводятся технические работы",
     image: (
         <Image
-            src={"/public/images/vercel.svg"}
+            src={"/public/icons/logo.svg"}
             height="100"
             width="100"
             alt="work in progress"
@@ -18,14 +18,11 @@ const WorkerMessage: MessageProps = {
 
 const WorkerPage = () => {
     return (
-        <div>
-            Error
+        <div className={styles.wrapper}>
+            <div>
+                <Message {...WorkerMessage} />
+            </div>
         </div>
-        // <div className={styles.wrapper}>
-        //     <div>
-        //         <Message {...WorkerMessage} />
-        //     </div>
-        // </div>
     );
 };
 

@@ -1,8 +1,10 @@
 import React, {Dispatch, SetStateAction} from "react";
-import styles from "./styles.module.scss";
+import Image from "next/image";
 import {CalendarIcon} from "@/lib/icons/CalendarIcon";
 import {LocationIcon} from "@/lib/icons/LocationIcon";
 import {IFlatCard} from "@/lib/store/flats";
+
+import styles from "./styles.module.scss";
 
 interface IProps {
     flat: IFlatCard;
@@ -19,10 +21,12 @@ export const FlatCard = ({flat, setSelectedFlat, selectedFlat}: IProps) => {
             className={flatStyles}
             onClick={() => setSelectedFlat(flat)}
         >
-            <img
+            <Image
                 src={flat.img}
                 alt="Изображение квартиры"
                 className={styles.image}
+                width={300}
+                height={200}
             />
             <div className={styles.description}>
                 {flat.tagFlat && <div className={`${styles.tag} ${flat.tagFlat.name}`}>{flat.tagFlat.text}</div>}

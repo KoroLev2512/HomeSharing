@@ -1,6 +1,6 @@
-@import "../../../styles/variables.scss";
-@import "../../../styles/colors.scss";
-@import "../../../styles/mixins.scss";
+@use "../../styles/variables.scss";
+@use "../../styles/colors.scss";
+@use "../../styles/mixins.scss";
 
   .burgerBtn {
     display: flex;

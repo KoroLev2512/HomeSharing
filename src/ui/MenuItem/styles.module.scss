@@ -1,13 +1,13 @@
-@import "../../../styles/mixins.scss";
-@import "../../../styles/colors.scss";
-@import "../../../styles/variables.scss";
+@use "../../styles/mixins.scss";
+@use "../../styles/colors.scss";
+@use "../../styles/variables.scss";
 
 .menuItem a {
   display: flex;
   gap: 8px;
   flex-wrap: nowrap;
   align-items: center;
-  color: $gray-color;
+  color: colors.$gray-color;
   cursor: pointer;
 
   &:hover, span:hover {
@@ -33,6 +33,7 @@
     stroke: var(--main-color);
   }
 }
+
 .menuItemText {
   white-space: nowrap;
   transition: all 0.3s;

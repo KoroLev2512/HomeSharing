@@ -1,24 +1,24 @@
-@import "colors";
-@import "mixins";
+@use "colors" as colors;
+@use "mixins" as mixins;
 
 @font-face {
   font-family: "Regular";
-  src: url("../public/fonts/Inter-Regular.ttf");
+  src: url("../../public/fonts/Inter-Regular.ttf");
 }
 
 @font-face {
   font-family: "Medium";
-  src: url("../public/fonts/Inter-Medium.ttf");
+  src: url("../../public/fonts/Inter-Medium.ttf");
 }
 
 @font-face {
   font-family: "Semibold";
-  src: url("../public/fonts/Inter-SemiBold.ttf");
+  src: url("../../public/fonts/Inter-SemiBold.ttf");
 }
 
 @font-face {
   font-family: "Bold";
-  src: url("../public/fonts/Inter-Bold.ttf");
+  src: url("../../public/fonts/Inter-Bold.ttf");
 }
 
 body {
@@ -94,9 +94,8 @@ button, svg {
 
 
 p {
-  @include paragraph-2;
-  margin: 0;
-  margin-bottom: 0.5em;
+  @include mixins.paragraph-2;
+  margin: 0 0 0 0.5em;
 }
 
 h1,
@@ -109,27 +108,27 @@ h6 {
 }
 
 h1 {
-  @include heading-1;
+  @include mixins.heading-1;
   color: var(--main-color);
 }
 
 h2 {
-  @include heading-2;
+  @include mixins.heading-2;
   color: var(--main-color);
 }
 
 h3 {
-  @include heading-3;
+  @include mixins.heading-3;
   color: var(--main-color);
 }
 
 h4 {
-  @include heading-4;
+  @include mixins.heading-4;
   color: var(--main-color);
 }
 
 h5 {
-  @include heading-5;
+  @include mixins.heading-5;
 }
 
 input:disabled {
@@ -142,7 +141,7 @@ input:disabled {
 .slick-slider {
   .slick-prev:before,
   .slick-next:before {
-    font-size: 30px;
+    font-size: 2rem;
     color: var(--gray-color);
   }
 }
