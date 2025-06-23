@@ -164,7 +164,6 @@ export const flats: IFlatCard[] = [
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
         img: room7,
-
     },
     {
         id: 8,
@@ -179,7 +178,6 @@ export const flats: IFlatCard[] = [
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
         img: room8,
-
     },
     {
         id: 9,
@@ -194,7 +192,6 @@ export const flats: IFlatCard[] = [
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
         img: room9,
-
     },
     {
         id: 10,
@@ -209,7 +206,6 @@ export const flats: IFlatCard[] = [
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
         img: room10,
-
     },
     {
         id: 11,
@@ -238,7 +234,6 @@ export const flats: IFlatCard[] = [
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
         img: room12,
-
     },
     {
         id: 13,
@@ -267,7 +262,6 @@ export const flats: IFlatCard[] = [
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
         img: room14,
-
     },
     {
         id: 15,
@@ -282,7 +276,6 @@ export const flats: IFlatCard[] = [
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
         img: room15,
-
     },
     {
         id: 16,
@@ -297,7 +290,6 @@ export const flats: IFlatCard[] = [
         wifiPass: 'Nf,ehtnrf31',
         persons: testPersons,
         img: room16,
-
     },
 
 ]

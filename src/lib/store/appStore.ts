@@ -5,7 +5,6 @@ import {AppState} from "../types/dto/app.dto";
 import {isUndefined} from "lodash";
 import {setCookie} from "nookies";
 
-
 export const useAppStore = create<AppState>()(devtools(immer((set) => {
     return ({
         menuPageIsOpen: false,
