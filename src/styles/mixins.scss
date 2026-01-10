@@ -5,19 +5,22 @@
 
 @mixin paragraph-1 {
   font-size: 1em;
-  font-family: "Medium", serif;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
   color: var(--gray-color);
 }
 
 @mixin paragraph-2 {
   font-size: 0.75em;
-  font-family: "Medium", serif;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
   color: var(--gray-color);
 }
 
 @mixin paragraph-3 {
   font-size: 0.75em;
-  font-family: "Regular", serif;
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
   color: var(--gray-color);
 }
 
@@ -25,31 +28,36 @@
 
 @mixin heading-1 {
   font-size: 2em;
-  font-family: "Semibold", serif;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
   //  color: var(--main-color);
 }
 
 @mixin heading-2 {
   font-size: 1.2em;
-  font-family: "Semibold", serif;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
   //  color: var(--main-color);
 }
 
 @mixin heading-3 {
   font-size: 1em;
-  font-family: "Semibold", serif;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
   //  color: var(--main-color);
 }
 
 @mixin heading-4 {
   font-size: 0.875em;
-  font-family: "Semibold", serif;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
   //  color: var(--main-color);
 }
 
 @mixin heading-5 {
   font-size: 0.75em;
-  font-family: "Semibold", serif;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
   //  color: var(--main-color);
 }
 

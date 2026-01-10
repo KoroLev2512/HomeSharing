@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React from "react";
-import { Message, MessageProps } from "@/ui/Card/Message";
+import { Message, MessageProps } from "@/widgets/Card/Message";
 import ErrorIcon from "../../public/icons/non_objects.svg";
 
 const notFoundMessage: MessageProps = {

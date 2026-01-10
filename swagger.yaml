@@ -4,11 +4,11 @@ info:
   title: LockBox
   version: "1.0"
 paths:
-# ------------------User-------------------------
+# ------------------user-------------------------
   /api/user/add:
     post:
         tags:
-          - User
+          - user
         description: |
           Add user
         requestBody:
@@ -18,17 +18,17 @@ paths:
                 $ref: "#/components/schemas/UserAddAtts"
         responses:
           "200":
-            description: User added
+            description: user added
           "400":
-            description: User not added
+            description: user not added
   /api/user/get/{user_id}:
     get:
         tags:
-          - User
+          - user
         description: |
           Get user
         parameters:
-        - description: User ID
+        - description: user ID
           in: path
           name: user_id
           required: true
@@ -38,13 +38,13 @@ paths:
           example: "12"
         responses:
           "200":
-            description: User data
+            description: user data
           "400":
             description: Error
   /api/user/update:
     post:
         tags:
-          - User
+          - user
         description: |
           Update user
         requestBody:
@@ -54,17 +54,17 @@ paths:
                 $ref: "#/components/schemas/UserUpdate"
         responses:
           "200":
-            description: User updated
+            description: user updated
           "400":
-            description: User not updated
+            description: user not updated
   /api/user/delete/{user_id}:
     delete:
         tags:
-          - User
+          - user
         description: |
           Delete user by ID
         parameters:
-        - description: User ID
+        - description: user ID
           in: path
           name: user_id
           required: true
@@ -74,9 +74,9 @@ paths:
           example: "12"
         responses:
           "200":
-            description: User deleted
+            description: user deleted
           "400":
-            description: User not deleted
+            description: user not deleted
             
 # ------------------Flat-------------------------
   /api/event/add:

@@ -1,0 +1,237 @@
+@use "../../styles/colors";
+@use "../../styles/mixins";
+@use "sass:math";
+
+$light-toggle: #FFC361;
+$dark-toggle: #FFFBF3;
+
+$dark-toggle-background: #6D51AA;
+$light-toggle-background: #8eb4e0;
+
+$crater: #D8D3CB;
+$glare: #ffe1a9;
+
+$time: 200ms;
+
+$height: 25px;
+$width: 55px;
+$offset: 6px;
+
+.button {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  outline: none;
+
+  svg:hover {
+    fill: colors.$button-color;
+  }
+
+  svg {
+    margin-left: 8px;
+  }
+}
+
+.transparentButton {
+  width:120px;
+  padding: 8px 35px;
+  border-radius: 15px;
+  background-color: transparent;
+  @include mixins.paragraph-2;
+  color: colors.$gray-color;
+  border: 1px solid var(--gray-color);
+}
+
+.primaryButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: var(--Black, #000);
+  font-family: Inter, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 20px;
+  color: var(--White, #FFF);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  span {
+    white-space: nowrap;
+  }
+}
+
+.secondaryButton {
+  margin:0 2px 0 2px;
+  padding: 8px 24px;
+  border-radius: 15px;
+  background-color: colors.$primary-background-color;
+  @include mixins.paragraph-2;
+  color: colors.$main-color;
+
+  &:hover {
+    background-color: colors.$button-color;
+    color: colors.$white-color;
+    transition: 300ms;
+  }
+}
+
+.darklightButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  outline: none;
+}
+
+.toggleWrapper {
+  user-select: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  input {
+    visibility: hidden;
+  }
+
+  .toggle {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    width: $width;
+    height: $height;
+    background-color: $light-toggle-background;
+    border-radius: math.div($width - $offset, 1);
+    transition: background-color $time;
+  }
+
+  .toggleItems {
+    display: inline-block;
+    position: relative;
+    z-index: 2;
+    top: math.div($offset, 2);
+    left: math.div($offset, 2);
+    width: math.div($height - $offset, 1);
+    height: math.div($height - $offset, 1);
+    background-color: $light-toggle;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+    transition-property: transform, top, left;
+    transition-duration: $time;
+    transform: rotate(-90deg);
+
+    .glare {
+      position: absolute;
+      width: math.div($height, 2.5);
+      height: math.div($height, 2.5);
+      border: solid math.div($height, 14) $glare;
+      border-color: transparent transparent $glare transparent;
+      border-radius: 0 0 200px 200px;
+      transform: rotate(220deg);
+      top: 15%;
+      left: 15%;
+      opacity: 1;
+      transition: opacity math.div($time, 4);
+    }
+
+    .dot {
+      position: absolute;
+      background-color: $crater;
+      opacity: 0;
+      transition: opacity math.div($time, 4);
+      border-radius: 100%;
+
+      &:nth-child(1) {
+        top: 30%;
+        left: 25%;
+        width: math.div($height, 7);
+        height: math.div($height, 7);
+      }
+
+      &:nth-child(2) {
+        top: 60%;
+        left: 50%;
+        width: math.div($height, 6);
+        height: math.div($height, 6);
+      }
+
+      &:nth-child(4) {
+        top: 20%;
+        right: 20%;
+        width: math.div($height, 5);
+        height: math.div($height, 5);
+      }
+    }
+  }
+
+  .toggleRay {
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity math.div($time, 4);
+    transition-delay: math.div($time, 4);
+  }
+
+  .ray {
+    width: math.div($height, 4);
+    height: 2px;
+    position: absolute;
+    background: $light-toggle;
+    border-radius: $offset;
+    left: $height;
+    z-index: 1;
+
+    &:nth-child(1) {
+      top: math.div($height, 2) - math.div($offset, 4);
+      left: $height + 1;
+    }
+
+    &:nth-child(2) {
+      width: math.div($height, 5);
+      top: calc(20% - 1px);
+      transform: rotate(-20deg);
+      left: $height;
+    }
+
+    &:nth-child(3) {
+      width: math.div($height, 5);
+      top: calc(80% - 2px);
+      transform: rotate(20deg);
+    }
+  }
+
+  input:checked {
+    + .toggle {
+      background-color: $dark-toggle-background;
+
+      .toggleItems {
+        background-color: $dark-toggle;
+        transform: translate3d($width - $height, 0, 0) rotate(0);
+
+        .dot { opacity: 1; }
+        .glare { opacity: 0; }
+      }
+
+      .toggleRay {
+        opacity: 0;
+      }
+    }
+  }
+}
+

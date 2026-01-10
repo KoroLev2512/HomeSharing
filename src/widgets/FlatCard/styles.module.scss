@@ -1,0 +1,196 @@
+@use "../../styles/variables";
+
+.flatCardList {
+  width: 100%;
+  padding: 0;
+  padding-bottom: 20px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  box-sizing: border-box;
+}
+
+.flatCard:not(:last-child) {
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--Grey-200, #E2E2E2);
+}
+
+.flatCard {
+  background: #FFF;
+  width: 100%;
+  display: flex;
+  padding: 16px 24px;
+  align-items: center;
+  gap: 12px;
+  align-self: stretch;
+  cursor: pointer;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.flatCardDisabled {
+  opacity: 0.5;
+}
+
+.flatCardActive {
+  background: #F6F6F6;
+}
+
+.image {
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.price {
+  flex: 1;
+  font-family: Inter, sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--Black, #000);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rating {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+  
+  span {
+    color: #757575;
+    font-family: var(--Font-Family, Inter);
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 20px; /* 166.667% */
+    white-space: nowrap;
+  }
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.topRow {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  height: 20px;
+  padding: 4px;
+  gap: 8px;
+  border-radius: 4px;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 16px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  
+  &.lilac-tag {
+    background: #E3DDF2;
+    border: 1px solid #C1B5E3;
+    color: #574191;
+  }
+  
+  &.orange-tag {
+    background: #FADBD7;
+    border: 1px solid #F4AFA7;
+    color: #AE372A;
+  }
+  
+  &.gray-tag {
+    background: #E2E2E2;
+    border: 1px solid #C5C5C5;
+    color: #545454;
+  }
+  
+  &.green-tag {
+    background: #D4EDDA;
+    border: 1px solid #C3E6CB;
+    color: #155724;
+  }
+  
+  &.yellow-tag {
+    background: #FFF3CD;
+    border: 1px solid #FFE69C;
+    color: #856404;
+  }
+}
+
+.dates {
+  flex: 1;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  min-width: 0;
+  
+  .datesText {
+    font-family: Inter, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 16px;
+    color: var(--Grey-500, #757575);
+    white-space: nowrap;
+  }
+}
+
+.location {
+  display: flex;
+  gap: 4px;
+  align-items: flex-start;
+  width: 100%;
+  min-width: 0;
+  
+  .locationText {
+    font-family: Inter, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 20px;
+    color: var(--Black, #000);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (max-width: 1064px) {
+  .flatCardList {
+    width: 100%;
+  }
+}
+

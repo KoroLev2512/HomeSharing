@@ -1,0 +1,2 @@
+export { FlatModal } from "./FlatModal";
+

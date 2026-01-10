@@ -1,0 +1,16 @@
+@use "../../styles/variables";
+
+.page {
+  display: flex;
+  max-width: 100dvw;
+  position: relative;
+}
+
+@media (max-width: 720px) {
+  .page {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding-bottom: 0; // Navigation bar is fixed at bottom
+  }
+}

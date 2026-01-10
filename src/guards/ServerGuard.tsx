@@ -1,16 +1,15 @@
 "use client";
 import React, {useEffect} from "react";
 import WorkerPage from "@/layouts/Errors/503";
-import Loader from "@/ui/Loader/Loader";
-import {useUserStore} from "@/entities/User";
+import Loader from "@/shared/ui/Loader/Loader";
+import {useUserStore} from "../entities/user";
 import {isNull, isString} from "lodash";
 import {usePathname} from "next/navigation";
-import {NavigationBar} from "@/ui/NavigationBar";
-import {ContentWrapper} from "@/ui/ContentWraper";
-import {PageWrapper} from "@/ui/PageWrapper";
-import {SessionProvider} from "next-auth/react"
+import {NavigationBar} from "../widgets/NavigationBar";
+import {ContentWrapper} from "../widgets/ContentWraper";
+import {PageWrapper} from "../widgets/PageWrapper";
 
-export const ServerGuard = ({ children, pageProps: { session } }: { children: JSX.Element, pageProps: any }) => {
+export const ServerGuard = ({ children, pageProps: { session } }: { children: React.ReactNode, pageProps: any }) => {
     const user = useUserStore(store => store.user);
     const error = useUserStore(store => store.error);
     const getUser = useUserStore(store => store.getUser);
@@ -31,14 +30,12 @@ export const ServerGuard = ({ children, pageProps: { session } }: { children: JS
 
     if (isNull(user) && !isOpenPath) {
         return(
-            <SessionProvider session={session}>
-                <PageWrapper>
-                    <NavigationBar />
-                    <ContentWrapper>
-                        <Loader/>
-                    </ContentWrapper>
-                </PageWrapper>
-            </SessionProvider>
+            <PageWrapper>
+                <NavigationBar />
+                <ContentWrapper>
+                    <Loader/>
+                </ContentWrapper>
+            </PageWrapper>
         );
     }
 

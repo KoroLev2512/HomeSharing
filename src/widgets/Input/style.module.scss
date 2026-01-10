@@ -1,0 +1,385 @@
+@use "../../styles/mixins";
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+
+  // Disabled стили применяются ко всему контейнеру
+  &.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed;
+
+    .inputWrapper {
+      cursor: not-allowed;
+    }
+  }
+}
+
+.label {
+  color: var(--Black, #000);
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px;
+}
+
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 40px;
+  position: relative;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+// Размеры
+.size-small {
+  height: 40px;
+  padding: 8px 16px;
+}
+
+.size-medium {
+  height: 48px;
+  padding: 12px 16px;
+}
+
+// Состояния
+.state-enabled {
+  background: #F6F6F6;
+  border: none;
+}
+
+.state-focus {
+  background: #F6F6F6;
+  border: 2px solid #276EF1;
+
+  &.size-small {
+    height: 40px;
+    padding: 6px 14px;
+  }
+
+  &.size-medium {
+    height: 48px;
+    padding: 10px 14px;
+  }
+}
+
+.state-active {
+  background: #FFFFFF;
+  border: 2px solid #000000;
+
+  &.size-small {
+    height: 40px;
+    padding: 6px 14px;
+  }
+
+  &.size-medium {
+    height: 48px;
+    padding: 10px 14px;
+  }
+}
+
+.state-active-typing {
+  background: #FFFFFF;
+  border: 2px solid #000000;
+
+  &.size-small {
+    height: 40px;
+    padding: 6px 14px;
+  }
+
+  &.size-medium {
+    height: 48px;
+    padding: 10px 14px;
+  }
+}
+
+.state-error {
+  background: #FFFFFF;
+  border: 2px solid #D44333;
+
+  &.size-small {
+    height: 40px;
+    padding: 6px 14px;
+  }
+
+  &.size-medium {
+    height: 48px;
+    padding: 10px 14px;
+  }
+}
+
+.state-success {
+  background: #FFFFFF;
+  border: 2px solid #3AA76D;
+
+  &.size-small {
+    height: 40px;
+    padding: 6px 14px;
+  }
+
+  &.size-medium {
+    height: 48px;
+    padding: 10px 14px;
+  }
+}
+
+.state-incomplete {
+  background: #F6F6F6;
+  border: none;
+}
+
+.state-complete {
+  background: #F6F6F6;
+  border: none;
+}
+
+.state-pressed {
+  background: #EEEEEE;
+  border: none;
+}
+
+.state-readonly {
+  background: #FFFFFF;
+  border: 1px solid #E2E2E2;
+}
+
+.state-disabled {
+  background: #F6F6F6;
+  border: none;
+  cursor: not-allowed;
+
+  &.size-small {
+    height: 40px;
+    padding: 8px 16px;
+  }
+
+  &.size-medium {
+    height: 48px;
+    padding: 12px 16px;
+  }
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #000000;
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  padding: 0;
+
+  &::placeholder {
+    color: #757575;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    background-color: #F6F6F6;
+  }
+
+  &:read-only {
+    cursor: default;
+  }
+
+  // Enabled - default
+  .state-enabled & {
+    color: #000000;
+    
+    &::placeholder {
+      color: #757575;
+    }
+  }
+
+  // Focus
+  .state-focus & {
+    color: #000000;
+    
+    &::placeholder {
+      color: #757575;
+    }
+  }
+
+  // Active
+  .state-active & {
+    color: #000000;
+    
+    &::placeholder {
+      color: #757575;
+    }
+  }
+
+  // Active - Typing (когда есть значение)
+  .state-active-typing & {
+    color: #000000;
+    
+    &::placeholder {
+      color: #000000;
+    }
+  }
+
+  // Error
+  .state-error & {
+    color: #000000;
+    
+    &::placeholder {
+      color: #000000;
+    }
+  }
+
+  // Success
+  .state-success & {
+    color: #000000;
+    
+    &::placeholder {
+      color: #000000;
+    }
+  }
+
+  // Incomplete
+  .state-incomplete & {
+    color: #AFAFAF;
+    
+    &::placeholder {
+      color: #AFAFAF;
+    }
+  }
+
+  // Complete
+  .state-complete & {
+    color: #000000;
+    
+    &::placeholder {
+      color: #000000;
+    }
+  }
+
+  // Pressed
+  .state-pressed & {
+    color: #AFAFAF;
+    
+    &::placeholder {
+      color: #AFAFAF;
+    }
+  }
+
+  // Readonly
+  .state-readonly & {
+    color: #000000;
+    
+    &::placeholder {
+      color: #000000;
+    }
+  }
+
+  // Disabled
+  .state-disabled & {
+    color: #757575;
+    
+    &::placeholder {
+      color: #757575;
+    }
+  }
+
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus,
+  &:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #F6F6F6 inset !important;
+    -webkit-text-fill-color: #000000 !important;
+    background-color: transparent !important;
+  }
+
+  .state-focus &:-webkit-autofill,
+  .state-active &:-webkit-autofill,
+  .state-active-typing &:-webkit-autofill,
+  .state-error &:-webkit-autofill,
+  .state-success &:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 30px #FFFFFF inset !important;
+    background-color: transparent !important;
+  }
+}
+
+.iconLeading,
+.iconTrailing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.clearButton,
+.passwordToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #757575;
+
+  &:hover {
+    opacity: 0.7;
+  }
+
+  &:active {
+    opacity: 0.5;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.hint {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 20px;
+  color: #757575;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 20px;
+
+  span {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.hint-error {
+  color: #D44333;
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.hint-success {
+  color: #3AA76D;
+
+  svg {
+    flex-shrink: 0;
+  }
+}

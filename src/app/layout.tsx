@@ -1,26 +1,33 @@
 import React from "react";
-import { ServerGuard } from "@/guards/ServerGuard";
-import AppWrapper from "@/ui/Wrappers/AppWrapper";
+import AppWrapper from "@/widgets/Wrappers/AppWrapper";
 import "@/styles/globals.scss";
+import type { Metadata } from 'next'
+import { ServerGuard } from '@/guards/ServerGuard'
+import { SessionProviderWrapper } from '@/widgets/Wrappers/SessionProviderWrapper'
 
-export const metadata = {
+export const metadata: Metadata = {
     title: "HomeSharing",
+    other: {
+        'font-display': 'swap',
+    },
 };
 
 export default function RootLayout({
                                        children,
                                    }: {
-    children: React.ReactNode;
+    children: React.ReactNode
 }) {
     return (
         <html lang="ru">
-        <body>
-        <ServerGuard pageProps={{}}>
-            <AppWrapper>
-                {children}
-            </AppWrapper>
-        </ServerGuard>
-        </body>
+            <body>
+                <SessionProviderWrapper>
+                    <ServerGuard pageProps={{}}>
+                        <AppWrapper>
+                            {children}
+                        </AppWrapper>
+                    </ServerGuard>
+                </SessionProviderWrapper>
+            </body>
         </html>
-    );
+    )
 }

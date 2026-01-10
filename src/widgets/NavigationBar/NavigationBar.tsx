@@ -1,0 +1,278 @@
+"use client";
+
+import React, {useMemo, useState, useEffect} from "react";
+import {Logotype} from "@/shared/ui/Logotype";
+import {Menu} from "@/widgets/Menu";
+import {MenuItem} from "@/widgets/MenuItem";
+import {MenuItemProps} from "@/widgets/MenuItem/types";
+import {useAppStore} from "@/shared/store/appStore";
+import classNames from "classnames";
+import {usePathname, useRouter} from "next/navigation";
+import {compact} from "lodash";
+import {HomeIcon, MessageIcon, NotifyIcon, SettingsIcon, ProfileIcon} from "@/shared/icons";
+import {useSession, signOut} from "next-auth/react";
+import {Burger} from "../../shared/ui/Burger";
+import Link from "next/link";
+
+import Loader from "@/shared/ui/Loader/Loader";
+
+import styles from "./styles.module.scss";
+
+const NavigationBarToggle = ({ menuPageIsOpen }: { menuPageIsOpen: boolean }): React.JSX.Element => {
+    const toggleMenuPage = useAppStore(state => state.toggleMenuPage);
+    const toggleProfilePage = useAppStore(state => state.toggleProfilePage);
+    const profilePageIsClose = useAppStore(state => state.profilePageIsClose);
+    return (
+        <div
+            className={styles.burger}
+            onClick={() => {
+                toggleMenuPage();
+                if (profilePageIsClose && window.innerWidth <= 720) {
+                    toggleProfilePage();
+                }
+            }}
+        >
+            <Burger
+                menuPageIsOpen={menuPageIsOpen}
+            />
+        </div>
+    );
+};
+
+export const NavigationBar = (): React.JSX.Element => {
+    const [isClient, setIsClient] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+    
+    useEffect(() => {
+        setIsClient(true);
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 720);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    const menuPageIsOpen = useAppStore(state => state.menuPageIsOpen);
+    const toggleMenuPage = useAppStore(state => state.toggleMenuPage);
+    const route = usePathname();
+    const router = useRouter();
+    const { data: session, status } = useSession();
+    const [isSigningOut, setIsSigningOut] = useState(false);
+    const [isLoggedOut, setIsLoggedOut] = useState(false);
+
+    const MenuItems: MenuItemProps[] = useMemo(() => compact([
+        {icon: <HomeIcon/>, name: "Мои объекты", href: "/"},
+        {icon: <HomeIcon/>, name: "Мои бронирования", href: "/bookings"},
+        {icon: <MessageIcon/>, name: "Сообщения", href: "/messages"},
+        {icon: <NotifyIcon/>, name: "Уведомления", href: "/notifications"},
+        {icon: <SettingsIcon/>, name: "Параметры", href: "/settings"},
+    ]), []);
+
+    const handleSignOut = async () => {
+        if (isSigningOut) return;
+        
+        setIsSigningOut(true);
+        
+        try {
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            document.cookie.split(";").forEach(function(c) {
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            
+            await signOut({
+                redirect: false,
+                callbackUrl: '/'
+            });
+            
+            setIsLoggedOut(true);
+            
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 500);
+            
+        } catch (error) {
+            setIsLoggedOut(true);
+            
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            document.cookie.split(";").forEach(function(c) {
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            
+            // Принудительно переходим на главную страницу
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 500);
+        } finally {
+            setIsSigningOut(false);
+        }
+    };
+
+    const handleLoginClick = () => {
+        router.push('/login');
+    };
+
+    useEffect(() => {
+        if (status === 'authenticated' && session?.user) {
+            setIsLoggedOut(false);
+        } else if (status === 'unauthenticated') {
+            setIsLoggedOut(true);
+        }
+    }, [status, session]);
+
+    // Восстанавливаем состояние навбара из localStorage при монтировании
+    useEffect(() => {
+        const saved = localStorage.getItem('menuPageIsOpen');
+        if (saved !== null) {
+            const savedValue = saved === 'true';
+            if (menuPageIsOpen !== savedValue) {
+                toggleMenuPage(savedValue);
+            }
+        }
+    }, []);
+
+    // Дополнительная проверка для предотвращения автоматического входа
+    useEffect(() => {
+        const checkAuthState = () => {
+            // Проверяем, есть ли активные токены в localStorage
+            const hasAuthTokens = localStorage.getItem('next-auth.session-token') || 
+                                localStorage.getItem('__Secure-next-auth.session-token');
+            
+            // Если пользователь вышел, но есть токены - очищаем их
+            if (isLoggedOut && hasAuthTokens) {
+                localStorage.clear();
+                sessionStorage.clear();
+            }
+        };
+
+        checkAuthState();
+        
+        // Проверяем каждые 2 секунды в течение 10 секунд после выхода
+        if (isLoggedOut) {
+            const interval = setInterval(checkAuthState, 2000);
+            const timeout = setTimeout(() => clearInterval(interval), 10000);
+            
+            return () => {
+                clearInterval(interval);
+                clearTimeout(timeout);
+            };
+        }
+    }, [isLoggedOut]);
+
+    const showMenu = isClient ? menuPageIsOpen : true;
+
+    return (
+        <div 
+            className={classNames(styles.container, {[styles.closedBar]: showMenu})}
+        >
+            <div className={styles.header}>
+                <div className={classNames(styles.toggle, styles.logoContainer)}>
+                    <Link href="/lockbox/public">
+                        <Logotype isOpen={!showMenu}/>
+                    </Link>
+                </div>
+                <div className={classNames(styles.burgerBtnOpen, {[styles.burgerBtnClose]: showMenu})}>
+                    <NavigationBarToggle menuPageIsOpen={showMenu} />
+                </div>
+            </div>
+            <div className={classNames(styles, {[styles.navigationWrapper]: showMenu})} onClick={() => {
+                toggleMenuPage(false);
+            }}>
+                <div className={classNames(styles.navigation, {[styles.openNav]: showMenu})} onClick={(e) => {
+                    e.stopPropagation();
+                }}>
+                    <Menu 
+                        onClick={(e) => {
+                            e.stopPropagation();
+                        }}
+                        isClosed={showMenu}
+                        isMobile={isMobile}
+                    >
+                        {MenuItems.map((item, index) => (
+                            <MenuItem {...item} key={index} active={route ?? ""} isClosed={showMenu}/>
+                        ))}
+                    </Menu>
+                </div>
+            </div>
+            <div className={styles.user}>
+                {session?.user && !isLoggedOut ? (
+                    showMenu ? (
+                        // Компактный вид (закрытый навбар): аватар + иконка выхода
+                        <div className={styles.userRowCompact}>
+                            <div className={styles.avatar}>
+                                <img
+                                    src={typeof session.user.image === 'string' && session.user.image ? session.user.image : '/users/user_1.png'}
+                                    alt="Аватар"
+                                />
+                            </div>
+                            <button
+                                onClick={handleSignOut}
+                                className={styles.signOutIconBtn}
+                                aria-label="Выйти"
+                                disabled={isSigningOut}
+                            >
+                                {/* Иконка выхода */}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <mask id="mask0_738_8845" style={{ maskType: 'alpha' } as any} maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+                                        <rect width="24" height="24" fill="#D9D9D9"/>
+                                    </mask>
+                                    <g mask="url(#mask0_738_8845)">
+                                        <path d="M5 21C4.45 21 3.97917 20.8042 3.5875 20.4125C3.19583 20.0208 3 19.55 3 19V5C3 4.45 3.19583 3.97917 3.5875 3.5875C3.97917 3.19583 4.45 3 5 3H11C11.2833 3 11.5208 3.09583 11.7125 3.2875C11.9042 3.47917 12 3.71667 12 4C12 4.28333 11.9042 4.52083 11.7125 4.7125C11.5208 4.90417 11.2833 5 11 5H5V19H11C11.2833 19 11.5208 19.0958 11.7125 19.2875C11.9042 19.4792 12 19.7167 12 20C12 20.2833 11.9042 20.5208 11.7125 20.7125C11.5208 20.9042 11.2833 21 11 21H5ZM17.175 13H10C9.71667 13 9.47917 12.9042 9.2875 12.7125C9.09583 12.5208 9 12.2833 9 12C9 11.7167 9.09583 11.4792 9.2875 11.2875C9.47917 11.0958 9.71667 11 10 11H17.175L15.3 9.125C15.1167 8.94167 15.025 8.71667 15.025 8.45C15.025 8.18333 15.1167 7.95 15.3 7.75C15.4833 7.55 15.7167 7.44583 16 7.4375C16.2833 7.42917 16.525 7.525 16.725 7.725L20.3 11.3C20.5 11.5 20.6 11.7333 20.6 12C20.6 12.2667 20.5 12.5 20.3 12.7L16.725 16.275C16.525 16.475 16.2875 16.5708 16.0125 16.5625C15.7375 16.5542 15.5 16.45 15.3 16.25C15.1167 16.05 15.0292 15.8125 15.0375 15.5375C15.0458 15.2625 15.1417 15.0333 15.325 14.85L17.175 13Z" fill="black"/>
+                                    </g>
+                                </svg>
+                            </button>
+                        </div>
+                    ) : (
+                        // Полный вид (открытый навбар): имя/почта/роль и кнопка Выйти
+                        <div className={styles.userInfo}>
+                            <div className={styles.avatarFull}>
+                                <img
+                                    src={typeof session.user.image === 'string' && session.user.image ? session.user.image : '/users/user_1.png'}
+                                    alt="Аватар"
+                                />
+                            </div>
+                            <div className={styles.username}>
+                                {session.user.name || session.user.email}
+                            </div>
+                            <div className={styles.email}>
+                                {session.user.email}
+                            </div>
+                            <div className={styles.role}>
+                                {session.user.isAdmin ? 'Администратор' : 
+                                 session.user.isService ? 'Сервис' : 'Пользователь'}
+                            </div>
+                            <button 
+                                onClick={handleSignOut}
+                                className={styles.signOutButton}
+                                disabled={isSigningOut}
+                            >
+                                {isSigningOut ? 'Выход...' : 'Выйти'}
+                            </button>
+                        </div>
+                    )
+                ) : status === 'loading' && !isLoggedOut ? (
+                    <div className={styles.loaderContainer}>
+                        <Loader />
+                    </div>
+                ) : (
+                    <div className={styles.userInfo}>
+                        <button 
+                            onClick={handleLoginClick}
+                            className={classNames(styles.loginLink, {[styles.loginLinkClosed]: showMenu})}
+                        >
+                            {showMenu ? (
+                                <ProfileIcon width={24} height={24} />
+                            ) : (
+                                'Войти'
+                            )}
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};

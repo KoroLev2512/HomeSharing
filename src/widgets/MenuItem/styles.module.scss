@@ -1,0 +1,154 @@
+@use "../../styles/mixins";
+@use "../../styles/colors";
+@use "../../styles/variables";
+
+.menuItem {
+  display: flex;
+  width: 100%;
+}
+
+.menuItemClosed {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  a {
+    justify-content: center !important;
+    align-items: center !important;
+    width: auto;
+    margin: 0 auto;
+  }
+}
+
+.menuItem a {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  padding: 8px;
+  color: colors.$gray-color;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+  width: 100%;
+
+  &:hover, span:hover {
+    color: var(--main-color);
+
+    svg path {
+      stroke: var(--gray-color);
+    }
+  }
+
+  svg{
+    //margin-right: 8px;
+    flex-basis: 24px;
+    width: 24px;
+    flex-shrink: 0;
+  }
+}
+
+.menuItem.active a {
+  background: var(--Grey-100, #EEE);
+  color: var(--Black, #000);
+  & span {
+    color: var(--Black, #000);
+  }
+  & svg path {
+    stroke: var(--Black, #000);
+  }
+}
+
+.menuItemText {
+  white-space: nowrap;
+  transition: all 0.3s;
+  overflow: hidden;
+  flex: 1;
+  padding-left: 8px;
+}
+
+.toggleBeforeOpen {
+  opacity: 0;
+  flex: 0;
+  transition: all 0.3s;
+  width: 0;
+  padding: 0;
+  margin: 0;
+}
+
+// Когда текст скрыт, центрируем иконку в ссылке
+.menuItem a {
+  // Когда внутри есть скрытый текст, центрируем
+  .toggleBeforeOpen {
+    display: none;
+  }
+}
+
+// Когда текст скрыт, центрируем иконку (только для закрытого навбара)
+.menuItem:has(span.toggleBeforeOpen) a {
+  justify-content: center;
+  width: auto;
+  margin: 0 auto;
+}
+
+@media (max-width: 720px) {
+  .menuItem {
+    display: flex !important;
+    overflow: visible;
+    width: auto;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .menuItem a {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center !important;
+    padding: 8px 4px;
+    width: 100%;
+    gap: 4px;
+  }
+
+  .menuItemText {
+    white-space: nowrap;
+    transform: none !important;
+    transition: none;
+    padding-left: 0;
+    font-size: 10px;
+    line-height: 12px;
+    text-align: center;
+    display: block !important;
+    opacity: 1 !important;
+    width: auto !important;
+    flex: none !important;
+  }
+
+  .toggleBeforeOpen {
+    opacity: 1 !important;
+    flex: none !important;
+    width: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+  }
+
+  .openNav {
+    .menuItemText {
+      transform: none !important;
+      color: inherit;
+      display: block !important;
+      opacity: 1 !important;
+    }
+    svg {
+      margin-right: 0;
+      margin-bottom: 0;
+    }
+  }
+
+  .menuItem.active a {
+    .menuItemText {
+      color: var(--Black, #000);
+    }
+  }
+}
