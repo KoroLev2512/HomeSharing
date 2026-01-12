@@ -33,7 +33,7 @@ export const FlatCardList = ({flats, setSelectedFlat, selectedFlat, activeTab}: 
                     />
                 ))
             ) : (
-                <p>Нет доступных квартир</p>
+                <p className={styles.emptyMessage}>Нет доступных квартир</p>
             )}
         </div>
     );

@@ -6,12 +6,13 @@ import {FlatCardList} from "@/widgets/FlatCard/FlatCardList";
 import {useSession} from "next-auth/react";
 
 import styles from "./styles.module.scss";
-import {PlugIcon, SearchIcon, AddIcon} from "@/shared/icons";
+import {PlugIcon, AddIcon} from "@/shared/icons";
 import {IFlatCard} from "@/shared/store/flats";
 import {Flat} from "../../widgets/Flat";
 import {PrimaryButton} from "@/widgets/Button";
 import {FlatModal} from "@/shared/ui/FlatModal";
 import FlatService from "@/shared/lib/flatService";
+import {SearchInput} from "@/widgets/SearchInput";
 
 export const HomeLayout: React.FC = () => {
     const [selectedFlat, setSelectedFlat] = useState<IFlatCard | null>(null);
@@ -48,16 +49,14 @@ export const HomeLayout: React.FC = () => {
                 <div className={styles.headingWrapper}>
                     <h1 className={styles.title}>Мои объекты</h1>
                     <div className={styles.searchContainer}>
-                        <div className={styles.searchField}>
-                            <SearchIcon/>
-                            <input
-                                type="text"
-                                placeholder="Найти"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className={styles.searchInput}
-                            />
-                        </div>
+                        <SearchInput
+                            placeholder="Найти"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            size="small"
+                            showClearButton={true}
+                            className={styles.searchInput}
+                        />
                     </div>
                 </div>
             </Section>

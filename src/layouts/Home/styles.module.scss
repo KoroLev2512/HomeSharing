@@ -44,31 +44,10 @@
   justify-content: flex-end;
 }
 
-.searchField {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 40px;
-  padding: 8px;
-  background: var(--Grey-100, #EEE);
-  border-radius: 999px;
+.searchInput {
   width: 100%;
   max-width: 545px;
   min-width: 200px;
-}
-
-.searchInput {
-  flex: 1;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-family: Inter, sans-serif;
-  font-size: 16px;
-  color: var(--Black, #000);
-  
-  &::placeholder {
-    color: var(--Grey-500, #757575);
-  }
 }
 
 .button {
