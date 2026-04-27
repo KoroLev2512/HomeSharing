@@ -1,0 +1,213 @@
+.card {
+  display: flex;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #ebebeb;
+  overflow: hidden;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ===== LIST LAYOUT ===== */
+
+.layoutList {
+  flex-direction: row;
+  align-items: stretch;
+  height: 220px;
+
+  .image {
+    width: 320px;
+    flex-shrink: 0;
+    height: 100%;
+    background: #ececec;
+  }
+
+  .body {
+    flex: 1;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+}
+
+.priceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.line {
+  background: #ececec;
+  border-radius: 6px;
+}
+
+.linePrice {
+  height: 22px;
+  width: 40%;
+}
+
+.lineRating {
+  height: 16px;
+  width: 56px;
+  border-radius: 8px;
+}
+
+.lineTitle {
+  height: 16px;
+  width: 70%;
+}
+
+.lineSubtitle {
+  height: 12px;
+  width: 45%;
+}
+
+.lineAddress {
+  height: 14px;
+  width: 90%;
+  margin-top: 6px;
+}
+
+.lineMeta {
+  height: 12px;
+  width: 60%;
+}
+
+.footerSpacer {
+  flex: 1;
+  min-height: 8px;
+}
+
+.footerRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lineFooterLeft {
+  height: 12px;
+  width: 35%;
+}
+
+.lineFooterRight {
+  height: 12px;
+  width: 45%;
+}
+
+/* ===== GRID LAYOUT ===== */
+
+.layoutGrid {
+  flex-direction: column;
+  height: 100%;
+
+  .imageWrapper {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    background: #ececec;
+    overflow: hidden;
+  }
+
+  .gridImage {
+    position: absolute;
+    inset: 0;
+    background: #ececec;
+  }
+
+  .gridDots {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+    z-index: 1;
+  }
+
+  .gridDot {
+    width: 18px;
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.6);
+  }
+
+  .gridFavorite {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.55);
+    z-index: 1;
+  }
+
+  .gridBody {
+    padding: 12px 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .gridPrice {
+    height: 20px;
+    width: 55%;
+  }
+
+  .gridTitle {
+    height: 14px;
+    width: 80%;
+  }
+
+  .gridAddress {
+    height: 12px;
+    width: 65%;
+  }
+
+  .gridFooterRow {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .gridChip {
+    height: 10px;
+    flex: 1;
+    max-width: 45%;
+  }
+}
+
+/* ===== SHIMMER ===== */
+
+.shimmer {
+  background: linear-gradient(90deg, #ececec 0%, #f6f6f6 50%, #ececec 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 900px) {
+  .layoutList {
+    flex-direction: column;
+    height: auto;
+
+    .image {
+      width: 100%;
+      height: 200px;
+    }
+
+    .body {
+      padding: 14px 16px 16px;
+    }
+  }
+}

@@ -6,6 +6,7 @@ import {ContentWrapper} from "@/widgets/ContentWraper"
 import {NavigationBar} from "@/widgets/NavigationBar";
 import {useAppStore} from "@/shared/store/appStore";
 import {parseCookies} from "nookies";
+import {useSession} from "next-auth/react";
 import { Layout } from "./types";
 import {PageWrapper} from "@/widgets/PageWrapper";
 
@@ -15,6 +16,10 @@ const AppWrapper = (props: Layout) => {
     const toggleDarkMode     = useAppStore(state => state.toggleDarkMode);
     const toggleProfilePage  = useAppStore(state => state.toggleProfilePage);
     const defaultTheme = parseCookies().theme || "light";
+    const { status } = useSession();
+    // Показываем navbar только для авторизованных. Пока статус загружается — тоже не показываем,
+    // чтобы избежать мигания на странице публичных объявлений.
+    const showNavBar = status === "authenticated";
 
     useEffect(() => {
         if (window.innerWidth <= 720) {
@@ -43,7 +48,7 @@ const AppWrapper = (props: Layout) => {
             <Head>
                 <title>LockBox: Личный кабинет</title>
             </Head>
-            <NavigationBar />
+            {showNavBar && <NavigationBar />}
             <ContentWrapper>{children}</ContentWrapper>
         </PageWrapper>
     );

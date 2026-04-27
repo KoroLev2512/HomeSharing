@@ -2,17 +2,55 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Input } from "@/widgets/Input";
+import Loader from "@/shared/ui/Loader/Loader";
+import { MeService } from "@/shared/lib/bookingsService";
 import styles from "./styles.module.scss";
 import { BinIcon } from "@/shared/icons";
 
 type LegalMode = "ip" | "ooo";
 
-export default function SettingsPage(): React.JSX.Element {
-  const { data: session } = useSession();
+export default function SettingsPage(): React.JSX.Element | null {
+  const router = useRouter();
+  const { data: session, status, update: updateSession } = useSession();
 
   const [isSaved, setIsSaved] = useState(false);
   const [legalMode, setLegalMode] = useState<LegalMode>("ip");
+
+  const [isHost, setIsHost] = useState<boolean>(Boolean(session?.user?.isService));
+  const [hostUpdating, setHostUpdating] = useState<boolean>(false);
+  const [hostError, setHostError] = useState<string | null>(null);
+  const [hostMessage, setHostMessage] = useState<string | null>(null);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState<boolean>(false);
+
+  useEffect(() => {
+    setIsHost(Boolean(session?.user?.isService));
+  }, [session?.user?.isService]);
+
+  const handleToggleHost = async () => {
+    if (hostUpdating) return;
+    const next = !isHost;
+    setHostUpdating(true);
+    setHostError(null);
+    setHostMessage(null);
+    try {
+      await MeService.setHost(next);
+      setIsHost(next);
+      setHostMessage(
+        next
+          ? "Роль арендодателя активирована. Перейдите в кабинет, чтобы добавить первое объявление."
+          : "Роль арендодателя отключена.",
+      );
+      await updateSession?.();
+    } catch (err) {
+      setHostError(err instanceof Error ? err.message : "Не удалось обновить роль");
+    } finally {
+      setHostUpdating(false);
+    }
+  };
 
   const defaultAvatar = "/users/user_1.png";
   const initialEmail = session?.user?.email ?? "";
@@ -33,6 +71,12 @@ export default function SettingsPage(): React.JSX.Element {
     kppOoo: "",
     innOoo: "",
   });
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.replace("/login");
+    }
+  }, [router, status]);
 
   useEffect(() => {
     setForm((prev) => ({
@@ -63,9 +107,66 @@ export default function SettingsPage(): React.JSX.Element {
   };
 
   const handleDeleteAvatar = () => {
+    if (avatarUploading) return;
+    setAvatarUploading(true);
+    setAvatarError(null);
     setIsSaved(false);
-    setAvatarUrl(defaultAvatar);
+    void MeService.resetAvatar()
+      .then(async () => {
+        setAvatarUrl(defaultAvatar);
+        await updateSession?.({
+          user: {
+            ...session?.user,
+            image: null,
+          },
+        });
+      })
+      .catch((err) => {
+        setAvatarError(err instanceof Error ? err.message : "Не удалось удалить фото");
+      })
+      .finally(() => {
+        setAvatarUploading(false);
+      });
   };
+
+  const handleAvatarFile: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setAvatarError("Можно загружать только изображения");
+      e.currentTarget.value = "";
+      return;
+    }
+
+    setAvatarUploading(true);
+    setAvatarError(null);
+    setIsSaved(false);
+    void MeService.uploadAvatar(file)
+      .then(async (image) => {
+        setAvatarUrl(image || defaultAvatar);
+        await updateSession?.({
+          user: {
+            ...session?.user,
+            image,
+          },
+        });
+      })
+      .catch((err) => {
+        setAvatarError(err instanceof Error ? err.message : "Не удалось загрузить фото");
+      })
+      .finally(() => {
+        setAvatarUploading(false);
+        e.currentTarget.value = "";
+      });
+  };
+
+  if (status === "loading") {
+    return <Loader />;
+  }
+
+  if (status === "unauthenticated" || !session?.user) {
+    return null;
+  }
 
   return (
     <div className={styles.page}>
@@ -84,15 +185,29 @@ export default function SettingsPage(): React.JSX.Element {
               <div className={styles.photo}>
                 <img src={avatarUrl} alt="Фото профиля" />
               </div>
-              <button
-                type="button"
-                className={styles.deletePhotoBtn}
-                onClick={handleDeleteAvatar}
-                aria-label="Удалить фото профиля"
-              >
-                <BinIcon />
-              </button>
+              <div className={styles.photoActions}>
+                <label className={styles.uploadPhotoBtn}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarFile}
+                    className={styles.hiddenFileInput}
+                    disabled={avatarUploading}
+                  />
+                  {avatarUploading ? "Загрузка..." : "Изменить"}
+                </label>
+                <button
+                  type="button"
+                  className={styles.deletePhotoBtn}
+                  onClick={handleDeleteAvatar}
+                  aria-label="Удалить фото профиля"
+                  disabled={avatarUploading}
+                >
+                  <BinIcon />
+                </button>
+              </div>
             </div>
+            {avatarError && <div className={styles.hostError}>{avatarError}</div>}
           </div>
 
           <div className={styles.grid2}>
@@ -171,80 +286,120 @@ export default function SettingsPage(): React.JSX.Element {
           </div>
         </section>
 
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Данные юридического лица</h2>
-          <div className={styles.divider} />
+        {isHost && (
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>Данные юридического лица</h2>
+            <div className={styles.divider} />
 
-          <div className={styles.legalTop}>
-            <label className={styles.radioRow}>
-              <input
-                type="radio"
-                name="legalMode"
-                checked={legalMode === "ip"}
-                onChange={() => {
-                  setIsSaved(false);
-                  setLegalMode("ip");
-                }}
-              />
-              <span>Работать как ИП</span>
-            </label>
-
-            <label className={styles.radioRow}>
-              <input
-                type="radio"
-                name="legalMode"
-                checked={legalMode === "ooo"}
-                onChange={() => {
-                  setIsSaved(false);
-                  setLegalMode("ooo");
-                }}
-              />
-              <span>Работать как ООО</span>
-            </label>
-          </div>
-
-          <div className={styles.legalGrid}>
-            <div className={styles.legalCol}>
-              <div className={styles.field}>
-                <Input
-                  label="ИНН"
-                  type="text"
-                  value={form.innIp}
-                  onChange={onChange("innIp")}
-                  placeholder="10567557845"
-                  size="medium"
-                  state="enabled"
+            <div className={styles.legalTop}>
+              <label className={styles.radioRow}>
+                <input
+                  type="radio"
+                  name="legalMode"
+                  checked={legalMode === "ip"}
+                  onChange={() => {
+                    setIsSaved(false);
+                    setLegalMode("ip");
+                  }}
                 />
-              </div>
+                <span>Работать как ИП</span>
+              </label>
+
+              <label className={styles.radioRow}>
+                <input
+                  type="radio"
+                  name="legalMode"
+                  checked={legalMode === "ooo"}
+                  onChange={() => {
+                    setIsSaved(false);
+                    setLegalMode("ooo");
+                  }}
+                />
+                <span>Работать как ООО</span>
+              </label>
             </div>
 
-            <div className={styles.legalCol}>
-              <div className={legalMode === "ip" ? styles.disabledGroup : undefined}>
-                <div className={styles.field}>
-                  <Input
-                    label="КПП"
-                    type="text"
-                    value={form.kppOoo}
-                    onChange={onChange("kppOoo")}
-                    placeholder="1056755784"
-                    size="medium"
-                    state={legalMode === "ip" ? "disabled" : "enabled"}
-                    disabled={legalMode === "ip"}
-                  />
-                </div>
+            <div className={styles.legalGrid}>
+              <div className={styles.legalCol}>
                 <div className={styles.field}>
                   <Input
                     label="ИНН"
                     type="text"
-                    value={form.innOoo}
-                    onChange={onChange("innOoo")}
+                    value={form.innIp}
+                    onChange={onChange("innIp")}
                     placeholder="10567557845"
                     size="medium"
-                    state={legalMode === "ip" ? "disabled" : "enabled"}
-                    disabled={legalMode === "ip"}
+                    state="enabled"
                   />
                 </div>
               </div>
+
+              <div className={styles.legalCol}>
+                <div className={legalMode === "ip" ? styles.disabledGroup : undefined}>
+                  <div className={styles.field}>
+                    <Input
+                      label="КПП"
+                      type="text"
+                      value={form.kppOoo}
+                      onChange={onChange("kppOoo")}
+                      placeholder="1056755784"
+                      size="medium"
+                      state={legalMode === "ip" ? "disabled" : "enabled"}
+                      disabled={legalMode === "ip"}
+                    />
+                  </div>
+                  <div className={styles.field}>
+                    <Input
+                      label="ИНН"
+                      type="text"
+                      value={form.innOoo}
+                      onChange={onChange("innOoo")}
+                      placeholder="10567557845"
+                      size="medium"
+                      state={legalMode === "ip" ? "disabled" : "enabled"}
+                      disabled={legalMode === "ip"}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Роль арендодателя</h2>
+          <div className={styles.divider} />
+          <div className={styles.hostBlock}>
+            <div className={styles.hostInfo}>
+              <div className={styles.hostTitle}>
+                {isHost ? "Вы — арендодатель" : "Стать арендодателем"}
+              </div>
+              <p className={styles.hostText}>
+                {isHost
+                  ? "Вы можете публиковать собственные объявления и принимать заявки на бронирование."
+                  : "Активируйте роль арендодателя, чтобы размещать свои квартиры и получать заявки от гостей."}
+              </p>
+              {hostError && <div className={styles.hostError}>{hostError}</div>}
+              {hostMessage && <div className={styles.hostMessage}>{hostMessage}</div>}
+            </div>
+            <div className={styles.hostActions}>
+              <button
+                type="button"
+                onClick={handleToggleHost}
+                disabled={hostUpdating}
+                className={isHost ? styles.hostBtnSecondary : styles.hostBtnPrimary}
+              >
+                {hostUpdating
+                  ? "Обновляем..."
+                  : isHost
+                  ? "Отключить роль"
+                  : "Стать арендодателем"}
+              </button>
+              {isHost && (
+                <Link href="/host/listings" className={styles.hostBtnLink}>
+                  Перейти в кабинет →
+                </Link>
+              )}
             </div>
           </div>
         </section>
@@ -260,5 +415,3 @@ export default function SettingsPage(): React.JSX.Element {
     </div>
   );
 }
-
-

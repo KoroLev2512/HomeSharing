@@ -2,7 +2,6 @@ import React from "react";
 import AppWrapper from "@/widgets/Wrappers/AppWrapper";
 import "@/styles/globals.scss";
 import type { Metadata } from 'next'
-import { ServerGuard } from '@/guards/ServerGuard'
 import { SessionProviderWrapper } from '@/widgets/Wrappers/SessionProviderWrapper'
 
 export const metadata: Metadata = {
@@ -21,11 +20,9 @@ export default function RootLayout({
         <html lang="ru">
             <body>
                 <SessionProviderWrapper>
-                    <ServerGuard pageProps={{}}>
-                        <AppWrapper>
-                            {children}
-                        </AppWrapper>
-                    </ServerGuard>
+                    <AppWrapper>
+                        {children}
+                    </AppWrapper>
                 </SessionProviderWrapper>
             </body>
         </html>

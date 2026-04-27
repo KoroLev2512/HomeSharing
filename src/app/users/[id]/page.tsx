@@ -1,26 +1,17 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import { SecondaryButton } from '../../../widgets/Button'
-import authStorage, { UserDetails } from '@/shared/lib/authStorage'
+import Loader from '@/shared/ui/Loader/Loader'
 
 export default function UserProfilePage() {
     const params = useParams()
-    const router = useRouter()
     const userId = params?.id as string
-    const [user, setUser] = useState<UserDetails | null>(null)
-    const [isLoading, setIsLoading] = useState(true)
+    const { data: session, status } = useSession()
 
-    useEffect(() => {
-        authStorage.getUserDetails().then((details) => {
-            setUser(details)
-            setIsLoading(false)
-        })
-    }, [])
-
-    if (isLoading) {
+    if (status === 'loading') {
         return (
             <div style={{ 
                 display: 'flex',
@@ -28,12 +19,12 @@ export default function UserProfilePage() {
                 alignItems: 'center',
                 height: '100vh'
             }}>
-                <div>Загрузка...</div>
+                <Loader />
             </div>
         )
     }
 
-    if (!user) {
+    if (!session?.user) {
         return (
             <div style={{ 
                 display: 'flex', 
@@ -57,7 +48,12 @@ export default function UserProfilePage() {
         )
     }
 
-    const isOwnProfile = user.id === userId
+    const isOwnProfile = session.user.id === userId
+    const roles: string[] = []
+
+    if (session.user.isAdmin) roles.push('Администратор')
+    if (session.user.isService) roles.push('Сервис')
+    if (session.user.isUser || roles.length === 0) roles.push('Пользователь')
 
     return (
         <div style={{ 
@@ -72,9 +68,9 @@ export default function UserProfilePage() {
             {isOwnProfile ? (
                 <div style={{ textAlign: 'center' }}>
                     <h3>Ваш профиль</h3>
-                    <p><strong>Имя:</strong> {user.given_name || user.preferred_username || 'Не указано'}</p>
-                    <p><strong>Email:</strong> {user.email}</p>
-                    <p><strong>Роли:</strong> {user.roles?.join(', ') || 'Пользователь'}</p>
+                    <p><strong>Имя:</strong> {session.user.name || 'Не указано'}</p>
+                    <p><strong>Email:</strong> {session.user.email || 'Не указано'}</p>
+                    <p><strong>Роли:</strong> {roles.join(', ')}</p>
                 </div>
             ) : (
                 <div style={{ textAlign: 'center' }}>

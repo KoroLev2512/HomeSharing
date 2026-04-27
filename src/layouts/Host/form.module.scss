@@ -1,0 +1,170 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  max-width: 920px;
+}
+
+.formHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.heading {
+  font-size: 22px;
+  font-weight: 700;
+  color: #000;
+  margin: 0;
+}
+
+.linkBack {
+  font-size: 14px;
+  color: #1a1a1a;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.fieldset {
+  border: 1px solid #ebebeb;
+  border-radius: 16px;
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #fff;
+}
+
+.legend {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1a;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0 6px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.grid3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: #5a5a5a;
+
+  > span {
+    font-size: 12px;
+    color: #5a5a5a;
+    font-weight: 500;
+  }
+}
+
+.input {
+  height: 40px;
+  border: 1px solid #d6d6d6;
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #fff;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s ease;
+
+  &:focus {
+    border-color: #1a1a1a;
+  }
+}
+
+.textarea {
+  height: auto;
+  padding: 10px 12px;
+  resize: vertical;
+  min-height: 70px;
+}
+
+.error {
+  font-size: 13px;
+  color: #c1272d;
+  background: #fdecec;
+  padding: 10px 14px;
+  border-radius: 10px;
+}
+
+.formFooter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.primaryBtn {
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+
+  &:hover:not(:disabled) {
+    background: #000;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.secondaryBtn {
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #d6d6d6;
+  color: #1a1a1a;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+
+  &:hover {
+    background: #f7f7f7;
+  }
+}
+
+@media (max-width: 640px) {
+  .grid2,
+  .grid3 {
+    grid-template-columns: 1fr;
+  }
+}

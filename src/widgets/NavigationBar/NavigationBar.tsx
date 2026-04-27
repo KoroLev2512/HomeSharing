@@ -9,12 +9,10 @@ import {useAppStore} from "@/shared/store/appStore";
 import classNames from "classnames";
 import {usePathname, useRouter} from "next/navigation";
 import {compact} from "lodash";
-import {HomeIcon, MessageIcon, NotifyIcon, SettingsIcon, ProfileIcon} from "@/shared/icons";
+import {HomeIcon, MessageIcon, NotifyIcon, SettingsIcon, ProfileIcon, StarIcon} from "@/shared/icons";
 import {useSession, signOut} from "next-auth/react";
 import {Burger} from "../../shared/ui/Burger";
 import Link from "next/link";
-
-import Loader from "@/shared/ui/Loader/Loader";
 
 import styles from "./styles.module.scss";
 
@@ -40,11 +38,9 @@ const NavigationBarToggle = ({ menuPageIsOpen }: { menuPageIsOpen: boolean }): R
 };
 
 export const NavigationBar = (): React.JSX.Element => {
-    const [isClient, setIsClient] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
-    
+
     useEffect(() => {
-        setIsClient(true);
         const checkMobile = () => {
             setIsMobile(window.innerWidth <= 720);
         };
@@ -59,54 +55,33 @@ export const NavigationBar = (): React.JSX.Element => {
     const router = useRouter();
     const { data: session, status } = useSession();
     const [isSigningOut, setIsSigningOut] = useState(false);
-    const [isLoggedOut, setIsLoggedOut] = useState(false);
+    const isAuthenticated = status === 'authenticated' && !!session?.user;
+    const isHost = isAuthenticated && Boolean(session?.user?.isService);
 
     const MenuItems: MenuItemProps[] = useMemo(() => compact([
-        {icon: <HomeIcon/>, name: "Мои объекты", href: "/"},
-        {icon: <HomeIcon/>, name: "Мои бронирования", href: "/bookings"},
-        {icon: <MessageIcon/>, name: "Сообщения", href: "/messages"},
-        {icon: <NotifyIcon/>, name: "Уведомления", href: "/notifications"},
-        {icon: <SettingsIcon/>, name: "Параметры", href: "/settings"},
-    ]), []);
+        {icon: <HomeIcon/>, name: "Объявления", href: "/listings"},
+        {icon: <StarIcon/>, name: "Избранное", href: "/favorites"},
+        isHost ? {icon: <HomeIcon/>, name: "Мои объявления", href: "/host/listings"} : null,
+        isHost ? {icon: <HomeIcon/>, name: "Заявки гостей", href: "/host/bookings"} : null,
+        isAuthenticated ? {icon: <HomeIcon/>, name: "Мои бронирования", href: "/bookings"} : null,
+        isAuthenticated ? {icon: <MessageIcon/>, name: "Сообщения", href: "/messages"} : null,
+        isAuthenticated ? {icon: <NotifyIcon/>, name: "Уведомления", href: "/notifications"} : null,
+        isAuthenticated ? {icon: <SettingsIcon/>, name: "Параметры", href: "/settings"} : null,
+    ]), [isAuthenticated, isHost]);
+
+    const homeHref = isAuthenticated ? "/" : "/listings";
 
     const handleSignOut = async () => {
         if (isSigningOut) return;
-        
+
         setIsSigningOut(true);
-        
+
         try {
-            localStorage.clear();
-            sessionStorage.clear();
-            
-            document.cookie.split(";").forEach(function(c) {
-                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
-            });
-            
             await signOut({
-                redirect: false,
-                callbackUrl: '/'
+                callbackUrl: '/listings'
             });
-            
-            setIsLoggedOut(true);
-            
-            setTimeout(() => {
-                window.location.href = '/';
-            }, 500);
-            
         } catch (error) {
-            setIsLoggedOut(true);
-            
-            localStorage.clear();
-            sessionStorage.clear();
-            
-            document.cookie.split(";").forEach(function(c) {
-                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
-            });
-            
-            // Принудительно переходим на главную страницу
-            setTimeout(() => {
-                window.location.href = '/';
-            }, 500);
+            router.replace('/listings');
         } finally {
             setIsSigningOut(false);
         }
@@ -116,54 +91,7 @@ export const NavigationBar = (): React.JSX.Element => {
         router.push('/login');
     };
 
-    useEffect(() => {
-        if (status === 'authenticated' && session?.user) {
-            setIsLoggedOut(false);
-        } else if (status === 'unauthenticated') {
-            setIsLoggedOut(true);
-        }
-    }, [status, session]);
-
-    // Восстанавливаем состояние навбара из localStorage при монтировании
-    useEffect(() => {
-        const saved = localStorage.getItem('menuPageIsOpen');
-        if (saved !== null) {
-            const savedValue = saved === 'true';
-            if (menuPageIsOpen !== savedValue) {
-                toggleMenuPage(savedValue);
-            }
-        }
-    }, []);
-
-    // Дополнительная проверка для предотвращения автоматического входа
-    useEffect(() => {
-        const checkAuthState = () => {
-            // Проверяем, есть ли активные токены в localStorage
-            const hasAuthTokens = localStorage.getItem('next-auth.session-token') || 
-                                localStorage.getItem('__Secure-next-auth.session-token');
-            
-            // Если пользователь вышел, но есть токены - очищаем их
-            if (isLoggedOut && hasAuthTokens) {
-                localStorage.clear();
-                sessionStorage.clear();
-            }
-        };
-
-        checkAuthState();
-        
-        // Проверяем каждые 2 секунды в течение 10 секунд после выхода
-        if (isLoggedOut) {
-            const interval = setInterval(checkAuthState, 2000);
-            const timeout = setTimeout(() => clearInterval(interval), 10000);
-            
-            return () => {
-                clearInterval(interval);
-                clearTimeout(timeout);
-            };
-        }
-    }, [isLoggedOut]);
-
-    const showMenu = isClient ? menuPageIsOpen : true;
+    const showMenu = menuPageIsOpen;
 
     return (
         <div 
@@ -171,7 +99,7 @@ export const NavigationBar = (): React.JSX.Element => {
         >
             <div className={styles.header}>
                 <div className={classNames(styles.toggle, styles.logoContainer)}>
-                    <Link href="/lockbox/public">
+                    <Link href={homeHref}>
                         <Logotype isOpen={!showMenu}/>
                     </Link>
                 </div>
@@ -199,7 +127,7 @@ export const NavigationBar = (): React.JSX.Element => {
                 </div>
             </div>
             <div className={styles.user}>
-                {session?.user && !isLoggedOut ? (
+                {isAuthenticated ? (
                     showMenu ? (
                         // Компактный вид (закрытый навбар): аватар + иконка выхода
                         <div className={styles.userRowCompact}>
@@ -242,8 +170,8 @@ export const NavigationBar = (): React.JSX.Element => {
                                 {session.user.email}
                             </div>
                             <div className={styles.role}>
-                                {session.user.isAdmin ? 'Администратор' : 
-                                 session.user.isService ? 'Сервис' : 'Пользователь'}
+                                {session.user.isAdmin ? 'Администратор' :
+                                 session.user.isService ? 'Арендодатель' : 'Гость'}
                             </div>
                             <button 
                                 onClick={handleSignOut}
@@ -254,9 +182,15 @@ export const NavigationBar = (): React.JSX.Element => {
                             </button>
                         </div>
                     )
-                ) : status === 'loading' && !isLoggedOut ? (
-                    <div className={styles.loaderContainer}>
-                        <Loader />
+                ) : status === 'loading' ? (
+                    <div className={styles.loaderContainer} aria-hidden>
+                        <div className={classNames(styles.userSkeletonAvatar, styles.userSkeletonShimmer)} />
+                        {!showMenu && (
+                            <div className={styles.userSkeletonLines}>
+                                <div className={classNames(styles.userSkeletonLine, styles.userSkeletonShimmer)} />
+                                <div className={classNames(styles.userSkeletonLine, styles.userSkeletonLineShort, styles.userSkeletonShimmer)} />
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div className={styles.userInfo}>

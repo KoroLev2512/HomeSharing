@@ -1,14 +1,16 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { Input } from '@/widgets/Input'
 import styles from './styles.module.scss'
 import AccountService from '@/shared/lib/accountService'
+import { supportedOAuthProviders, type SupportedOAuthProvider } from '@/shared/configs/authProviders'
 
 export default function RegisterPage() {
+    const { data: session, status } = useSession()
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -21,6 +23,12 @@ export default function RegisterPage() {
     const [success, setSuccess] = useState('')
     const router = useRouter()
 
+    useEffect(() => {
+        if (status === 'authenticated' && session?.user) {
+            router.replace('/')
+        }
+    }, [router, session, status])
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({
             ...formData,
@@ -28,7 +36,7 @@ export default function RegisterPage() {
         })
     }
 
-    const handleOAuthRegister = async (provider: string) => {
+    const handleOAuthRegister = async (provider: SupportedOAuthProvider) => {
         setIsLoading(true)
         setError('')
         try {
@@ -86,7 +94,7 @@ export default function RegisterPage() {
     return (
         <div className={styles.wrapper}>
             <div className={styles.registerContainer}>
-                <Link href="/" className={styles.backButton}>
+                <Link href="/listings" className={styles.backButton}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M15 18L9 12L15 6" stroke="#757575" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
@@ -109,20 +117,23 @@ export default function RegisterPage() {
                 )}
 
                 <form onSubmit={handleSubmit} className={styles.form}>
-                    <button
-                        type="button"
-                        className={styles.oauthButton}
-                        onClick={() => handleOAuthRegister('gosuslugi')}
-                        disabled={isLoading}
-                    >
-                        <Image
-                            src="/icons/gosuslugi_logo.svg"
-                            alt="ГосУслуги"
-                            width={24}
-                            height={24}
-                        />
-                        <span>Регистрация через ГосУслуги</span>
-                    </button>
+                    {supportedOAuthProviders.map((provider) => (
+                        <button
+                            key={provider.id}
+                            type="button"
+                            className={styles.oauthButton}
+                            onClick={() => handleOAuthRegister(provider.id)}
+                            disabled={isLoading}
+                        >
+                            <Image
+                                src={provider.iconSrc}
+                                alt={provider.iconAlt}
+                                width={24}
+                                height={24}
+                            />
+                            <span>Регистрация через {provider.label}</span>
+                        </button>
+                    ))}
 
                     <Input
                         label="Имя"

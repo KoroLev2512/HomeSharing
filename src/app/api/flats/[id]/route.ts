@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/shared/utils/supabase/server'
+import { getServiceClient } from '@/shared/utils/supabase/service'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/shared/lib/auth'
 
@@ -16,7 +16,7 @@ export async function GET(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
-        const supabase = await createClient()
+        const supabase = getServiceClient()
         
         const { data: flat, error } = await supabase
             .from('Flat')
@@ -52,7 +52,7 @@ export async function PUT(
         const body = await req.json()
         const { address, imageUrl, dateStart, dateEnd, tagFlat, tagLock, isDisabled, wifiLogin, wifiPass, price, rating } = body
 
-        const supabase = await createClient()
+        const supabase = getServiceClient()
         
         // Проверяем, что квартира принадлежит пользователю
         const { data: existingFlat, error: checkError } = await supabase
@@ -111,7 +111,7 @@ export async function DELETE(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
-        const supabase = await createClient()
+        const supabase = getServiceClient()
         
         // Проверяем, что квартира принадлежит пользователю
         const { data: existingFlat, error: checkError } = await supabase

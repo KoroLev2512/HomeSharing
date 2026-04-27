@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/shared/utils/supabase/server'
+import { getServiceClient } from '@/shared/utils/supabase/service'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/shared/lib/auth'
 
@@ -12,7 +12,7 @@ export async function GET(req: Request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
-        const supabase = await createClient()
+        const supabase = getServiceClient()
         
         const { data: flats, error } = await supabase
             .from('Flat')
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Address, dateStart, and dateEnd are required' }, { status: 400 })
         }
 
-        const supabase = await createClient()
+        const supabase = getServiceClient()
         
         const { data: flat, error } = await supabase
             .from('Flat')

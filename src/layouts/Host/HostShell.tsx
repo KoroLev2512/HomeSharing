@@ -1,0 +1,78 @@
+"use client";
+
+import React, { useEffect } from 'react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import classNames from 'classnames';
+import { useSession } from 'next-auth/react';
+import Loader from '@/shared/ui/Loader/Loader';
+import styles from './shell.module.scss';
+
+interface IProps {
+    children: React.ReactNode;
+}
+
+const TABS = [
+    { href: '/host/listings', label: 'Мои объявления' },
+    { href: '/host/bookings', label: 'Заявки на бронирование' },
+];
+
+export const HostShell: React.FC<IProps> = ({ children }) => {
+    const pathname = usePathname();
+    const router = useRouter();
+    const { data: session, status } = useSession();
+
+    useEffect(() => {
+        if (status === 'unauthenticated') {
+            router.replace('/login');
+        }
+    }, [status, router]);
+
+    if (status === 'loading') {
+        return <Loader />;
+    }
+
+    if (status !== 'authenticated' || !session?.user) {
+        return null;
+    }
+
+    if (!session.user.isService) {
+        return (
+            <div className={styles.root}>
+                <div className={styles.gateBox}>
+                    <h1 className={styles.gateTitle}>Только для арендодателей</h1>
+                    <p className={styles.gateText}>
+                        Чтобы размещать свои объявления и принимать бронирования, активируйте роль арендодателя
+                        в настройках профиля.
+                    </p>
+                    <Link href="/settings" className={styles.primaryBtn}>
+                        Перейти в настройки
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className={styles.root}>
+            <header className={styles.header}>
+                <h1 className={styles.title}>Кабинет арендодателя</h1>
+                <nav className={styles.tabs}>
+                    {TABS.map((t) => {
+                        const isActive = pathname?.startsWith(t.href);
+                        return (
+                            <Link
+                                key={t.href}
+                                href={t.href}
+                                className={classNames(styles.tab, { [styles.tabActive]: isActive })}
+                            >
+                                {t.label}
+                            </Link>
+                        );
+                    })}
+                </nav>
+            </header>
+            <main className={styles.body}>{children}</main>
+        </div>
+    );
+};

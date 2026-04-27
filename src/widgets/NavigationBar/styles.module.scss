@@ -401,7 +401,46 @@
 
 .loaderContainer {
   display: flex;
-  justify-content: center;
   align-items: center;
+  gap: 12px;
   height: 78px;
+  padding: 0 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.userSkeletonAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.userSkeletonLines {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.userSkeletonLine {
+  height: 12px;
+  border-radius: 6px;
+  width: 100%;
+}
+
+.userSkeletonLineShort {
+  width: 60%;
+}
+
+.userSkeletonShimmer {
+  background: linear-gradient(90deg, #ececec 0%, #f6f6f6 50%, #ececec 100%);
+  background-size: 200% 100%;
+  animation: navShimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes navShimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
 }

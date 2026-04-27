@@ -1,18 +1,9 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import bcrypt from 'bcrypt'
+import { getServiceClient } from '@/shared/utils/supabase/service'
 
 export async function POST(req: Request) {
     try {
-        // Check environment variables
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-        
-        if (!supabaseUrl || !supabaseServiceKey) {
-            console.error('[SIGNUP_ERROR] Missing Supabase environment variables')
-            return NextResponse.json({ error: 'Ошибка конфигурации сервера' }, { status: 500 })
-        }
-
         const { mail: email, password, password_repeat, name } = await req.json()
 
         if (!email || !password || !password_repeat) {
@@ -27,19 +18,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Пароль должен содержать минимум 6 символов' }, { status: 400 })
         }
 
-        // Use service role key for server-side operations to bypass RLS
-        // This is safe because this is a server-side API route
-        const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-            auth: {
-                autoRefreshToken: false,
-                persistSession: false
-            }
-        })
-        
-        if (!supabase) {
-            console.error('[SIGNUP_ERROR] Failed to create Supabase client')
-            return NextResponse.json({ error: 'Ошибка конфигурации сервера' }, { status: 500 })
-        }
+        const supabase = getServiceClient()
 
         // Check if user already exists
         const { data: existingUser, error: checkError } = await supabase

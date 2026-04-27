@@ -5,10 +5,24 @@ import {AppState} from "@/shared/types/dto/app.dto";
 import {isUndefined} from "lodash";
 import {setCookie} from "nookies";
 
-// Восстанавливаем состояние из localStorage
+const MENU_STORAGE_KEY = 'menuPageIsOpen';
+
+// SSR-safe чтение из localStorage. На сервере возвращаем дефолт,
+// на клиенте — сохранённое пользователем значение, если оно есть.
+const readSavedMenuOpen = (defaultValue: boolean): boolean => {
+    if (typeof window === 'undefined') return defaultValue;
+    try {
+        const raw = window.localStorage.getItem(MENU_STORAGE_KEY);
+        if (raw === null) return defaultValue;
+        return raw === 'true';
+    } catch {
+        return defaultValue;
+    }
+};
+
 export const useAppStore = create<AppState>()(devtools(immer((set) => {
     return ({
-        menuPageIsOpen: true,
+        menuPageIsOpen: readSavedMenuOpen(true),
         backendIsAvailable: null,
         isLoading: false,
         profilePageIsClose: true,
@@ -31,9 +45,12 @@ export const useAppStore = create<AppState>()(devtools(immer((set) => {
         toggleMenuPage: (value) => {
             set((state) => {
                 const newValue = !isUndefined(value) ? value : !state.menuPageIsOpen;
-                // Сохраняем в localStorage
                 if (typeof window !== 'undefined') {
-                    localStorage.setItem('menuPageIsOpen', String(newValue));
+                    try {
+                        window.localStorage.setItem(MENU_STORAGE_KEY, String(newValue));
+                    } catch {
+                        // ignore
+                    }
                 }
                 return ({menuPageIsOpen: newValue});
             });

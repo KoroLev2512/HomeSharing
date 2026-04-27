@@ -1,0 +1,148 @@
+.root {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px 24px 64px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #000;
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #6b6b6b;
+}
+
+.info {
+  border: 1px solid #dfe7ff;
+  background: #f6f9ff;
+  color: #3a4e8a;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 13px;
+}
+
+.error {
+  font-size: 13px;
+  color: #c1272d;
+  background: #fdecec;
+  padding: 10px 14px;
+  border-radius: 10px;
+}
+
+.empty {
+  text-align: center;
+  padding: 56px 16px;
+  border: 1px dashed #d6d6d6;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+
+  h3 {
+    margin: 0;
+    font-size: 20px;
+  }
+
+  p {
+    margin: 0;
+    color: #6b6b6b;
+    font-size: 14px;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card {
+  border: 1px solid #ececec;
+  border-radius: 14px;
+  background: #fff;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.listingTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+}
+
+.counterpart {
+  margin-top: 2px;
+  font-size: 13px;
+  color: #6b6b6b;
+}
+
+.date {
+  font-size: 12px;
+  color: #8a8a8a;
+  white-space: nowrap;
+}
+
+.preview {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #2b2b2b;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.primaryBtn,
+.secondaryBtn {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.primaryBtn {
+  background: #111;
+  color: #fff;
+  border: 1px solid #111;
+}
+
+.secondaryBtn {
+  background: #fff;
+  color: #111;
+  border: 1px solid #d6d6d6;
+}

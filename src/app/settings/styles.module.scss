@@ -58,7 +58,7 @@
 .photoWrap {
   position: relative;
   width: 104px;
-  height: 104px;
+  min-height: 132px;
 }
 
 .photo {
@@ -80,9 +80,6 @@
 }
 
 .deletePhotoBtn {
-  position: absolute;
-  left: 80px;
-  top: 0;
   width: 24px;
   height: 24px;
   border-radius: 999px;
@@ -93,6 +90,38 @@
   justify-content: center;
   cursor: pointer;
   padding: 0;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.photoActions {
+  position: absolute;
+  left: 0;
+  top: 108px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hiddenFileInput {
+  display: none;
+}
+
+.uploadPhotoBtn {
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--Grey-200, #E2E2E2);
+  background: #fff;
+  color: #1a1a1a;
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
 }
 
 .field {
@@ -204,6 +233,113 @@
 .savedTextPlaceholder {
   height: 48px;
   flex: 1;
+}
+
+.hostBlock {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--Grey-200, #E2E2E2);
+  border-radius: 16px;
+  flex-wrap: wrap;
+}
+
+.hostInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 240px;
+  min-width: 240px;
+}
+
+.hostTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.hostText {
+  margin: 0;
+  font-size: 14px;
+  color: #6b6b6b;
+  line-height: 1.45;
+}
+
+.hostError {
+  font-size: 13px;
+  color: #c1272d;
+  background: #fdecec;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.hostMessage {
+  font-size: 13px;
+  color: #1d7a3d;
+  background: #e8f5ec;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.hostActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.hostBtnPrimary {
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 10px;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: #000;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.hostBtnSecondary {
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 10px;
+  background: #fff;
+  color: #1a1a1a;
+  border: 1px solid #d6d6d6;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: #f7f7f7;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.hostBtnLink {
+  font-size: 13px;
+  color: #1a1a1a;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 @media (max-width: 720px) {
