@@ -1,23 +1,23 @@
 .box {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 20px;
-  border: 1px solid #e6e6e6;
-  border-radius: 16px;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border: 0.0625rem solid #e6e6e6;
+  border-radius: 1rem;
   background: #fff;
   box-sizing: border-box;
   width: 100%;
 }
 
 .title {
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 600;
   color: #1a1a1a;
 }
 
 .muted {
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: #6b6b6b;
   line-height: 1.5;
 }
@@ -25,27 +25,27 @@
 .dateRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0.25rem;
 }
 
 .fieldLabel {
-  font-size: 12px;
+  font-size: 0.75rem;
   color: #5a5a5a;
   font-weight: 500;
 }
 
 .input {
-  height: 40px;
-  border: 1px solid #d6d6d6;
-  border-radius: 10px;
-  padding: 0 12px;
-  font-size: 14px;
+  height: 2.5rem;
+  border: 0.0625rem solid #d6d6d6;
+  border-radius: 0.625rem;
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
   color: #1a1a1a;
   background: #fff;
   outline: none;
@@ -59,19 +59,19 @@
 
 .textarea {
   height: auto;
-  padding: 10px 12px;
+  padding: 0.625rem 0.75rem;
   resize: vertical;
-  min-height: 60px;
+  min-height: 3.75rem;
 }
 
 .summary {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 12px 0;
-  border-top: 1px solid #ececec;
-  border-bottom: 1px solid #ececec;
-  font-size: 13px;
+  gap: 0.375rem;
+  padding: 0.75rem 0;
+  border-top: 0.0625rem solid #ececec;
+  border-bottom: 0.0625rem solid #ececec;
+  font-size: 0.8125rem;
   color: #1a1a1a;
 }
 
@@ -79,7 +79,7 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: 12px;
+  gap: 0.75rem;
 
   > span:first-child {
     color: #6b6b6b;
@@ -87,9 +87,9 @@
 }
 
 .summaryTotal {
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 600;
-  margin-top: 4px;
+  margin-top: 0.25rem;
 
   > span:first-child {
     color: #1a1a1a;
@@ -97,27 +97,27 @@
 }
 
 .error {
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: #c1272d;
   background: #fdecec;
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
 }
 
 .success {
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: #1d7a3d;
   background: #e8f5ec;
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
 }
 
 .primaryBtn {
-  height: 44px;
-  border-radius: 12px;
+  height: 2.75rem;
+  border-radius: 0.75rem;
   background: #1a1a1a;
   color: #fff;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   border: none;
@@ -138,12 +138,12 @@
 }
 
 .secondaryBtn {
-  height: 44px;
-  border-radius: 12px;
+  height: 2.75rem;
+  border-radius: 0.75rem;
   background: #fff;
-  border: 1px solid #d6d6d6;
+  border: 0.0625rem solid #d6d6d6;
   color: #1a1a1a;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   display: inline-flex;
@@ -159,25 +159,25 @@
 .actionsRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .disclaimer {
-  font-size: 12px;
+  font-size: 0.75rem;
   color: #8a8a8a;
 }
 
 .skeletonLine {
-  height: 36px;
-  border-radius: 10px;
+  height: 2.25rem;
+  border-radius: 0.625rem;
   background: linear-gradient(90deg, #f0f0f0 0%, #e6e6e6 50%, #f0f0f0 100%);
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
 }
 
 .skeletonButton {
-  height: 44px;
-  border-radius: 12px;
+  height: 2.75rem;
+  border-radius: 0.75rem;
   background: linear-gradient(90deg, #f0f0f0 0%, #e6e6e6 50%, #f0f0f0 100%);
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;

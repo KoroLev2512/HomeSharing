@@ -13,14 +13,14 @@
 
 .dialog {
   background: #FFF;
-  border: 1px solid #E2E2E2;
-  border-radius: 16px;
-  padding: 20px;
+  border: 0.0625rem solid #E2E2E2;
+  border-radius: 1rem;
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 1.5rem;
   align-items: center;
-  max-width: 401px;
+  max-width: 25.0625rem;
   width: 90%;
   box-sizing: border-box;
 }
@@ -28,14 +28,14 @@
 .content {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 1.5rem;
   align-items: center;
   width: 100%;
 }
 
 .iconWrapper {
-  width: 48px;
-  height: 48px;
+  width: 3rem;
+  height: 3rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -43,45 +43,45 @@
 
 .title {
   font-family: Inter, sans-serif;
-  font-size: 32px;
+  font-size: 2rem;
   font-weight: 400;
-  line-height: 40px;
+  line-height: 2.5rem;
   color: #000;
   margin: 0;
   text-align: center;
-  width: 361px;
+  width: 22.5625rem;
 }
 
 .message {
   font-family: Inter, sans-serif;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 400;
-  line-height: 24px;
+  line-height: 1.5rem;
   color: #545454;
   margin: 0;
   text-align: center;
-  width: 361px;
+  width: 22.5625rem;
 }
 
 .buttons {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
+  gap: 1rem;
   width: 100%;
 }
 
 .confirmButton {
   flex: 1;
-  height: 40px;
-  padding: 8px;
+  height: 2.5rem;
+  padding: 0.5rem;
   background: #000;
   color: #FFF;
   border: none;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   font-family: Inter, sans-serif;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 400;
-  line-height: 20px;
+  line-height: 1.25rem;
   cursor: pointer;
   transition: opacity 0.2s;
 
@@ -92,16 +92,16 @@
 
 .cancelButton {
   flex: 1;
-  height: 40px;
-  padding: 8px;
+  height: 2.5rem;
+  padding: 0.5rem;
   background: #EEE;
   color: #000;
   border: none;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   font-family: Inter, sans-serif;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 400;
-  line-height: 20px;
+  line-height: 1.25rem;
   cursor: pointer;
   transition: background-color 0.2s;
 

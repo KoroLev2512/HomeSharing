@@ -10,7 +10,7 @@
 }
 
 .centerWrapper {
-  padding: 32px 0 0 0;
+  padding: 2rem 0 0 0;
 }
 
 .wrapper {
@@ -18,17 +18,17 @@
   flex: 1;
   height: 100%;
   overflow: auto;
-  border-radius: 30px;
+  border-radius: 1.875rem;
 }
 
 .wrapper::-webkit-scrollbar {
   display: none; /* Скрываем скроллбар на устройствах с вебкит-движком (например, Safari и Chrome) */
 }
 
-@media (max-width: 720px) {
+@media (max-width: 45rem) {
   .outerWrapper {
     padding: 0;
-    padding-bottom: 70px; // Space for bottom navigation bar
+    padding-bottom: 4.375rem; // Space for bottom navigation bar
   }
   .wrapper {
     border-radius: 0;

@@ -1,23 +1,23 @@
 .root {
   width: 100%;
-  max-width: 1200px;
+  max-width: 75rem;
   margin: 0 auto;
-  padding: 24px 24px 64px;
+  padding: 1.5rem 1.5rem 4rem;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 1.125rem;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .header {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0.75rem;
 }
 
 .title {
-  font-size: 28px;
+  font-size: 1.75rem;
   font-weight: 700;
   color: #000;
   margin: 0;
@@ -26,16 +26,16 @@
 .tabs {
   display: inline-flex;
   background: #f3f3f3;
-  border-radius: 12px;
-  padding: 4px;
+  border-radius: 0.75rem;
+  padding: 0.25rem;
   align-self: flex-start;
-  gap: 4px;
+  gap: 0.25rem;
 }
 
 .tab {
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 14px;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
   color: #4a4a4a;
   text-decoration: none;
   font-weight: 500;
@@ -49,7 +49,7 @@
 .tabActive {
   background: #fff;
   color: #1a1a1a;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 0.0625rem 0.125rem rgba(0, 0, 0, 0.06);
 }
 
 .body {
@@ -58,18 +58,18 @@
 }
 
 .gateBox {
-  border: 1px dashed #d6d6d6;
-  border-radius: 16px;
-  padding: 48px 24px;
+  border: 0.0625rem dashed #d6d6d6;
+  border-radius: 1rem;
+  padding: 3rem 1.5rem;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 0.625rem;
 }
 
 .gateTitle {
-  font-size: 22px;
+  font-size: 1.375rem;
   font-weight: 700;
   color: #000;
   margin: 0;
@@ -77,20 +77,20 @@
 
 .gateText {
   margin: 0;
-  font-size: 14px;
+  font-size: 0.875rem;
   color: #6b6b6b;
-  max-width: 480px;
+  max-width: 30rem;
   line-height: 1.5;
 }
 
 .primaryBtn {
-  margin-top: 8px;
-  height: 44px;
-  padding: 0 20px;
-  border-radius: 12px;
+  margin-top: 0.5rem;
+  height: 2.75rem;
+  padding: 0 1.25rem;
+  border-radius: 0.75rem;
   background: #1a1a1a;
   color: #fff;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 500;
   display: inline-flex;
   align-items: center;

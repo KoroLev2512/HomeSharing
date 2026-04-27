@@ -2,11 +2,11 @@
 
 .flat {
   width: 100%;
-  max-width: 700px;
-  padding: 20px 20px 40px;
+  max-width: 43.75rem;
+  padding: 1.25rem 1.25rem 2.5rem;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 1rem;
   background: #F6F6F6;
   box-sizing: border-box;
   margin: 0 auto;
@@ -18,8 +18,8 @@
     align-items: center;
     justify-content: flex-start;
     min-width: 0;
-    height: calc(100dvh - 72px);
-    max-height: calc(100dvh - 72px);
+    height: calc(100dvh - 4.5rem);
+    max-height: calc(100dvh - 4.5rem);
     overflow-y: auto;
     overflow-x: hidden;
     padding: 0;
@@ -33,25 +33,25 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .title {
   display: block;
   color: #000;
   font-family: Inter, sans-serif;
-  font-size: 20px;
+  font-size: 1.25rem;
   font-weight: 400;
-  line-height: 28px;
+  line-height: 1.75rem;
   margin: 0;
   flex: 1;
 }
 
 .titleIcons {
   display: flex;
-  gap: 8px;
+  gap: 0.5rem;
 
-  @media (max-width: 1064px) {
+  @media (max-width: 66.5rem) {
     :last-child {
       display: none;
     }
@@ -61,13 +61,13 @@
 .iconButton {
   border: none;
   background: #EEE;
-  width: 40px;
-  height: 40px;
+  width: 2.5rem;
+  height: 2.5rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 8px;
-  border-radius: 8px;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
   cursor: pointer;
   transition: background-color 0.2s;
 
@@ -79,8 +79,8 @@
 .imageContainer {
   position: relative;
   width: 100%;
-  height: 340px;
-  border-radius: 16px;
+  height: 21.25rem;
+  border-radius: 1rem;
   overflow: hidden;
   background: #EEE;
 }
@@ -89,12 +89,12 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 16px;
+  border-radius: 1rem;
   position: relative;
   
   img {
     object-fit: cover;
-    border-radius: 16px;
+    border-radius: 1rem;
   }
 }
 
@@ -102,9 +102,9 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  left: 8px;
-  width: 24px;
-  height: 24px;
+  left: 0.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -115,7 +115,7 @@
 
   &Right {
     left: auto;
-    right: 8px;
+    right: 0.5rem;
   }
 }
 
@@ -129,7 +129,7 @@
 .price {
   color: #000;
   font-family: Inter, sans-serif;
-  font-size: 36px;
+  font-size: 2.25rem;
   font-weight: 500;
   line-height: 1.1;
   margin: 0;
@@ -137,20 +137,20 @@
 
 .rating {
   display: flex;
-  gap: 8px;
+  gap: 0.5rem;
   align-items: center;
 
   &Text {
     color: #757575;
     font-family: Inter, sans-serif;
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 400;
-    line-height: 20px;
+    line-height: 1.25rem;
   }
 }
 
 .separator {
-  height: 1px;
+  height: 0.0625rem;
   width: 100%;
   background: #E2E2E2;
   margin: 0;
@@ -159,31 +159,31 @@
 .description {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem;
 
   &Title {
     color: #545454;
     font-family: Inter, sans-serif;
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 400;
-    line-height: 20px;
+    line-height: 1.25rem;
     margin: 0;
   }
 
   &Body {
     background-color: #FFF;
-    border-radius: 16px;
+    border-radius: 1rem;
     overflow: hidden;
   }
 }
 
 .listItem {
   display: flex;
-  gap: 8px;
+  gap: 0.5rem;
   align-items: center;
-  padding: 12px 16px;
-  min-height: 48px;
-  border-bottom: 1px solid #F6F6F6;
+  padding: 0.75rem 1rem;
+  min-height: 3rem;
+  border-bottom: 0.0625rem solid #F6F6F6;
 
   &:last-child {
     border-bottom: none;
@@ -193,36 +193,36 @@
 .propertyName {
   color: #545454;
   font-family: Inter, sans-serif;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 400;
-  line-height: 20px;
+  line-height: 1.25rem;
   white-space: nowrap;
 }
 
 .propertyValue {
   color: #000;
   font-family: Inter, sans-serif;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 400;
-  line-height: 20px;
+  line-height: 1.25rem;
   flex: 1;
 }
 
 .amenities {
   display: flex;
-  gap: 8px;
+  gap: 0.5rem;
   flex-wrap: wrap;
 }
 
 .tag {
-  font-size: 14px;
-  line-height: 16px;
+  font-size: 0.875rem;
+  line-height: 1rem;
   display: flex;
-  height: 24px;
-  padding: 4px 8px;
+  height: 1.5rem;
+  padding: 0.25rem 0.5rem;
   align-items: center;
-  gap: 8px;
-  border-radius: 4px;
+  gap: 0.5rem;
+  border-radius: 0.25rem;
   width: fit-content;
   font-family: Inter, sans-serif;
   font-weight: 400;
@@ -231,56 +231,56 @@
   &.yellow-tag,
   &.tagYellow {
     background: #FFF2D9;
-    border: 1px solid #FFE3AC;
+    border: 0.0625rem solid #FFE3AC;
     color: #BC8B2C;
   }
 
   &.green-tag,
   &.tagGreen {
     background: #DAF0E3;
-    border: 1px solid #AEDDC2;
+    border: 0.0625rem solid #AEDDC2;
     color: #368759;
   }
 
   &.lilac-tag,
   &.tagPurple {
     background: #E3DDF2;
-    border: 1px solid #C1B5E3;
+    border: 0.0625rem solid #C1B5E3;
     color: #574191;
   }
 
   &.orange-tag {
     background: #FADBD7;
-    border: 1px solid #F4AFA7;
+    border: 0.0625rem solid #F4AFA7;
     color: #AE372A;
   }
 
   &.gray-tag {
     background: #E2E2E2;
-    border: 1px solid #C5C5C5;
+    border: 0.0625rem solid #C5C5C5;
     color: #545454;
   }
 }
 
 .buttons {
   display: flex;
-  gap: 16px;
+  gap: 1rem;
   width: 100%;
 }
 
 .button {
   flex: 1;
   display: flex;
-  height: 48px;
-  padding: 12px;
+  height: 3rem;
+  padding: 0.75rem;
   justify-content: center;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   text-align: center;
-  font-size: 16px;
-  line-height: 20px;
+  font-size: 1rem;
+  line-height: 1.25rem;
   font-family: Inter, sans-serif;
   font-weight: 400;
   cursor: pointer;
@@ -304,22 +304,22 @@
 .reviews {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 1rem;
 }
 
 .reviewsList {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem;
   width: 100%;
 }
 
 .reviewCard {
   background: #FFF;
-  border-radius: 16px;
-  padding: 16px;
+  border-radius: 1rem;
+  padding: 1rem;
   display: flex;
-  gap: 8px;
+  gap: 0.5rem;
   width: 100%;
   flex-direction: row;
   align-items: flex-start;
@@ -328,10 +328,10 @@
 }
 
 .reviewAvatar {
-  width: 32px;
-  height: 32px;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
-  border: 1px solid #E2E2E2;
+  border: 0.0625rem solid #E2E2E2;
   overflow: hidden;
   flex-shrink: 0;
   position: relative;
@@ -347,7 +347,7 @@
 .reviewContent {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 1rem;
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -361,7 +361,7 @@
 
 .reviewHeaderWithAvatar {
   display: flex;
-  gap: 8px;
+  gap: 0.5rem;
   align-items: flex-start;
   width: 100%;
 }
@@ -369,37 +369,37 @@
 .reviewContentInner {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 1rem;
   flex: 1;
 }
 
 .reviewName {
   color: #545454;
   font-family: Inter, sans-serif;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 400;
-  line-height: 16px;
+  line-height: 1rem;
 }
 
 .reviewText {
   color: #000;
   font-family: Inter, sans-serif;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 400;
-  line-height: 20px;
+  line-height: 1.25rem;
   margin: 0;
 }
 
 .reviewRating {
   display: flex;
-  gap: 8px;
+  gap: 0.5rem;
   align-items: center;
 }
 
 .reviewReply {
   background: #F6F6F6;
-  border-radius: 8px;
-  padding: 8px 16px;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -410,9 +410,9 @@
   &Text {
     color: #757575;
     font-family: Inter, sans-serif;
-    font-size: 14px;
+    font-size: 0.875rem;
     font-weight: 400;
-    line-height: 20px;
+    line-height: 1.25rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -423,11 +423,11 @@
 
 .reviewReplyNested {
   display: flex;
-  gap: 8px;
+  gap: 0.5rem;
   align-items: flex-start;
 }
 
-@media (max-width: 1064px) {
+@media (max-width: 66.5rem) {
   .flatWrapper {
     display: none;
   }
@@ -439,6 +439,6 @@
     background: transparent;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 1rem;
   }
 }

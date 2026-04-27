@@ -13,7 +13,7 @@
   position: relative;
   width: 12em;
   height: 12em;
-  font-size: 14px;
+  font-size: 0.875rem;
   transform: scale(0.75);
 }
 
@@ -128,7 +128,7 @@
 .hamster__limb--fr {
   animation: hamsterFRLimb var(--dur) linear infinite;
   background: linear-gradient(hsl(30,90%,80%) 80%,hsl(0,90%,75%) 80%);
-  transform: rotate(15deg) translateZ(-1px);
+  transform: rotate(15deg) translateZ(-0.0625rem);
 }
 
 .hamster__limb--fl {
@@ -151,7 +151,7 @@
 .hamster__limb--br {
   animation: hamsterBRLimb var(--dur) linear infinite;
   background: linear-gradient(hsl(30,90%,80%) 90%,hsl(0,90%,75%) 90%);
-  transform: rotate(-25deg) translateZ(-1px);
+  transform: rotate(-25deg) translateZ(-0.0625rem);
 }
 
 .hamster__limb--bl {
@@ -169,7 +169,7 @@
   right: -0.5em;
   width: 1em;
   height: 0.5em;
-  transform: rotate(30deg) translateZ(-1px);
+  transform: rotate(30deg) translateZ(-0.0625rem);
   transform-origin: 0.25em 0.25em;
 }
 
@@ -232,11 +232,11 @@
 
 @keyframes hamsterFRLimb {
   from, 25%, 50%, 75%, to {
-    transform: rotate(50deg) translateZ(-1px);
+    transform: rotate(50deg) translateZ(-0.0625rem);
   }
 
   12.5%, 37.5%, 62.5%, 87.5% {
-    transform: rotate(-30deg) translateZ(-1px);
+    transform: rotate(-30deg) translateZ(-0.0625rem);
   }
 }
 
@@ -252,11 +252,11 @@
 
 @keyframes hamsterBRLimb {
   from, 25%, 50%, 75%, to {
-    transform: rotate(-60deg) translateZ(-1px);
+    transform: rotate(-60deg) translateZ(-0.0625rem);
   }
 
   12.5%, 37.5%, 62.5%, 87.5% {
-    transform: rotate(20deg) translateZ(-1px);
+    transform: rotate(20deg) translateZ(-0.0625rem);
   }
 }
 
@@ -272,11 +272,11 @@
 
 @keyframes hamsterTail {
   from, 25%, 50%, 75%, to {
-    transform: rotate(30deg) translateZ(-1px);
+    transform: rotate(30deg) translateZ(-0.0625rem);
   }
 
   12.5%, 37.5%, 62.5%, 87.5% {
-    transform: rotate(10deg) translateZ(-1px);
+    transform: rotate(10deg) translateZ(-0.0625rem);
   }
 }
 

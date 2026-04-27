@@ -63,7 +63,7 @@ export const NavigationBar = (): React.JSX.Element => {
         {icon: <StarIcon/>, name: "Избранное", href: "/favorites"},
         isHost ? {icon: <HomeIcon/>, name: "Мои объявления", href: "/host/listings"} : null,
         isHost ? {icon: <HomeIcon/>, name: "Заявки гостей", href: "/host/bookings"} : null,
-        isAuthenticated ? {icon: <HomeIcon/>, name: "Мои бронирования", href: "/bookings"} : null,
+        isAuthenticated ? {icon: <HomeIcon/>, name: "Бронирования", href: "/bookings"} : null,
         isAuthenticated ? {icon: <MessageIcon/>, name: "Сообщения", href: "/messages"} : null,
         isAuthenticated ? {icon: <NotifyIcon/>, name: "Уведомления", href: "/notifications"} : null,
         isAuthenticated ? {icon: <SettingsIcon/>, name: "Параметры", href: "/settings"} : null,
@@ -92,6 +92,32 @@ export const NavigationBar = (): React.JSX.Element => {
     };
 
     const showMenu = menuPageIsOpen;
+    const isItemActive = (href: string): boolean => {
+        if (!route) return false;
+        return route === href || route.startsWith(`${href}/`);
+    };
+
+    if (isMobile) {
+        return (
+            <nav className={styles.mobileBar} aria-label="Мобильная навигация">
+                <ul className={styles.mobileNav}>
+                    {MenuItems.map((item, index) => (
+                        <li key={`${item.href}-${index}`} className={styles.mobileItem}>
+                            <Link
+                                href={item.href ?? '#'}
+                                className={classNames(styles.mobileLink, {
+                                    [styles.mobileLinkActive]: Boolean(item.href && isItemActive(item.href)),
+                                })}
+                            >
+                                {item.icon}
+                                <span className={styles.mobileLabel}>{item.name}</span>
+                            </Link>
+                        </li>
+                    ))}
+                </ul>
+            </nav>
+        );
+    }
 
     return (
         <div 
@@ -107,7 +133,7 @@ export const NavigationBar = (): React.JSX.Element => {
                     <NavigationBarToggle menuPageIsOpen={showMenu} />
                 </div>
             </div>
-            <div className={classNames(styles, {[styles.navigationWrapper]: showMenu})} onClick={() => {
+            <div className={classNames({[styles.navigationWrapper]: showMenu})} onClick={() => {
                 toggleMenuPage(false);
             }}>
                 <div className={classNames(styles.navigation, {[styles.openNav]: showMenu})} onClick={(e) => {

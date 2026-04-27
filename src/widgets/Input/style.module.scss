@@ -3,7 +3,7 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem;
   width: 100%;
 
   // Disabled стили применяются ко всему контейнеру
@@ -21,33 +21,33 @@
 .label {
   color: var(--Black, #000);
   font-family: "Inter", sans-serif;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-style: normal;
   font-weight: 400;
-  line-height: 16px;
+  line-height: 1rem;
 }
 
 .inputWrapper {
   display: flex;
   align-items: center;
-  gap: 8px;
-  border-radius: 8px;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
   box-sizing: border-box;
   width: 100%;
-  min-height: 40px;
+  min-height: 2.5rem;
   position: relative;
   transition: background-color 0.2s, border-color 0.2s;
 }
 
 // Размеры
 .size-small {
-  height: 40px;
-  padding: 8px 16px;
+  height: 2.5rem;
+  padding: 0.5rem 1rem;
 }
 
 .size-medium {
-  height: 48px;
-  padding: 12px 16px;
+  height: 3rem;
+  padding: 0.75rem 1rem;
 }
 
 // Состояния
@@ -58,76 +58,76 @@
 
 .state-focus {
   background: #F6F6F6;
-  border: 2px solid #276EF1;
+  border: 0.125rem solid #276EF1;
 
   &.size-small {
-    height: 40px;
-    padding: 6px 14px;
+    height: 2.5rem;
+    padding: 0.375rem 0.875rem;
   }
 
   &.size-medium {
-    height: 48px;
-    padding: 10px 14px;
+    height: 3rem;
+    padding: 0.625rem 0.875rem;
   }
 }
 
 .state-active {
   background: #FFFFFF;
-  border: 2px solid #000000;
+  border: 0.125rem solid #000000;
 
   &.size-small {
-    height: 40px;
-    padding: 6px 14px;
+    height: 2.5rem;
+    padding: 0.375rem 0.875rem;
   }
 
   &.size-medium {
-    height: 48px;
-    padding: 10px 14px;
+    height: 3rem;
+    padding: 0.625rem 0.875rem;
   }
 }
 
 .state-active-typing {
   background: #FFFFFF;
-  border: 2px solid #000000;
+  border: 0.125rem solid #000000;
 
   &.size-small {
-    height: 40px;
-    padding: 6px 14px;
+    height: 2.5rem;
+    padding: 0.375rem 0.875rem;
   }
 
   &.size-medium {
-    height: 48px;
-    padding: 10px 14px;
+    height: 3rem;
+    padding: 0.625rem 0.875rem;
   }
 }
 
 .state-error {
   background: #FFFFFF;
-  border: 2px solid #D44333;
+  border: 0.125rem solid #D44333;
 
   &.size-small {
-    height: 40px;
-    padding: 6px 14px;
+    height: 2.5rem;
+    padding: 0.375rem 0.875rem;
   }
 
   &.size-medium {
-    height: 48px;
-    padding: 10px 14px;
+    height: 3rem;
+    padding: 0.625rem 0.875rem;
   }
 }
 
 .state-success {
   background: #FFFFFF;
-  border: 2px solid #3AA76D;
+  border: 0.125rem solid #3AA76D;
 
   &.size-small {
-    height: 40px;
-    padding: 6px 14px;
+    height: 2.5rem;
+    padding: 0.375rem 0.875rem;
   }
 
   &.size-medium {
-    height: 48px;
-    padding: 10px 14px;
+    height: 3rem;
+    padding: 0.625rem 0.875rem;
   }
 }
 
@@ -148,7 +148,7 @@
 
 .state-readonly {
   background: #FFFFFF;
-  border: 1px solid #E2E2E2;
+  border: 0.0625rem solid #E2E2E2;
 }
 
 .state-disabled {
@@ -157,13 +157,13 @@
   cursor: not-allowed;
 
   &.size-small {
-    height: 40px;
-    padding: 8px 16px;
+    height: 2.5rem;
+    padding: 0.5rem 1rem;
   }
 
   &.size-medium {
-    height: 48px;
-    padding: 12px 16px;
+    height: 3rem;
+    padding: 0.75rem 1rem;
   }
 }
 
@@ -175,10 +175,10 @@
   background: transparent;
   color: #000000;
   font-family: "Inter", sans-serif;
-  font-size: 16px;
+  font-size: 1rem;
   font-style: normal;
   font-weight: 400;
-  line-height: 24px;
+  line-height: 1.5rem;
   padding: 0;
 
   &::placeholder {
@@ -297,7 +297,7 @@
   &:-webkit-autofill:hover,
   &:-webkit-autofill:focus,
   &:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 30px #F6F6F6 inset !important;
+    -webkit-box-shadow: 0 0 0 1.875rem #F6F6F6 inset !important;
     -webkit-text-fill-color: #000000 !important;
     background-color: transparent !important;
   }
@@ -307,7 +307,7 @@
   .state-active-typing &:-webkit-autofill,
   .state-error &:-webkit-autofill,
   .state-success &:-webkit-autofill {
-    -webkit-box-shadow: 0 0 0 30px #FFFFFF inset !important;
+    -webkit-box-shadow: 0 0 0 1.875rem #FFFFFF inset !important;
     background-color: transparent !important;
   }
 }
@@ -318,8 +318,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
 .clearButton,
@@ -328,8 +328,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
+  width: 1.5rem;
+  height: 1.5rem;
   padding: 0;
   border: none;
   background: transparent;
@@ -353,14 +353,14 @@
 .hint {
   display: flex;
   align-items: center;
-  gap: 4px;
-  min-height: 20px;
+  gap: 0.25rem;
+  min-height: 1.25rem;
   color: #757575;
   font-family: "Inter", sans-serif;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-style: normal;
   font-weight: 400;
-  line-height: 20px;
+  line-height: 1.25rem;
 
   span {
     flex: 1;
