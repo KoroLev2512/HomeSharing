@@ -34,10 +34,6 @@
 
   &:hover, span:hover {
     color: var(--main-color);
-
-    svg path {
-      stroke: var(--gray-color);
-    }
   }
 
   svg{
@@ -53,9 +49,6 @@
   color: var(--Black, #000);
   & span {
     color: var(--Black, #000);
-  }
-  & svg path {
-    stroke: var(--Black, #000);
   }
 }
 

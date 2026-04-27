@@ -73,10 +73,6 @@
 .mobileLinkActive {
   background: var(--Grey-100, #EEE);
   color: var(--Black, #000);
-
-  svg path {
-    stroke: var(--Black, #000);
-  }
 }
 
 @media (max-width: 22.5rem) {
