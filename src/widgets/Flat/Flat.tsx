@@ -217,7 +217,7 @@ export const Flat = ({flat, onClose, isModal = false}: IProps) => {
                         {/* Пример отзыва */}
                         <div className={styles.reviewCard}>
                             <div className={styles.reviewAvatar}>
-                                <Image src="/users/" alt="Аватар" width={32} height={32} />
+                                <Image src="/users/user_1.webp" alt="Аватар" width={32} height={32} />
                             </div>
                             <div className={styles.reviewContent}>
                                 <div className={styles.reviewHeader}>
@@ -265,7 +265,7 @@ export const Flat = ({flat, onClose, isModal = false}: IProps) => {
                                         {/* Ответ на комментарий */}
                                         <div className={styles.reviewReplyNested}>
                                             <div className={styles.reviewAvatar}>
-                                                <Image src="/users/" alt="Аватар" width={32} height={32} />
+                                                <Image src="/users/user_1.webp" alt="Аватар" width={32} height={32} />
                                             </div>
                                             <div>
                                                 <span className={styles.reviewName}>Юрий Королев</span>

@@ -188,165 +188,167 @@ export const ListingsBoard: React.FC = () => {
                 </div>
             </div>
 
-            {!session?.user && (
+            <div className={styles.content}>
+                {!session?.user && (
+                    <Section margin={0}>
+                        <h1 className={styles.title}>Объявления</h1>
+                    </Section>
+                )}
+
                 <Section margin={0}>
-                    <h1 className={styles.title}>Объявления</h1>
-                </Section>
-            )}
-
-            <Section margin={0}>
-                <div className={styles.dealTabsRow}>
-                    {dealTabs.map((tab) => (
-                        <button
-                            key={tab.label}
-                            type="button"
-                            className={classNames(styles.dealTabButton, {
-                                [styles.dealTabButtonActive]: filters.dealType === tab.value,
-                            })}
-                            onClick={() => handleDealTab(tab.value)}
-                        >
-                            {tab.label}
-                        </button>
-                    ))}
-                </div>
-            </Section>
-
-            <Section margin={0}>
-                <div className={styles.searchRow}>
-                    <SearchInput
-                        placeholder="Город, район, метро или адрес"
-                        value={searchQ}
-                        onChange={(e) => setSearchQ(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit()}
-                        size="medium"
-                        showClearButton
-                        className={styles.searchInput}
-                    />
-                    <button type="button" className={styles.searchButton} onClick={handleSearchSubmit}>
-                        Найти
-                    </button>
-                    <button
-                        type="button"
-                        className={styles.mobileFiltersButton}
-                        onClick={() => setShowFiltersMobile((v) => !v)}
-                        aria-label="Фильтры"
-                    >
-                        <FilterIcon width={22} height={22} />
-                        Фильтры
-                    </button>
-                </div>
-            </Section>
-
-            <Section margin={0}>
-                <div className={styles.contentRow}>
-                    <div
-                        className={classNames(styles.sidebar, {
-                            [styles.sidebarMobileOpen]: showFiltersMobile,
-                        })}
-                    >
-                        <ListingFilters
-                            value={filters}
-                            onChange={handleFiltersChange}
-                            cities={mockCities}
-                        />
+                    <div className={styles.dealTabsRow}>
+                        {dealTabs.map((tab) => (
+                            <button
+                                key={tab.label}
+                                type="button"
+                                className={classNames(styles.dealTabButton, {
+                                    [styles.dealTabButtonActive]: filters.dealType === tab.value,
+                                })}
+                                onClick={() => handleDealTab(tab.value)}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
                     </div>
+                </Section>
 
-                    <div className={styles.mainColumn}>
-                        <div className={styles.toolbar}>
-                            <div className={styles.totalLabel}>{totalLabel}</div>
-                            <div className={styles.toolbarRight}>
-                                <Select<ListingsSort>
-                                    value={sort}
-                                    onChange={handleSortChange}
-                                    options={sortOptions}
-                                    triggerPrefix="Сортировка: "
-                                    className={styles.sortSelect}
-                                />
-                                <div className={styles.viewToggle}>
-                                    <button
-                                        type="button"
-                                        className={classNames(styles.viewButton, { [styles.viewButtonActive]: view === 'list' })}
-                                        onClick={() => updateView('list')}
-                                        aria-label="Список"
-                                    >
+                <Section margin={0}>
+                    <div className={styles.searchRow}>
+                        <SearchInput
+                            placeholder="Город, район, метро или адрес"
+                            value={searchQ}
+                            onChange={(e) => setSearchQ(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit()}
+                            size="medium"
+                            showClearButton
+                            className={styles.searchInput}
+                        />
+                        <button type="button" className={styles.searchButton} onClick={handleSearchSubmit}>
+                            Найти
+                        </button>
+                        <button
+                            type="button"
+                            className={styles.mobileFiltersButton}
+                            onClick={() => setShowFiltersMobile((v) => !v)}
+                            aria-label="Фильтры"
+                        >
+                            <FilterIcon width={22} height={22} />
+                            Фильтры
+                        </button>
+                    </div>
+                </Section>
+
+                <Section margin={0}>
+                    <div className={styles.contentRow}>
+                        <div
+                            className={classNames(styles.sidebar, {
+                                [styles.sidebarMobileOpen]: showFiltersMobile,
+                            })}
+                        >
+                            <ListingFilters
+                                value={filters}
+                                onChange={handleFiltersChange}
+                                cities={mockCities}
+                            />
+                        </div>
+
+                        <div className={styles.mainColumn}>
+                            <div className={styles.toolbar}>
+                                <div className={styles.totalLabel}>{totalLabel}</div>
+                                <div className={styles.toolbarRight}>
+                                    <Select<ListingsSort>
+                                        value={sort}
+                                        onChange={handleSortChange}
+                                        options={sortOptions}
+                                        triggerPrefix="Сортировка: "
+                                        className={styles.sortSelect}
+                                    />
+                                    <div className={styles.viewToggle}>
+                                        <button
+                                            type="button"
+                                            className={classNames(styles.viewButton, { [styles.viewButtonActive]: view === 'list' })}
+                                            onClick={() => updateView('list')}
+                                            aria-label="Список"
+                                        >
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                                             <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                                         </svg>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className={classNames(styles.viewButton, { [styles.viewButtonActive]: view === 'grid' })}
-                                        onClick={() => updateView('grid')}
-                                        aria-label="Сетка"
-                                    >
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={classNames(styles.viewButton, { [styles.viewButtonActive]: view === 'grid' })}
+                                            onClick={() => updateView('grid')}
+                                            aria-label="Сетка"
+                                        >
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                                             <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
                                             <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
                                             <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
                                             <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
                                         </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {isLoading && !data ? (
+                                <div
+                                    className={classNames(styles.listingsList, {
+                                        [styles.listingsGrid]: view === 'grid',
+                                    })}
+                                >
+                                    <ListingCardSkeletonList count={6} layout={view} />
+                                </div>
+                            ) : data && data.items.length > 0 ? (
+                                <div
+                                    className={classNames(styles.listingsList, {
+                                        [styles.listingsGrid]: view === 'grid',
+                                        [styles.listingsLoading]: isLoading,
+                                    })}
+                                >
+                                    {data.items.map((item: IListing) => (
+                                        <ListingCard key={item.id} listing={item} layout={view} />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className={styles.emptyState}>
+                                    <div className={styles.emptyTitle}>Ничего не найдено</div>
+                                    <div className={styles.emptyText}>
+                                        Попробуйте изменить фильтры или сбросить параметры поиска.
+                                    </div>
+                                    <button type="button" className={styles.emptyButton} onClick={() => setFilters({})}>
+                                        Сбросить фильтры
                                     </button>
                                 </div>
-                            </div>
+                            )}
+
+                            {data && data.totalPages > 1 && (
+                                <div className={styles.pagination}>
+                                    <button
+                                        type="button"
+                                        className={styles.pageButton}
+                                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                        disabled={page <= 1}
+                                    >
+                                        Назад
+                                    </button>
+                                    <div className={styles.pageInfo}>
+                                        Стр. {data.page} из {data.totalPages}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className={styles.pageButton}
+                                        onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
+                                        disabled={page >= data.totalPages}
+                                    >
+                                        Дальше
+                                    </button>
+                                </div>
+                            )}
                         </div>
-
-                        {isLoading && !data ? (
-                            <div
-                                className={classNames(styles.listingsList, {
-                                    [styles.listingsGrid]: view === 'grid',
-                                })}
-                            >
-                                <ListingCardSkeletonList count={6} layout={view} />
-                            </div>
-                        ) : data && data.items.length > 0 ? (
-                            <div
-                                className={classNames(styles.listingsList, {
-                                    [styles.listingsGrid]: view === 'grid',
-                                    [styles.listingsLoading]: isLoading,
-                                })}
-                            >
-                                {data.items.map((item: IListing) => (
-                                    <ListingCard key={item.id} listing={item} layout={view} />
-                                ))}
-                            </div>
-                        ) : (
-                            <div className={styles.emptyState}>
-                                <div className={styles.emptyTitle}>Ничего не найдено</div>
-                                <div className={styles.emptyText}>
-                                    Попробуйте изменить фильтры или сбросить параметры поиска.
-                                </div>
-                                <button type="button" className={styles.emptyButton} onClick={() => setFilters({})}>
-                                    Сбросить фильтры
-                                </button>
-                            </div>
-                        )}
-
-                        {data && data.totalPages > 1 && (
-                            <div className={styles.pagination}>
-                                <button
-                                    type="button"
-                                    className={styles.pageButton}
-                                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                                    disabled={page <= 1}
-                                >
-                                    Назад
-                                </button>
-                                <div className={styles.pageInfo}>
-                                    Стр. {data.page} из {data.totalPages}
-                                </div>
-                                <button
-                                    type="button"
-                                    className={styles.pageButton}
-                                    onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
-                                    disabled={page >= data.totalPages}
-                                >
-                                    Дальше
-                                </button>
-                            </div>
-                        )}
                     </div>
-                </div>
-            </Section>
+                </Section>
+            </div>
         </div>
     );
 };

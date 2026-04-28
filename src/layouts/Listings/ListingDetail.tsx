@@ -117,29 +117,33 @@ export const ListingDetail: React.FC<IProps> = ({ id }) => {
 
     const photos = listing.images.length ? listing.images : ['/rooms/room.png'];
     const favored = isFavorite(listing.id);
+    const heroTitle = buildListingSubtitle(listing);
+    const ownerAvatarSrc = listing.owner.avatar === '/users/user_1.png'
+        ? '/users/user_1.webp'
+        : (listing.owner.avatar || '/users/user_1.webp');
 
     return (
         <div className={styles.root}>
             <div className={styles.heroBar}>
-                <h1 className={styles.heroTitle}>{listing.title}</h1>
+                <h1 className={styles.heroTitle}>{heroTitle}</h1>
                 <Link href="/listings" className={styles.heroBackLink}>
                     Все объявления
                 </Link>
             </div>
 
-            <div className={styles.headerBlock}>
-                <div className={styles.dealBadge}>{dealLabel[listing.dealType]}</div>
-                <div className={styles.subtitle}>{buildListingSubtitle(listing)}</div>
-                <div className={styles.addressRow}>
-                    <LocationIcon width={18} height={18} color="#1a1a1a" />
-                    <span>{listing.address}</span>
-                    {buildListingLocation(listing) && <span className={styles.metaInline}> · {buildListingLocation(listing)}</span>}
+            <div className={styles.content}>
+                <div className={styles.headerBlock}>
+                    <div className={styles.dealBadge}>{dealLabel[listing.dealType]}</div>
+                    <div className={styles.addressRow}>
+                        <LocationIcon width={18} height={18} color="#1a1a1a" />
+                        <span>{listing.address}</span>
+                        {buildListingLocation(listing) && <span className={styles.metaInline}> · {buildListingLocation(listing)}</span>}
+                    </div>
                 </div>
-            </div>
 
-            <div className={styles.layout}>
-                <div className={styles.leftColumn}>
-                    <div className={styles.gallery}>
+                <div className={styles.layout}>
+                    <div className={styles.leftColumn}>
+                        <div className={styles.gallery}>
                         <div
                             className={styles.galleryTrack}
                             style={{ transform: `translate3d(-${photoIdx * 100}%, 0, 0)` }}
@@ -216,20 +220,20 @@ export const ListingDetail: React.FC<IProps> = ({ id }) => {
                         )}
                     </div>
 
-                    {photos.length > 1 && (
-                        <div className={styles.thumbStrip}>
-                            {photos.map((p, i) => (
-                                <button
-                                    type="button"
-                                    key={p + i}
-                                    className={classNames(styles.thumb, { [styles.thumbActive]: i === photoIdx })}
-                                    onClick={() => setPhotoIdx(i)}
-                                >
-                                    <img src={p} alt="" />
-                                </button>
-                            ))}
-                        </div>
-                    )}
+                        {photos.length > 1 && (
+                            <div className={styles.thumbStrip}>
+                                {photos.map((p, i) => (
+                                    <button
+                                        type="button"
+                                        key={p + i}
+                                        className={classNames(styles.thumb, { [styles.thumbActive]: i === photoIdx })}
+                                        onClick={() => setPhotoIdx(i)}
+                                    >
+                                        <img src={p} alt="" />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
 
                     <div className={styles.specs}>
                         <h3 className={styles.sectionTitle}>Параметры</h3>
@@ -303,8 +307,8 @@ export const ListingDetail: React.FC<IProps> = ({ id }) => {
                     </div>
                 </div>
 
-                <aside className={styles.rightColumn}>
-                    <div className={styles.priceBox}>
+                    <aside className={styles.rightColumn}>
+                        <div className={styles.priceBox}>
                         <div className={styles.price}>{formatPrice(listing.price, listing.pricePeriod ?? null)}</div>
                         {typeof listing.rating === 'number' && (
                             <div className={styles.ratingRow}>
@@ -317,7 +321,7 @@ export const ListingDetail: React.FC<IProps> = ({ id }) => {
 
                         <div className={styles.ownerCard}>
                             <img
-                                src={listing.owner.avatar || '/users/user_1.webp'}
+                                src={ownerAvatarSrc}
                                 alt={listing.owner.name}
                                 className={styles.ownerAvatar}
                             />
@@ -356,41 +360,28 @@ export const ListingDetail: React.FC<IProps> = ({ id }) => {
                             <span>{favored ? 'В избранном' : 'Сохранить'}</span>
                         </button>
 
-                        {!session?.user ? (
-                            <div className={styles.guestNotice}>
-                                <div className={styles.guestNoticeText}>
-                                    Чтобы написать сообщение собственнику, войдите в аккаунт.
-                                </div>
-                                <div className={styles.guestActions}>
-                                    <Link href="/login" className={styles.secondaryButton}>
-                                        Войти
-                                    </Link>
-                                    <Link href="/register" className={styles.primaryButton}>
-                                        Создать аккаунт
-                                    </Link>
-                                </div>
-                            </div>
-                        ) : (
+                        {session?.user && (
                             <button type="button" className={styles.primaryButton}>
                                 Написать сообщение
                             </button>
                         )}
-                    </div>
+                        </div>
 
-                    {listing.dealType !== 'sale' && <BookingForm listing={listing} />}
-                </aside>
-            </div>
-
-            {similar.length > 0 && (
-                <div className={styles.similarSection}>
-                    <h2 className={styles.similarTitle}>Похожие предложения</h2>
-                    <div className={styles.similarGrid}>
-                        {similar.map((item) => (
-                            <ListingCard key={item.id} listing={item} layout="grid" />
-                        ))}
-                    </div>
+                        {listing.dealType !== 'sale' && <BookingForm listing={listing} />}
+                    </aside>
                 </div>
-            )}
+
+                {similar.length > 0 && (
+                    <div className={styles.similarSection}>
+                        <h2 className={styles.similarTitle}>Похожие предложения</h2>
+                        <div className={styles.similarGrid}>
+                            {similar.map((item) => (
+                                <ListingCard key={item.id} listing={item} layout="grid" />
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

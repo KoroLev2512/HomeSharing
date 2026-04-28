@@ -15,11 +15,11 @@ const supabase = createClient(supabaseUrl, serviceKey, {
 });
 
 const owners = [
-    { name: 'Юрий Королев', avatar: '/users/user_1.png', type: 'owner', phoneMasked: '+7 (911) ••• ••-23' },
+    { name: 'Юрий Королев', avatar: '/users/user_1.webp', type: 'owner', phoneMasked: '+7 (911) ••• ••-23' },
     { name: 'Мария Петрова', avatar: '/users/user_2.png', type: 'owner', phoneMasked: '+7 (921) ••• ••-58' },
-    { name: 'Александр Сидоров', avatar: '/users/user_1.png', type: 'owner', phoneMasked: '+7 (931) ••• ••-04' },
+    { name: 'Александр Сидоров', avatar: '/users/user_1.webp', type: 'owner', phoneMasked: '+7 (931) ••• ••-04' },
     { name: 'Этажи', avatar: '/users/user_2.png', type: 'agency', phoneMasked: '+7 (812) ••• ••-12' },
-    { name: 'Самолет Плюс', avatar: '/users/user_1.png', type: 'agency', phoneMasked: '+7 (812) ••• ••-77' },
+    { name: 'Самолет Плюс', avatar: '/users/user_1.webp', type: 'agency', phoneMasked: '+7 (812) ••• ••-77' },
 ];
 
 const baseAmenities = ['Wi-Fi', 'Стиральная машина', 'Холодильник', 'Кондиционер', 'Балкон'];
