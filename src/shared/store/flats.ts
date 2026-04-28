@@ -39,7 +39,7 @@ export const testPersons: IPerson[] = [
         id: 1,
         name: 'Мария Петрова',
         role: 'Пользователь',
-        icon: '/users/user_1.png'
+        icon: '/users/user_1.webp'
     },
     {
         id: 2,

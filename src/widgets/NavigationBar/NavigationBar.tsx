@@ -159,7 +159,7 @@ export const NavigationBar = (): React.JSX.Element => {
                         <div className={styles.userRowCompact}>
                             <div className={styles.avatar}>
                                 <img
-                                    src={typeof session.user.image === 'string' && session.user.image ? session.user.image : '/users/user_1.png'}
+                                    src={typeof session.user.image === 'string' && session.user.image ? session.user.image : '/users/user_1.webp'}
                                     alt="Аватар"
                                 />
                             </div>
@@ -185,7 +185,7 @@ export const NavigationBar = (): React.JSX.Element => {
                         <div className={styles.userInfo}>
                             <div className={styles.avatarFull}>
                                 <img
-                                    src={typeof session.user.image === 'string' && session.user.image ? session.user.image : '/users/user_1.png'}
+                                    src={typeof session.user.image === 'string' && session.user.image ? session.user.image : '/users/user_1.webp'}
                                     alt="Аватар"
                                 />
                             </div>

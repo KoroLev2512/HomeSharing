@@ -7,7 +7,7 @@ import { authOptions } from "@/shared/lib/auth";
 export default async function HomePage() {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user?.id) {
+    if (session?.user?.id) {
         redirect("/listings");
     }
 

@@ -317,7 +317,7 @@ export const ListingDetail: React.FC<IProps> = ({ id }) => {
 
                         <div className={styles.ownerCard}>
                             <img
-                                src={listing.owner.avatar || '/users/user_1.png'}
+                                src={listing.owner.avatar || '/users/user_1.webp'}
                                 alt={listing.owner.name}
                                 className={styles.ownerAvatar}
                             />

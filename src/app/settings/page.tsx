@@ -52,7 +52,7 @@ export default function SettingsPage(): React.JSX.Element | null {
     }
   };
 
-  const defaultAvatar = "/users/user_1.png";
+  const defaultAvatar = "/users/user_1.webp";
   const initialEmail = session?.user?.email ?? "";
   const initialName = session?.user?.name ?? "";
 
@@ -130,11 +130,12 @@ export default function SettingsPage(): React.JSX.Element | null {
   };
 
   const handleAvatarFile: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    const input = e.currentTarget;
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
       setAvatarError("Можно загружать только изображения");
-      e.currentTarget.value = "";
+      input.value = "";
       return;
     }
 
@@ -156,7 +157,7 @@ export default function SettingsPage(): React.JSX.Element | null {
       })
       .finally(() => {
         setAvatarUploading(false);
-        e.currentTarget.value = "";
+        input.value = "";
       });
   };
 

@@ -38,7 +38,7 @@ export async function POST(req: Request) {
         const objectPath = `${session.userId}/${Date.now()}.${ext}`;
         const buffer = Buffer.from(await file.arrayBuffer());
 
-        const { error: uploadError } = await supabase.storage
+        let { error: uploadError } = await supabase.storage
             .from(AVATARS_BUCKET)
             .upload(objectPath, buffer, {
                 upsert: true,
@@ -46,11 +46,30 @@ export async function POST(req: Request) {
                 cacheControl: '3600',
             });
 
+        // In local/dev setups the bucket may be missing; create it and retry once.
+        if (uploadError?.message?.toLowerCase().includes('bucket') && uploadError.message.toLowerCase().includes('not found')) {
+            const { error: createBucketError } = await supabase.storage.createBucket(AVATARS_BUCKET, {
+                public: true,
+                fileSizeLimit: `${MAX_FILE_SIZE_BYTES}`,
+                allowedMimeTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/gif'],
+            });
+
+            if (!createBucketError) {
+                const retry = await supabase.storage
+                    .from(AVATARS_BUCKET)
+                    .upload(objectPath, buffer, {
+                        upsert: true,
+                        contentType: file.type,
+                        cacheControl: '3600',
+                    });
+                uploadError = retry.error;
+            }
+        }
+
         if (uploadError) {
             return NextResponse.json(
                 {
-                    error:
-                        'Failed to upload avatar to storage. Ensure bucket "avatars" exists and has public read access.',
+                    error: `Failed to upload avatar to storage: ${uploadError.message}`,
                 },
                 { status: 500 },
             );
