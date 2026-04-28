@@ -1,15 +1,12 @@
-import React from "react";
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { HomeLayout } from "@/layouts/Home/HomeLayout";
-import { authOptions } from "@/shared/lib/auth";
+import React from 'react';
+import type { Metadata } from 'next';
+import { ListingsBoard } from '@/layouts/Listings/ListingsBoard';
 
-export default async function HomePage() {
-    const session = await getServerSession(authOptions);
+export const metadata: Metadata = {
+    title: 'Объявления — HomeSharing',
+    description: 'Аренда и покупка квартир без регистрации.',
+};
 
-    if (session?.user?.id) {
-        redirect("/listings");
-    }
-
-    return <HomeLayout />;
+export default function HomePage() {
+    return <ListingsBoard />;
 }

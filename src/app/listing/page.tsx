@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
-export default async function ListingsPage() {
+export default async function ListingAliasPage() {
     redirect("/");
 }
