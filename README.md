@@ -1,168 +1,117 @@
-# LockBox CRM
+# HomeSharing
 
-Система управления объектами недвижимости с полноценной авторизацией и OAuth провайдерами.
+HomeSharing is a `Next.js` application for rental listings, favorites, and a private owner dashboard.
 
-## 🚀 Возможности
+## Current product shape
 
-### 🔐 Авторизация
-- **Регистрация и вход** по email/паролю
-- **OAuth провайдеры**: Google, VK
-- **Роли пользователей**: Пользователь, Администратор, Сервис
-- **Защищенные маршруты** с проверкой ролей
-- **Автоматический редирект** неавторизованных пользователей
+- Public area:
+  - `/listings` listing catalog
+  - `/listings/[id]` listing details
+  - `/favorites`
+- Auth:
+  - credentials login
+  - optional OAuth via `Google` and `GitHub`
+- Private area:
+  - `/` owner dashboard with "Мои объекты"
+  - `/settings`
+  - `/users/[id]` minimal profile page
 
-### 🏠 Управление объектами
-- Просмотр списка объектов недвижимости
-- Детальная информация об объектах
-- Поиск и фильтрация
+## Stack
 
-### 👤 Профиль пользователя
-- Отображение информации о пользователе
-- Управление ролями
-- Безопасный выход из системы
+- `Next.js 16`
+- `React 19`
+- `TypeScript`
+- `SCSS Modules`
+- `next-auth` v4 with JWT sessions
+- `Supabase`
+- `Zustand`
 
-## 🛠 Технологии
+## Data model
 
-- **Frontend**: Next.js 15, React 18, TypeScript
-- **Backend**: Next.js API Routes
-- **База данных**: Supabase (PostgreSQL)
-- **Авторизация**: NextAuth.js 4
-- **Стили**: SCSS Modules
-- **Состояние**: Zustand
+Current runtime data access goes through Supabase tables and route handlers.
 
-## 📦 Установка и запуск
+`Prisma` is kept in the repository as a fallback layer for a possible future return, but it is not the active runtime path.
 
-### 1. Клонирование репозитория
-```bash
-git clone <repository-url>
-cd homesharing
+## Environment variables
+
+Use [`.env.example`](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/.env.example) as the template.
+
+Required for the current runtime:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="your-supabase-anon-key"
+SUPABASE_SERVICE_ROLE_KEY="your-supabase-service-role-key"
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="generate-a-random-secret"
 ```
 
-### 2. Установка зависимостей
+Optional OAuth providers:
+
+```env
+GITHUB_ID=""
+GITHUB_SECRET=""
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+```
+
+Important:
+
+- set both values for a provider or leave both empty
+- `SUPABASE_SERVICE_ROLE_KEY` is expected by server-side data access
+- `DATABASE_URL` is retained only for the Prisma fallback layer
+
+## Local setup
+
+1. Install dependencies:
+
 ```bash
 npm install
 ```
 
-### 3. Настройка базы данных
-Проект использует Supabase в качестве базы данных. Убедитесь, что у вас есть:
-- Аккаунт Supabase
-- Созданный проект в Supabase
-- Таблицы созданы в базе данных (User, Account, Session, VerificationToken)
+2. Create `.env.local` from `.env.example`
 
-### 4. Настройка переменных окружения
-Создайте файл `.env.local`:
-```env
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
+3. Start the dev server:
 
-# NextAuth
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-secret-key-here"
-
-# OAuth Providers (опционально)
-GITHUB_ID="your-github-client-id"
-GITHUB_SECRET="your-github-client-secret"
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
-```
-
-### 5. Запуск проекта
 ```bash
 npm run dev
 ```
 
-Откройте [http://localhost:3000](http://localhost:3000) в браузере.
+4. Open `http://localhost:3000`
 
-## 🔧 Настройка OAuth провайдеров
+Guest flow starts at `/listings`.
+Authenticated users can use `/` as the private dashboard.
 
-### Google OAuth
-1. Перейдите в [Google Cloud Console](https://console.cloud.google.com/)
-2. Создайте новый проект или выберите существующий
-3. Включите Google+ API
-4. Создайте OAuth 2.0 credentials
-5. Добавьте разрешенные URI перенаправления:
-   - `http://localhost:3000/api/auth/callback/google` (разработка)
-   - `https://yourdomain.com/api/auth/callback/google` (продакшен)
+## Scripts
 
-### VK OAuth
-1. Перейдите в [VK Developers](https://vk.com/dev)
-2. Создайте новое приложение
-3. Получите Client ID и Client Secret
-4. Добавьте разрешенные URI перенаправления:
-   - `http://localhost:3000/api/auth/callback/vk` (разработка)
-   - `https://yourdomain.com/api/auth/callback/vk` (продакшен)
-
-## 📁 Структура проекта
-
-```
-lockbox/
-├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── auth/
-│   │   │   │   ├── [...nextauth]/route.ts    # NextAuth конфигурация
-│   │   │   │   └── signout/route.ts          # API выхода
-│   │   │   └── register/route.ts             # API регистрации
-│   │   ├── login/page.tsx                    # Страница входа
-│   │   ├── register/page.tsx                 # Страница регистрации
-│   │   └── page.tsx                          # Главная страница
-│   ├── components/
-│   │   ├── AuthGuard.tsx                     # Защита маршрутов
-│   │   └── UserProfile.tsx                   # Профиль пользователя
-│   ├── hooks/
-│   │   └── useUserRole.ts                    # Хук для ролей
-│   ├── lib/
-│   │   └── auth.ts                           # Конфигурация NextAuth
-│   ├── utils/
-│   │   └── supabase/                         # Supabase клиенты
-│   │       ├── server.ts                     # Серверный клиент
-│   │       ├── client.ts                    # Браузерный клиент
-│   │       └── middleware.ts                # Middleware клиент
-│   └── ui/
-│       └── NavigationBar/                    # Навигационная панель
-└── README.md
+```bash
+npm run dev
+npm run build
+npm run start
+npm run lint
+npm run typecheck
+npm test
 ```
 
-## 🔐 Безопасность
+## Auth notes
 
-- **Хеширование паролей** с bcrypt
-- **JWT токены** для сессий
-- **CSRF защита** через NextAuth
-- **Валидация данных** на клиенте и сервере
-- **Защищенные API маршруты**
+- `next-auth` is the single source of truth for session state
+- active auth config lives in [src/shared/lib/auth.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/shared/lib/auth.ts)
+- credentials auth reads users from Supabase
+- OAuth providers are enabled only when the full env pair is present
 
-## 🎨 UI/UX
+## Supabase notes
 
-- **Адаптивный дизайн** для всех устройств
-- **Современный интерфейс** с градиентами и анимациями
-- **Интуитивная навигация**
-- **Состояния загрузки** и обработка ошибок
+Main helpers:
 
-## 🚀 Развертывание
+- [src/shared/utils/supabase/client.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/shared/utils/supabase/client.ts)
+- [src/shared/utils/supabase/server.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/shared/utils/supabase/server.ts)
+- [src/shared/utils/supabase/service.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/shared/utils/supabase/service.ts)
 
-### Vercel (рекомендуется)
-1. Подключите репозиторий к Vercel
-2. Настройте переменные окружения
-3. Deploy!
+`getServiceClient()` uses `SUPABASE_SERVICE_ROLE_KEY` when available and falls back to anon key with a warning.
 
-### Другие платформы
-- Настройте PostgreSQL базу данных
-- Укажите переменные окружения
-- Запустите `npm run build && npm start`
+## Deployment
 
-## 🤝 Вклад в проект
+For Vercel env setup, see [VERCEL_ENV_SETUP.md](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/VERCEL_ENV_SETUP.md).
 
-1. Fork репозитория
-2. Создайте feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit изменения (`git commit -m 'Add amazing feature'`)
-4. Push в branch (`git push origin feature/amazing-feature`)
-5. Откройте Pull Request
-
-## 📄 Лицензия
-
-Этот проект лицензирован под MIT License.
-
-## 📞 Поддержка
-
-Если у вас есть вопросы или проблемы, создайте issue в репозитории.
+For Supabase schema and operational notes, see [SUPABASE_SETUP.md](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/SUPABASE_SETUP.md).

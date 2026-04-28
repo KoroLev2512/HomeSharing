@@ -6,8 +6,8 @@ This repository is a `Next.js` application for managing rental properties / lock
 The current product surface is centered on:
 
 - authentication and registration
-- listing flats that belong to the current user
-- flat details in the main dashboard
+- public listings browsing and favorites
+- owner listings and bookings
 - a mostly UI-only settings screen
 
 Despite the current repo name (`homesharing`), parts of the codebase and docs still use the older product name `LockBox`.
@@ -31,6 +31,7 @@ Despite the current repo name (`homesharing`), parts of the codebase and docs st
 - App wrapper with navbar/content shell: [src/widgets/Wrappers/AppWrapper.tsx](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/widgets/Wrappers/AppWrapper.tsx)
 - Primary dashboard page: [src/app/page.tsx](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/app/page.tsx)
 - Dashboard layout implementation: [src/layouts/Home/HomeLayout.tsx](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/layouts/Home/HomeLayout.tsx)
+- Active owner dashboard implementation is now aligned with [src/layouts/Host/HostShell.tsx](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/layouts/Host/HostShell.tsx) and [src/layouts/Host/HostListingsBoard.tsx](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/layouts/Host/HostListingsBoard.tsx)
 
 ### Auth flow in use
 
@@ -63,7 +64,31 @@ Login flow:
 - page: [src/app/login/page.tsx](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/app/login/page.tsx)
 - credentials auth delegates to `next-auth`
 
-### Flat data flow
+### Listings data flow
+
+Public and owner listing flows are now the active domain path.
+
+Client services:
+
+- [src/shared/lib/listingsService.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/shared/lib/listingsService.ts)
+- [src/shared/lib/bookingsService.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/shared/lib/bookingsService.ts) for host listing operations
+
+API routes:
+
+- [src/app/api/listings/route.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/app/api/listings/route.ts)
+- [src/app/api/listings/[id]/route.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/app/api/listings/[id]/route.ts)
+- [src/app/api/host/listings/route.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/app/api/host/listings/route.ts)
+- [src/app/api/host/listings/[id]/route.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/app/api/host/listings/[id]/route.ts)
+
+Behavior:
+
+- public catalog reads from `listings`
+- owner dashboard and host CRUD also read/write `listings`
+- bookings and favorites are built around `listings`, not `Flat`
+
+### Flat legacy flow
+
+The old `Flat` layer is no longer used by the active dashboard path, but still exists in the repo as an isolated legacy layer.
 
 Client service:
 
@@ -93,12 +118,17 @@ Important detail:
 
 - general app CRUD uses `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - signup and credentials auth create their own Supabase client and prefer `SUPABASE_SERVICE_ROLE_KEY`, falling back to anon key if missing
+- required env access is now centralized through `src/shared/configs/publicEnv.ts` and `src/shared/configs/serverEnv.ts`
 
 ## Route map
 
 Pages currently present under `src/app`:
 
 - `/` dashboard
+- `/listings`
+- `/favorites`
+- `/bookings`
+- `/host/*`
 - `/login`
 - `/register`
 - `/settings`
@@ -109,6 +139,18 @@ Implemented API routes:
 
 - `/api/auth/[...nextauth]`
 - `/api/signup`
+- `/api/listings`
+- `/api/listings/[id]`
+- `/api/bookings`
+- `/api/bookings/[id]`
+- `/api/favorites`
+- `/api/favorites/[listingId]`
+- `/api/host/listings`
+- `/api/host/listings/[id]`
+- `/api/host/bookings`
+- `/api/host/bookings/[id]`
+- `/api/me`
+- `/api/me/avatar`
 - `/api/flats`
 - `/api/flats/[id]`
 
@@ -126,6 +168,9 @@ Effective domain entities:
 - `Account`
 - `Session`
 - `VerificationToken`
+- `listings`
+- `bookings`
+- `favorites`
 - `Flat`
 
 Important: the schema currently contains a duplicated `model User` declaration. That is not a documentation issue; it is a real schema defect that should be cleaned up before treating Prisma as authoritative again.
@@ -148,22 +193,19 @@ These files should be treated carefully because they do not reflect the current 
 
 - [README.md](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/README.md)
 - [swagger.yaml](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/swagger.yaml)
-- [src/entities/session/next-auth-config.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/entities/session/next-auth-config.ts)
 - [src/app/users/[id]/page.tsx](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/app/users/[id]/page.tsx)
 
 Notes:
 
 - `README.md` describes a project that is close in spirit but outdated in concrete structure and versions.
 - `swagger.yaml` documents user/event/notify endpoints that are not the current App Router API surface.
-- `src/entities/session/next-auth-config.ts` only contains GitHub provider config and is not the active auth entrypoint.
 - `/users/[id]` now reads auth state from `next-auth`, but the route is still minimal and should not be treated as a fully developed profile area.
 
 ## Confirmed risks and technical debt
 
 ### 1. Secrets hygiene issue
 
-File [.env.example](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/.env.example) currently contains concrete GitHub OAuth values instead of placeholders.
-Treat this as a security/process problem. A template file should not ship real secrets.
+`.env.example` has been converted back to placeholders, but local env files still need to be treated as sensitive and should not be copied into tracked templates.
 
 ### 2. Mixed auth architectures
 
@@ -178,8 +220,8 @@ Current working assumption: Supabase is the active runtime source, while Prisma 
 
 ### 4. OAuth UI over-promises providers
 
-Login/register UI advertises providers such as `vk`, `apple`, and `gosuslugi`, but active auth config only wires `github`, `google`, and `credentials`.
-Those buttons are likely broken unless additional provider wiring exists elsewhere.
+This has been cleaned in the current UI. Active login/register flows now match the configured providers.
+Residual risk remains if future provider additions are made in UI without updating `next-auth` config and env pairs together.
 
 ### 5. Legacy docs and route contracts are unreliable
 
@@ -207,8 +249,9 @@ What has not been confirmed fully:
 When changing this repo, prefer these rules:
 
 1. For auth/session-aware screens, use `next-auth` as the single source of truth.
-2. For flat CRUD, use the `/api/flats` routes and `FlatService` as the current path of least resistance.
+2. For active product work around objects and bookings, use the `listings` / `host/listings` / `bookings` routes and their current service layers.
 3. Treat `README.md` and `swagger.yaml` as historical references until updated.
 4. Keep auth changes aligned with `next-auth` session data instead of reintroducing a parallel client auth store.
 5. Do not remove `Prisma` just because it is inactive at runtime; treat it as a retained fallback layer.
-6. If Prisma work is needed, first repair `prisma/schema.prisma` and reconcile Prisma-vs-Supabase ownership.
+6. Treat `Flat` as legacy unless there is a deliberate migration/backfill task for it.
+7. If Prisma work is needed, first repair `prisma/schema.prisma` and reconcile Prisma-vs-Supabase ownership.

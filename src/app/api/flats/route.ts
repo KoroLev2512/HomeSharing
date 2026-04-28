@@ -1,3 +1,9 @@
+/**
+ * LEGACY API
+ *
+ * These handlers preserve the old `Flat` domain for compatibility / migration only.
+ * Active product work should use `listings` and `host/listings`.
+ */
 import { NextResponse } from 'next/server'
 import { getServiceClient } from '@/shared/utils/supabase/service'
 import { getServerSession } from 'next-auth'
@@ -80,4 +86,3 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
     }
 }
-

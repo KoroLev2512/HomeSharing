@@ -1,3 +1,9 @@
+/**
+ * LEGACY LAYER
+ *
+ * Archived data structures and mock content for the old `Flat` UI flow.
+ * Do not use this store for new features. The active object domain is `listings`.
+ */
 import { StaticImageData } from 'next/image';
 import room1 from '../../../public/rooms/room1.jpg';
 import room2 from '../../../public/rooms/room2.jpg';

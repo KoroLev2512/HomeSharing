@@ -6,12 +6,16 @@
 
 - Авторизация — **NextAuth v4** (JWT-сессии, провайдеры `credentials` / GitHub / Google). Adapter для Supabase **не используется**, поэтому таблицы `Account`, `Session`, `VerificationToken` лежат пустыми и нужны только для совместимости со старым импортом схемы.
 - Данные приложения (объявления, бронирования, избранное) — в **Supabase Postgres**.
-- Все серверные роуты `app/api/**` обращаются к БД через **service role key** (helper `getServiceClient()`). Это умышленно: NextAuth не даёт `auth.uid()`, поэтому RLS-проверки на стороне Postgres не сработали бы. Авторизация выполняется в коде роута через `loadSession()`.
+- Серверные роуты, которые пишут или читают приватные данные, обращаются к БД через **service role key** (helper `getServiceClient()`). Это умышленно: NextAuth не даёт `auth.uid()`, поэтому RLS-проверки на стороне Postgres не сработали бы.
+- Проверка пользователя зависит от типа роута:
+  - `loadSession()` используется в роуте owner/host и в большинстве booking/me endpoint'ов
+  - `getServerSession(authOptions)` используется, например, в `favorites` и ряде auth-aware route handlers
+  - публичные каталожные роуты `GET /api/listings` и `GET /api/listings/[id]` не требуют сессии
 
 ```
 Client (NextAuth.useSession) ──▶ /api/* (Server Components / Route Handlers)
                                        │
-                                       ├── loadSession() → проверка пользователя/роли
+                                       ├── loadSession() / getServerSession() → проверка пользователя/роли
                                        └── getServiceClient() → Supabase service-role
                                                   │
                                                   ▼
@@ -33,13 +37,15 @@ NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=...
 
 # OAuth (опционально)
-GITHUB_CLIENT_ID=...
-GITHUB_CLIENT_SECRET=...
+GITHUB_ID=...
+GITHUB_SECRET=...
 GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
 ```
 
-> **Важно:** `SUPABASE_SERVICE_ROLE_KEY` нужен для всех серверных операций (логин, создание объявлений, работа с бронированиями). Если он отсутствует, `getServiceClient()` использует анонимный ключ и логирует предупреждение, но большинство роутов в этом случае работать не будут.
+> **Важно:** `SUPABASE_SERVICE_ROLE_KEY` нужен для серверных операций с приватными данными. Если он отсутствует, `getServiceClient()` использует анонимный ключ и логирует предупреждение, но многие роуты в этом случае будут работать нестабильно или перестанут проходить по правам.
+
+> Пары OAuth-переменных должны быть полными: либо обе заданы, либо обе отсутствуют. Это валидируется на старте приложения.
 
 ### 2.1 Supabase Storage (аватары пользователей)
 
@@ -55,7 +61,7 @@ API для аватаров:
 
 ## 3. Схема Postgres
 
-Все таблицы находятся в схеме `public`. Везде включён RLS, политики не созданы — доступ только через service role.
+Все таблицы находятся в схеме `public`. Везде включён RLS, политики не созданы — доступ на приватные данные идёт через service role.
 
 ### 3.1 `User` — учётные записи (NextAuth-совместимая)
 
@@ -196,16 +202,21 @@ create trigger bookings_set_updated_at before update on public.bookings
 
 ## 5. API endpoints
 
-### Гость (любой авторизованный пользователь)
+### Публичные
+
+| Метод & путь          | Описание                                   |
+| --------------------- | ------------------------------------------ |
+| `GET /api/listings`   | Каталог с фильтрами/сортировкой/пагинацией |
+| `GET /api/listings/[id]` | Детальная карточка + `similar`         |
+
+### Авторизованный пользователь
 
 | Метод & путь               | Описание                                                  |
 | -------------------------- | --------------------------------------------------------- |
 | `POST /api/bookings`       | Создать бронирование. Body: `listingId`, `startDate`, `endDate`, `guestsCount?`, `notes?`. Сервер сам считает `total_price` и проверяет пересечение дат |
 | `GET  /api/bookings`       | Список своих броней (с краткой информацией об объекте)    |
 | `PATCH /api/bookings/[id]` | Отменить (`status: "cancelled"`) — только из `pending`/`confirmed` |
-| `GET  /api/listings`       | Каталог с фильтрами/сортировкой/пагинацией                |
-| `GET  /api/listings/[id]`  | Детальная карточка + `similar`                            |
-| `GET  /api/favorites`      | ID избранного для текущего пользователя                   |
+| `GET  /api/favorites`      | Список `listing_id` из избранного для текущего пользователя |
 | `POST /api/favorites`      | Добавить в избранное (идемпотентно)                       |
 | `DELETE /api/favorites`    | Очистить избранное                                        |
 | `DELETE /api/favorites/[listingId]` | Удалить один объект                              |
@@ -227,9 +238,18 @@ create trigger bookings_set_updated_at before update on public.bookings
 | Метод & путь            | Описание                                                       |
 | ----------------------- | -------------------------------------------------------------- |
 | `PATCH /api/me`         | Body `{ "isHost": boolean }` — переключить роль арендодателя   |
+| `POST /api/me/avatar`   | Загрузить новый аватар пользователя                            |
+| `DELETE /api/me/avatar` | Удалить текущий аватар пользователя                            |
 | `POST /api/signup`      | Регистрация (credentials)                                      |
 
-Все эндпоинты используют `loadSession()` для проверки пользователя и `getServiceClient()` для работы с БД.
+### Legacy / compatibility
+
+| Метод & путь          | Описание |
+| --------------------- | -------- |
+| `/api/flats`          | Устаревший слой "моих квартир" из ранней версии |
+| `/api/flats/[id]`     | Устаревший слой "моих квартир" из ранней версии |
+
+Не все эндпоинты используют одну и ту же session helper-функцию, но приватные серверные операции в текущем коде сходятся к `next-auth` + `getServiceClient()`.
 
 ## 6. Сидинг данных
 

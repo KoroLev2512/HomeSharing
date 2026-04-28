@@ -1,55 +1,90 @@
-# Настройка переменных окружения в Vercel
+# Vercel Environment Setup
 
-## Обязательные переменные окружения
+This project expects its runtime configuration from Vercel environment variables.
 
-Для работы приложения на Vercel необходимо добавить следующие переменные окружения в настройках проекта:
+## Required variables
 
-### 1. Supabase
-- `NEXT_PUBLIC_SUPABASE_URL` - URL вашего Supabase проекта
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Anon (публичный) ключ Supabase
-- `SUPABASE_SERVICE_ROLE_KEY` - Service Role ключ Supabase (для обхода RLS)
+### Supabase
 
-### 2. NextAuth.js (КРИТИЧНО!)
-- `NEXTAUTH_URL` - URL вашего приложения на Vercel
-  - Для production: `https://home-share.vercel.app`
-  - Для preview deployments: автоматически определяется Vercel
-- `NEXTAUTH_SECRET` - Секретный ключ для подписи JWT токенов
-  - Можно сгенерировать: `openssl rand -base64 32`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
 
-### 3. OAuth провайдеры (опционально)
-- `GITHUB_ID` - Client ID для GitHub OAuth
-- `GITHUB_SECRET` - Client Secret для GitHub OAuth
-- `GOOGLE_CLIENT_ID` - Client ID для Google OAuth
-- `GOOGLE_CLIENT_SECRET` - Client Secret для Google OAuth
+### NextAuth
 
-## Как добавить переменные в Vercel
+- `NEXTAUTH_SECRET`
+- `NEXTAUTH_URL`
 
-1. Перейдите в настройки проекта: **Project Settings → Environment Variables**
-2. Добавьте каждую переменную:
-   - **Name**: имя переменной (например, `NEXTAUTH_URL`)
-   - **Value**: значение переменной
-   - **Environment**: выберите окружения (Production, Preview, Development)
-3. **ВАЖНО**: После добавления переменных необходимо:
-   - Пересобрать деплоймент (Redeploy) или
-   - Создать новый деплоймент через push в репозиторий
+`NEXTAUTH_URL` should be the canonical public URL of the deployment.
 
-## Проверка переменных
+Production example:
 
-После добавления переменных проверьте:
-1. Все переменные добавлены для нужных окружений (Production, Preview)
-2. Значения переменных корректны (без лишних пробелов, кавычек)
-3. Деплоймент пересобран после добавления переменных
+```env
+NEXTAUTH_URL=https://your-domain.example
+```
 
-## Частые проблемы
+## Optional OAuth variables
 
-### Ошибка 500 на `/api/auth/session`
-- **Причина**: Отсутствует `NEXTAUTH_URL` или `NEXTAUTH_SECRET`
-- **Решение**: Добавьте обе переменные и пересоберите деплоймент
+GitHub:
 
-### Ошибка "Invalid credentials"
-- **Причина**: Неправильные значения Supabase переменных
-- **Решение**: Проверьте правильность `NEXT_PUBLIC_SUPABASE_URL` и ключей
+- `GITHUB_ID`
+- `GITHUB_SECRET`
 
-### Переменные не применяются
-- **Причина**: Деплоймент не был пересобран после добавления переменных
-- **Решение**: Выполните Redeploy в Vercel Dashboard
+Google:
+
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+
+Important:
+
+- set both values for a provider or leave both empty
+- if only one value from a pair is set, the app will fail fast with a configuration error
+
+## Prisma fallback variable
+
+- `DATABASE_URL`
+
+This is not needed by the current runtime path, but should be set if you plan to use Prisma tooling or return to Prisma-backed flows later.
+
+## How to add variables in Vercel
+
+1. Open `Project Settings -> Environment Variables`
+2. Add each variable for the environments you use
+3. Redeploy after changes
+
+## Recommended verification
+
+After deploy, verify:
+
+1. `/listings` opens for guests
+2. `/login` works for credentials auth
+3. `/api/auth/session` returns a valid response
+4. protected dashboard `/` redirects guests to `/listings`
+
+## Common failure cases
+
+### `Missing required environment variable`
+
+Cause:
+- one of the required Supabase or NextAuth variables is absent
+
+Fix:
+- compare Vercel values against [`.env.example`](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/.env.example)
+
+### `Incomplete environment configuration`
+
+Cause:
+- only one value from an OAuth pair was set
+
+Fix:
+- set both provider variables or remove both
+
+### Auth works locally but not on Vercel
+
+Cause:
+- wrong `NEXTAUTH_URL`
+- missing OAuth callback URLs in provider consoles
+
+Fix:
+- set the correct deployment URL
+- update provider callback URLs to `/api/auth/callback/google` and `/api/auth/callback/github`

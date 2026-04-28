@@ -112,15 +112,10 @@ export const MessagesBoard: React.FC = () => {
     return (
         <div className={styles.root}>
             <header className={styles.header}>
-                <div>
-                    <h1 className={styles.title}>Сообщения</h1>
-                    <p className={styles.subtitle}>
-                        {summary}
-                    </p>
+                <h1 className={styles.title}>Сообщения</h1>
+                <div className={styles.headerRight}>
+                    <p className={styles.headerStatus}>{summary}</p>
                 </div>
-                <Link href="/bookings" className={styles.secondaryBtn}>
-                    Мои бронирования
-                </Link>
             </header>
 
             <div className={styles.info}>

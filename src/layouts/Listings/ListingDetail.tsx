@@ -120,14 +120,15 @@ export const ListingDetail: React.FC<IProps> = ({ id }) => {
 
     return (
         <div className={styles.root}>
-            <Link href="/listings" className={styles.backLink}>
-                <ChevronLeftIcon width={18} height={18} color="#5a5a5a" />
-                <span>Все объявления</span>
-            </Link>
+            <div className={styles.heroBar}>
+                <h1 className={styles.heroTitle}>{listing.title}</h1>
+                <Link href="/listings" className={styles.heroBackLink}>
+                    Все объявления
+                </Link>
+            </div>
 
             <div className={styles.headerBlock}>
                 <div className={styles.dealBadge}>{dealLabel[listing.dealType]}</div>
-                <h1 className={styles.title}>{listing.title}</h1>
                 <div className={styles.subtitle}>{buildListingSubtitle(listing)}</div>
                 <div className={styles.addressRow}>
                     <LocationIcon width={18} height={18} color="#1a1a1a" />

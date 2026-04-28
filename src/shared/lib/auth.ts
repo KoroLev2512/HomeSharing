@@ -4,17 +4,31 @@ import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcrypt"
 import { getServiceClient } from "@/shared/utils/supabase/service"
+import { serverEnv } from "@/shared/configs/serverEnv"
+
+const oauthProviders = []
+
+if (serverEnv.github) {
+    oauthProviders.push(
+        GithubProvider({
+            clientId: serverEnv.github.clientId,
+            clientSecret: serverEnv.github.clientSecret,
+        }),
+    )
+}
+
+if (serverEnv.google) {
+    oauthProviders.push(
+        GoogleProvider({
+            clientId: serverEnv.google.clientId,
+            clientSecret: serverEnv.google.clientSecret,
+        }),
+    )
+}
 
 export const authOptions: AuthOptions = {
     providers: [
-        GithubProvider({
-            clientId: process.env.GITHUB_ID ?? "",
-            clientSecret: process.env.GITHUB_SECRET ?? "",
-        }),
-        GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
-        }),
+        ...oauthProviders,
         CredentialsProvider({
             name: "Credentials",
             credentials: {
@@ -125,6 +139,5 @@ export const authOptions: AuthOptions = {
     pages: {
         signIn: "/login",
     },
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: serverEnv.nextAuthSecret,
 }
-

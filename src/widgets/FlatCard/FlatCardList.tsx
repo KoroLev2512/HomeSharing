@@ -1,3 +1,9 @@
+/**
+ * LEGACY UI
+ *
+ * Archived list container for the old `Flat` dashboard flow.
+ * Not used by the active application routes.
+ */
 import React, {Dispatch, SetStateAction, useMemo} from 'react';
 import {FlatCard} from "@/widgets/FlatCard/FlatCard";
 import {IFlatCard} from "@/shared/store/flats";

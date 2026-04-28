@@ -1,4 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { publicEnv } from '@/shared/configs/publicEnv';
+import { serverEnv } from '@/shared/configs/serverEnv';
 
 let cached: SupabaseClient | null = null;
 
@@ -13,9 +15,9 @@ let cached: SupabaseClient | null = null;
 export const getServiceClient = (): SupabaseClient => {
     if (cached) return cached;
 
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    const fallbackKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const url = publicEnv.supabaseUrl;
+    const serviceKey = serverEnv.supabaseServiceRoleKey;
+    const fallbackKey = publicEnv.supabaseAnonKey;
     const key = serviceKey ?? fallbackKey;
 
     if (!url || !key) {

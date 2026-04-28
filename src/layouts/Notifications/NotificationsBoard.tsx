@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -106,12 +106,6 @@ export const NotificationsBoard: React.FC = () => {
         void load();
     }, [favoritesCount, session?.user?.isService, status]);
 
-    const subtitle = useMemo(() => {
-        if (!items) return 'Собираем события...';
-        if (items.length === 0) return 'Новых уведомлений пока нет';
-        return `${items.length} ${pluralize(items.length, 'уведомление', 'уведомления', 'уведомлений')}`;
-    }, [items]);
-
     if (status === 'loading') {
         return <Loader />;
     }
@@ -125,7 +119,6 @@ export const NotificationsBoard: React.FC = () => {
             <header className={styles.header}>
                 <div>
                     <h1 className={styles.title}>Уведомления</h1>
-                    <p className={styles.subtitle}>{subtitle}</p>
                 </div>
                 <div className={styles.headerActions}>
                     <Link href="/messages" className={styles.secondaryBtn}>Сообщения</Link>
@@ -174,3 +167,4 @@ const pluralize = (n: number, one: string, few: string, many: string): string =>
     if ([2, 3, 4].includes(last) && ![12, 13, 14].includes(last2)) return few;
     return many;
 };
+

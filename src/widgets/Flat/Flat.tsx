@@ -1,3 +1,9 @@
+/**
+ * LEGACY UI
+ *
+ * Archived detail widget for the old `Flat` domain.
+ * Retained only as a reference during the transition to the active `listings` / host flows.
+ */
 import React, { useState } from "react";
 import {IFlatCard} from "@/shared/store/flats";
 import {AttachFileIcon, BinIcon, CloseIcon, CopyIcon, EditIcon, LockFlatIcon, StarIcon, CalendarIcon, VisibilityIcon, VisibilityOffIcon} from "@/shared/icons";

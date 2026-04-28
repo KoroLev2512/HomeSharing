@@ -209,11 +209,11 @@ export default function RegisterPage() {
                             />
                             <span className={styles.consentText}>
                                 Нажимая на кнопку, вы соглашаетесь с{' '}
-                                <Link href="/privacy-policy" className={styles.consentLink}>
+                                <Link href="https://home-share.ru/privacy" className={styles.consentLink} target="_blank" rel="noopener noreferrer">
                                     политикой конфиденциальности
                                 </Link>
                                 {' '}и{' '}
-                                <Link href="/terms-of-service" className={styles.consentLink}>
+                                <Link href="https://home-share.ru/terms" className={styles.consentLink} target="_blank" rel="noopener noreferrer">
                                     пользовательским соглашением компании
                                 </Link>
                             </span>

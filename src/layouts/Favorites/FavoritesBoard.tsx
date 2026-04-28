@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import { Section } from '@/shared/ui/Section';
 import { ListingCard, ListingCardSkeletonList } from '@/widgets/ListingCard';
 import { Logotype } from '@/shared/ui/Logotype';
@@ -14,6 +15,7 @@ import styles from './styles.module.scss';
 const SIMILAR_LIMIT = 6;
 
 export const FavoritesBoard: React.FC = () => {
+    const { data: session, status } = useSession();
     const { favorites, count } = useFavorites();
     const [items, setItems] = useState<IListing[] | null>(null);
     const [similar, setSimilar] = useState<IListing[] | null>(null);
@@ -76,26 +78,29 @@ export const FavoritesBoard: React.FC = () => {
     }, [loadSimilar]);
 
     const isEmpty = items !== null && items.length === 0;
+    const hasNavbar = status === 'authenticated' && Boolean(session?.user);
 
     return (
         <div className={styles.root}>
-            <Section margin={0}>
-                <div className={styles.heroBar}>
-                    <div className={styles.heroLeft}>
+            <div className={styles.heroBar}>
+                <div className={styles.heroLeft}>
+                    {hasNavbar ? (
+                        <h1 className={styles.heroTitle}>Избранное</h1>
+                    ) : (
                         <Link href="/listings" className={styles.heroLogo} aria-label="HomeSharing">
                             <Logotype />
                         </Link>
-                    </div>
-                    <div className={styles.heroActions}>
-                        <Link href="/listings" className={styles.backLink}>
-                            ← К объявлениям
-                        </Link>
-                    </div>
+                    )}
                 </div>
-            </Section>
+                <div className={styles.heroActions}>
+                    <Link href="/listings" className={styles.backLink}>
+                        ← К объявлениям
+                    </Link>
+                </div>
+            </div>
 
             <Section margin={0}>
-                <h1 className={styles.title}>Избранное</h1>
+                {!hasNavbar && <h1 className={styles.title}>Избранное</h1>}
                 {count > 0 && (
                     <p className={styles.subtitle}>
                         {count} {pluralize(count, ['объявление', 'объявления', 'объявлений'])}

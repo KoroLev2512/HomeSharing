@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import type { IListing } from '@/shared/types/listing';
 import { computeBookingTotal, diffNights } from '@/shared/lib/bookingPricing';
 import BookingsService from '@/shared/lib/bookingsService';
+import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon } from '@/shared/icons';
 import styles from './styles.module.scss';
 
 interface IProps {
@@ -30,6 +31,136 @@ const tomorrow = (): string => {
 const formatPriceCompact = (n: number): string => {
     if (!Number.isFinite(n)) return '—';
     return new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format(n) + ' ₽';
+};
+
+const toMonthKey = (d: Date): string => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+const fromMonthKey = (key: string): Date => {
+    const [y, m] = key.split('-').map(Number);
+    return new Date(y, (m || 1) - 1, 1);
+};
+const toYmd = (d: Date): string =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+const formatHumanDate = (ymd: string): string => {
+    try {
+        return new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' }).format(
+            new Date(`${ymd}T00:00:00`),
+        );
+    } catch {
+        return ymd;
+    }
+};
+
+interface IDateFieldProps {
+    label: string;
+    value: string;
+    min?: string;
+    max?: string;
+    onChange: (next: string) => void;
+}
+
+const weekDays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+
+const DateField: React.FC<IDateFieldProps> = ({ label, value, min, max, onChange }) => {
+    const [open, setOpen] = useState(false);
+    const [monthKey, setMonthKey] = useState<string>(() => toMonthKey(new Date(`${value}T00:00:00`)));
+    const rootRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        if (!open) return;
+        setMonthKey(toMonthKey(new Date(`${value}T00:00:00`)));
+    }, [open, value]);
+
+    useEffect(() => {
+        const onDocClick = (e: MouseEvent) => {
+            if (!rootRef.current) return;
+            if (!rootRef.current.contains(e.target as Node)) setOpen(false);
+        };
+        document.addEventListener('mousedown', onDocClick);
+        return () => document.removeEventListener('mousedown', onDocClick);
+    }, []);
+
+    const monthDate = fromMonthKey(monthKey);
+    const firstDay = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+    const monthLabel = new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric' }).format(firstDay);
+    const jsWeekday = firstDay.getDay(); // 0=Sun..6=Sat
+    const mondayFirstOffset = (jsWeekday + 6) % 7;
+    const gridStart = new Date(firstDay);
+    gridStart.setDate(firstDay.getDate() - mondayFirstOffset);
+
+    const days = Array.from({ length: 42 }).map((_, i) => {
+        const d = new Date(gridStart);
+        d.setDate(gridStart.getDate() + i);
+        const ymd = toYmd(d);
+        const isCurrentMonth = d.getMonth() === monthDate.getMonth();
+        const isDisabled = Boolean((min && ymd < min) || (max && ymd > max));
+        return { ymd, day: d.getDate(), isCurrentMonth, isDisabled };
+    });
+
+    return (
+        <label className={styles.field}>
+            <span className={styles.fieldLabel}>{label}</span>
+            <div ref={rootRef} className={styles.dateFieldWrap}>
+                <button type="button" className={styles.dateTrigger} onClick={() => setOpen((v) => !v)}>
+                    <span>{formatHumanDate(value)}</span>
+                    <CalendarIcon width={18} height={18} color="#5a5a5a" />
+                </button>
+                {open && (
+                    <div className={styles.calendarPopover}>
+                        <div className={styles.calendarHead}>
+                            <button
+                                type="button"
+                                className={styles.calendarNav}
+                                onClick={() => {
+                                    const prev = fromMonthKey(monthKey);
+                                    prev.setMonth(prev.getMonth() - 1);
+                                    setMonthKey(toMonthKey(prev));
+                                }}
+                            >
+                                <ChevronLeftIcon width={16} height={16} color="#1a1a1a" />
+                            </button>
+                            <span className={styles.calendarTitle}>{monthLabel}</span>
+                            <button
+                                type="button"
+                                className={styles.calendarNav}
+                                onClick={() => {
+                                    const next = fromMonthKey(monthKey);
+                                    next.setMonth(next.getMonth() + 1);
+                                    setMonthKey(toMonthKey(next));
+                                }}
+                            >
+                                <ChevronRightIcon width={16} height={16} color="#1a1a1a" />
+                            </button>
+                        </div>
+                        <div className={styles.calendarWeek}>
+                            {weekDays.map((d) => (
+                                <div key={d}>{d}</div>
+                            ))}
+                        </div>
+                        <div className={styles.calendarGrid}>
+                            {days.map((d) => (
+                                <button
+                                    key={d.ymd}
+                                    type="button"
+                                    disabled={d.isDisabled}
+                                    className={classNames(styles.calendarDay, {
+                                        [styles.calendarDayMuted]: !d.isCurrentMonth,
+                                        [styles.calendarDaySelected]: d.ymd === value,
+                                    })}
+                                    onClick={() => {
+                                        onChange(d.ymd);
+                                        setOpen(false);
+                                    }}
+                                >
+                                    {d.day}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+        </label>
+    );
 };
 
 export const BookingForm: React.FC<IProps> = ({ listing }) => {
@@ -141,29 +272,19 @@ export const BookingForm: React.FC<IProps> = ({ listing }) => {
             <div className={styles.title}>Забронировать</div>
 
             <div className={styles.dateRow}>
-                <label className={styles.field}>
-                    <span className={styles.fieldLabel}>Заезд</span>
-                    <input
-                        type="date"
-                        value={startDate}
-                        min={today()}
-                        max={endDate || undefined}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        className={styles.input}
-                        required
-                    />
-                </label>
-                <label className={styles.field}>
-                    <span className={styles.fieldLabel}>Выезд</span>
-                    <input
-                        type="date"
-                        value={endDate}
-                        min={startDate || today()}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        className={styles.input}
-                        required
-                    />
-                </label>
+                <DateField
+                    label="Заезд"
+                    value={startDate}
+                    min={today()}
+                    max={endDate || undefined}
+                    onChange={setStartDate}
+                />
+                <DateField
+                    label="Выезд"
+                    value={endDate}
+                    min={startDate || today()}
+                    onChange={setEndDate}
+                />
             </div>
 
             <label className={styles.field}>

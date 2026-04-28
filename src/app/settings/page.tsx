@@ -177,7 +177,6 @@ export default function SettingsPage(): React.JSX.Element | null {
       <div className={styles.content}>
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Данные профиля</h2>
-          <div className={styles.divider} />
 
           <div className={styles.profilePhotoBlock}>
             <div className={styles.fieldLabel}>Фото профиля</div>
@@ -368,7 +367,6 @@ export default function SettingsPage(): React.JSX.Element | null {
 
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Роль арендодателя</h2>
-          <div className={styles.divider} />
           <div className={styles.hostBlock}>
             <div className={styles.hostInfo}>
               <div className={styles.hostTitle}>

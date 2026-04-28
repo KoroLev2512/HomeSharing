@@ -5,7 +5,10 @@ import styles from './detailSkeleton.module.scss';
 export const ListingDetailSkeleton: React.FC = () => {
     return (
         <div className={styles.root} aria-hidden>
-            <div className={classNames(styles.backLine, styles.shimmer)} />
+            <div className={styles.heroBar}>
+                <div className={classNames(styles.heroTitle, styles.shimmer)} />
+                <div className={classNames(styles.heroBackButton, styles.shimmer)} />
+            </div>
 
             <div className={styles.headerBlock}>
                 <div className={classNames(styles.badge, styles.shimmer)} />

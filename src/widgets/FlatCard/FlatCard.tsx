@@ -1,3 +1,9 @@
+/**
+ * LEGACY UI
+ *
+ * Archived card for the old `Flat` dashboard flow.
+ * Not used by the active application routes.
+ */
 import React, {Dispatch, SetStateAction} from "react";
 import Image from "next/image";
 import {CalendarIcon, LocationIcon, StarIcon} from "@/shared/icons";

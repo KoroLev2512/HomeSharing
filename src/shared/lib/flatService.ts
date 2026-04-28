@@ -1,3 +1,10 @@
+/**
+ * LEGACY LAYER
+ *
+ * This service belongs to the archived `Flat` domain.
+ * It is kept only for reference / migration work and is not part of the active runtime flow.
+ * Use `listings` / `host/listings` services for new product work.
+ */
 import { IFlatCard } from '@/shared/store/flats'
 
 export interface FlatData {
@@ -177,4 +184,3 @@ class FlatService {
 }
 
 export default FlatService
-

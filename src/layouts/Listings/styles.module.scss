@@ -1,8 +1,6 @@
 .root {
   width: 100%;
-  max-width: 87.5rem;
-  margin: 0 auto;
-  padding: 1.5rem 1.5rem 4rem;
+  padding: 0 1.5rem 4rem;
   box-sizing: border-box;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   display: flex;
@@ -16,6 +14,15 @@
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
+  min-height: 5.8125rem;
+  padding: 0.625rem 1.25rem;
+  border-bottom: 0.0625rem solid var(--Grey-200, #E2E2E2);
+  box-sizing: border-box;
+  margin-inline: -1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #fff;
 }
 
 .heroLeft {
@@ -43,6 +50,14 @@
   color: #000;
   margin: 1.5rem 0 0;
   line-height: 1;
+}
+
+.heroTitle {
+  margin: 0;
+  font-size: 1.75rem;
+  line-height: 2.25rem;
+  font-weight: 400;
+  color: var(--Black, #000);
 }
 
 .heroActions {
@@ -236,7 +251,7 @@
 
 .sidebar {
   position: sticky;
-  top: 1.5rem;
+  top: calc(5.8125rem + 1rem);
 }
 
 .sidebarMobileOpen {
@@ -433,6 +448,10 @@
 @media (max-width: 51.25rem) {
   .root {
     padding: 1rem 1rem 3rem;
+  }
+
+  .heroBar {
+    margin-inline: -1rem;
   }
 
   .contentRow {

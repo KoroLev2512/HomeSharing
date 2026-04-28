@@ -98,17 +98,12 @@ export const BookingsBoard: React.FC = () => {
     return (
         <div className={styles.root}>
             <header className={styles.header}>
-                <div>
-                    <h1 className={styles.title}>Мои бронирования</h1>
-                    <p className={styles.subtitle}>
-                        {bookings.length > 0
-                            ? `Всего ${bookings.length} ${pluralize(bookings.length, 'бронирование', 'бронирования', 'бронирований')}`
-                            : 'Пока нет ни одного бронирования'}
-                    </p>
-                </div>
-                <Link href="/listings" className={styles.secondaryBtn}>
-                    К объявлениям
-                </Link>
+                <h1 className={styles.title}>Мои бронирования</h1>
+                <p className={styles.headerStatus}>
+                    {bookings.length > 0
+                        ? `Всего ${bookings.length} ${pluralize(bookings.length, 'бронирование', 'бронирования', 'бронирований')}`
+                        : 'Пока нет ни одного бронирования'}
+                </p>
             </header>
 
             {error && <div className={styles.error}>{error}</div>}
