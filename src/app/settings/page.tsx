@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/widgets/Input";
 import Loader from "@/shared/ui/Loader/Loader";
-import { MeService } from "@/shared/lib/bookingsService";
-import styles from "./styles.module.scss";
+import { MeService } from "@/shared/lib/meService";
 import { BinIcon } from "@/shared/icons";
+import styles from "./styles.module.scss";
 
 type LegalMode = "ip" | "ooo";
 
@@ -19,16 +19,33 @@ export default function SettingsPage(): React.JSX.Element | null {
   const [isSaved, setIsSaved] = useState(false);
   const [legalMode, setLegalMode] = useState<LegalMode>("ip");
 
-  const [isHost, setIsHost] = useState<boolean>(Boolean(session?.user?.isService));
+  const [isHost, setIsHost] = useState<boolean>(Boolean(session?.user?.isHost));
   const [hostUpdating, setHostUpdating] = useState<boolean>(false);
   const [hostError, setHostError] = useState<string | null>(null);
   const [hostMessage, setHostMessage] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const [avatarUploading, setAvatarUploading] = useState<boolean>(false);
+  const [avatarModalOpen, setAvatarModalOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const avatarFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setIsHost(Boolean(session?.user?.isService));
-  }, [session?.user?.isService]);
+    setIsHost(Boolean(session?.user?.isHost));
+  }, [session?.user?.isHost]);
+
+  useEffect(() => {
+    if (!avatarModalOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setAvatarModalOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [avatarModalOpen]);
 
   const handleToggleHost = async () => {
     if (hostUpdating) return;
@@ -91,35 +108,50 @@ export default function SettingsPage(): React.JSX.Element | null {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.user?.email, session?.user?.image, initialName]);
 
-  const fullNamePreview = useMemo(() => {
-    const parts = [form.firstName, form.lastName].filter(Boolean);
-    return parts.length ? parts.join(" ") : (session?.user?.email ?? "");
-  }, [form.firstName, form.lastName, session?.user?.email]);
-
   const onChange = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsSaved(false);
     setForm((prev) => ({ ...prev, [key]: e.target.value }));
   };
 
   const handleSave = () => {
-    // UI-only реализация (без запроса). Если нужно — подключим сохранение в Supabase.
     setIsSaved(true);
   };
 
+  const hasCustomAvatar = Boolean(
+    typeof session?.user?.image === "string" && session.user.image.trim().length > 0,
+  );
+
+  const uploadFile = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      setAvatarError("Можно загружать только изображения");
+      return;
+    }
+    setAvatarModalOpen(false);
+    setAvatarUploading(true);
+    setAvatarError(null);
+    setIsSaved(false);
+    try {
+      const image = await MeService.uploadAvatar(file);
+      setAvatarUrl(image || defaultAvatar);
+      await updateSession?.({ user: { ...session?.user, image } });
+    } catch (err) {
+      setAvatarError(err instanceof Error ? err.message : "Не удалось загрузить фото");
+    } finally {
+      setAvatarUploading(false);
+      if (avatarFileInputRef.current) avatarFileInputRef.current.value = "";
+    }
+  };
+
   const handleDeleteAvatar = () => {
-    if (avatarUploading) return;
+    if (avatarUploading || !hasCustomAvatar) return;
+    setAvatarModalOpen(false);
     setAvatarUploading(true);
     setAvatarError(null);
     setIsSaved(false);
     void MeService.resetAvatar()
       .then(async () => {
         setAvatarUrl(defaultAvatar);
-        await updateSession?.({
-          user: {
-            ...session?.user,
-            image: null,
-          },
-        });
+        await updateSession?.({ user: { ...session?.user, image: null } });
       })
       .catch((err) => {
         setAvatarError(err instanceof Error ? err.message : "Не удалось удалить фото");
@@ -130,35 +162,18 @@ export default function SettingsPage(): React.JSX.Element | null {
   };
 
   const handleAvatarFile: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    const input = e.currentTarget;
     const file = e.target.files?.[0];
+    e.currentTarget.value = "";
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      setAvatarError("Можно загружать только изображения");
-      input.value = "";
-      return;
-    }
+    void uploadFile(file);
+  };
 
-    setAvatarUploading(true);
-    setAvatarError(null);
-    setIsSaved(false);
-    void MeService.uploadAvatar(file)
-      .then(async (image) => {
-        setAvatarUrl(image || defaultAvatar);
-        await updateSession?.({
-          user: {
-            ...session?.user,
-            image,
-          },
-        });
-      })
-      .catch((err) => {
-        setAvatarError(err instanceof Error ? err.message : "Не удалось загрузить фото");
-      })
-      .finally(() => {
-        setAvatarUploading(false);
-        input.value = "";
-      });
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    void uploadFile(file);
   };
 
   if (status === "loading") {
@@ -180,30 +195,55 @@ export default function SettingsPage(): React.JSX.Element | null {
           <h2 className={styles.sectionTitle}>Данные профиля</h2>
 
           <div className={styles.profilePhotoBlock}>
-            <div className={styles.fieldLabel}>Фото профиля</div>
-            <div className={styles.photoWrap}>
-              <div className={styles.photo}>
-                <img src={avatarUrl} alt="Фото профиля" />
-              </div>
-              <div className={styles.photoActions}>
-                <label className={styles.uploadPhotoBtn}>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarFile}
-                    className={styles.hiddenFileInput}
+            <div
+              className={styles.avatarEditor}
+              data-modal-open={avatarModalOpen ? "" : undefined}
+            >
+              <div className={styles.avatarFrame}>
+                {hasCustomAvatar && (
+                  <button
+                    type="button"
+                    className={styles.avatarDeleteBtn}
+                    onClick={handleDeleteAvatar}
+                    aria-label="Удалить фото профиля"
                     disabled={avatarUploading}
-                  />
-                  {avatarUploading ? "Загрузка..." : "Изменить"}
-                </label>
+                  >
+                    <BinIcon />
+                  </button>
+                )}
+                <input
+                  ref={avatarFileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/avif"
+                  onChange={handleAvatarFile}
+                  className={styles.hiddenFileInput}
+                  disabled={avatarUploading}
+                  aria-hidden
+                />
                 <button
                   type="button"
-                  className={styles.deletePhotoBtn}
-                  onClick={handleDeleteAvatar}
-                  aria-label="Удалить фото профиля"
+                  className={styles.avatarTrigger}
+                  aria-label="Фото профиля"
+                  aria-haspopup="dialog"
                   disabled={avatarUploading}
+                  onClick={() => {
+                    if (avatarUploading) return;
+                    setAvatarModalOpen(true);
+                  }}
                 >
-                  <BinIcon />
+                  <span className={styles.avatarRing}>
+                    <img src={avatarUrl} alt="" />
+                    {avatarUploading && (
+                      <span className={styles.avatarUploadOverlay} aria-live="polite">
+                        <span className={styles.avatarUploadSpinner} />
+                      </span>
+                    )}
+                    {!avatarUploading && (
+                      <span className={styles.avatarHoverOverlay}>
+                        <span className={styles.avatarHoverText}>Загрузить</span>
+                      </span>
+                    )}
+                  </span>
                 </button>
               </div>
             </div>
@@ -411,6 +451,64 @@ export default function SettingsPage(): React.JSX.Element | null {
           {!isSaved && <div className={styles.savedTextPlaceholder} aria-hidden="true" />}
         </div>
       </div>
+
+      {avatarModalOpen && (
+        <div
+          className={styles.avatarModal}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Загрузка фото профиля"
+          onPointerDown={(e) => {
+            if (e.target === e.currentTarget) setAvatarModalOpen(false);
+          }}
+        >
+          <div className={styles.avatarModalCard}>
+            <button
+              type="button"
+              className={styles.avatarModalClose}
+              onClick={() => setAvatarModalOpen(false)}
+              aria-label="Закрыть"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </button>
+
+            <h3 className={styles.avatarModalTitle}>Фото профиля</h3>
+
+            <div
+              className={`${styles.avatarDropzone} ${isDragging ? styles.avatarDropzoneDragging : ""}`}
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={handleDrop}
+            >
+              <svg className={styles.avatarDropzoneIcon} width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden>
+                <path d="M24 8C16.268 8 10 14.268 10 22C10 22.353 10.015 22.703 10.044 23.049C7.147 24.283 5 27.163 5 30.5C5 35.194 8.806 39 13.5 39H34.5C39.194 39 43 35.194 43 30.5C43 27.163 40.853 24.283 37.956 23.049C37.985 22.703 38 22.353 38 22C38 14.268 31.732 8 24 8Z" fill="#F0F0F0" stroke="#D0D0D0" strokeWidth="1.5"/>
+                <path d="M24 18V30M18 24L24 18L30 24" stroke="#8C8C8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <p className={styles.avatarDropzoneText}>Перетащите или загрузите фото</p>
+              <p className={styles.avatarDropzoneHint}>PNG / JPEG / WEBP / AVIF. До 50 МБ.</p>
+              <button
+                type="button"
+                className={styles.avatarDropzoneBtn}
+                onClick={() => avatarFileInputRef.current?.click()}
+              >
+                Выбрать фото
+              </button>
+            </div>
+
+            {hasCustomAvatar && (
+              <button
+                type="button"
+                className={styles.avatarModalDelete}
+                onClick={handleDeleteAvatar}
+              >
+                Удалить текущее фото
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
