@@ -230,6 +230,23 @@
   gap: 0.5rem;
 }
 
+.avatarSettingsLink {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  align-self: flex-start;
+  border-radius: 50%;
+  outline: none;
+
+  &:focus-visible {
+    box-shadow: 0 0 0 0.125rem var(--White, #fff), 0 0 0 0.25rem var(--Black, #000);
+  }
+}
+
+.closedBar .avatarSettingsLink {
+  align-self: center;
+}
+
 .avatarFull {
   width: 3.5rem;
   height: 3.5rem;

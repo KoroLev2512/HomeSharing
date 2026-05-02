@@ -15,7 +15,7 @@ export const loadSession = async (): Promise<AuthenticatedSession | null> => {
     if (!session?.user?.id) return null;
     return {
         userId: session.user.id,
-        isHost: Boolean(session.user.isService),
+        isHost: Boolean(session.user.isHost),
         isAdmin: Boolean(session.user.isAdmin),
     };
 };

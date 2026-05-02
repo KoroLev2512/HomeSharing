@@ -9,7 +9,7 @@ interface CustomUser {
   email?: string | null
   image?: string | null
   isAdmin?: boolean
-  isService?: boolean
+  isHost?: boolean
 }
 
 interface AuthGuardProps {
@@ -52,7 +52,7 @@ export const AuthGuard = ({ children, requiredRole }: AuthGuardProps) => {
     if (requiredRole && session && session.user) {
       const user = session.user as CustomUser
       const userRole = user.isAdmin ? 'admin' :
-          user.isService ? 'service' : 'user'
+          user.isHost ? 'service' : 'user'
 
       if (userRole !== requiredRole && userRole !== 'admin') {
         router.push('/')
@@ -68,7 +68,7 @@ export const AuthGuard = ({ children, requiredRole }: AuthGuardProps) => {
   if (requiredRole && session && session.user) {
     const user = session.user as CustomUser
     const userRole = user.isAdmin ? 'admin' :
-        user.isService ? 'service' : 'user'
+        user.isHost ? 'service' : 'user'
 
     if (userRole !== requiredRole && userRole !== 'admin') {
       return null

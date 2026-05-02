@@ -238,7 +238,7 @@ export const ListingsBoard: React.FC = () => {
                     </div>
                 </Section>
 
-                <Section margin={0}>
+                <Section margin={0} className={styles.contentMainSection}>
                     <div className={styles.contentRow}>
                         <div
                             className={classNames(styles.sidebar, {
@@ -292,12 +292,14 @@ export const ListingsBoard: React.FC = () => {
                             </div>
 
                             {isLoading && !data ? (
-                                <div
-                                    className={classNames(styles.listingsList, {
-                                        [styles.listingsGrid]: view === 'grid',
-                                    })}
-                                >
-                                    <ListingCardSkeletonList count={6} layout={view} />
+                                <div className={styles.listingsInitialLoader}>
+                                    <div
+                                        className={classNames(styles.listingsList, {
+                                            [styles.listingsGrid]: view === 'grid',
+                                        })}
+                                    >
+                                        <ListingCardSkeletonList count={6} layout={view} />
+                                    </div>
                                 </div>
                             ) : data && data.items.length > 0 ? (
                                 <div

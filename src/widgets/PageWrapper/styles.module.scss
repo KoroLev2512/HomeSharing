@@ -2,7 +2,9 @@
 
 .page {
   display: flex;
+  align-items: stretch;
   max-width: 100dvw;
+  min-height: 100dvh;
   position: relative;
 }
 

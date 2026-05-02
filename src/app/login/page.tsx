@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { signIn, useSession } from 'next-auth/react'
+import { getProviders, signIn, useSession } from 'next-auth/react'
+import type { ClientSafeProvider } from 'next-auth/react'
 import Image from 'next/image'
 import { Input } from '@/widgets/Input'
 import { supportedOAuthProviders, type SupportedOAuthProvider } from '@/shared/configs/authProviders'
@@ -14,7 +15,22 @@ export default function LoginPage() {
     const [password, setPassword] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState('')
+    const [oauthProviders, setOauthProviders] = useState<Record<string, ClientSafeProvider> | null>(null)
     const router = useRouter()
+
+    useEffect(() => {
+        let cancelled = false
+        getProviders()
+            .then((p) => {
+                if (!cancelled) setOauthProviders(p)
+            })
+            .catch(() => {
+                if (!cancelled) setOauthProviders(null)
+            })
+        return () => {
+            cancelled = true
+        }
+    }, [])
 
     useEffect(() => {
         if (status === 'authenticated' && session?.user) {
@@ -34,7 +50,7 @@ export default function LoginPage() {
             })
             
             if (result?.error) {
-                setError('Неверный email или пароль')
+                setError('Неверная почта или пароль')
             } else if (result?.ok) {
                 router.push('/')
             }
@@ -49,12 +65,28 @@ export default function LoginPage() {
         setIsLoading(true)
         setError('')
         try {
-            await signIn(provider, { callbackUrl: '/' })
+            const result = await signIn(provider, { callbackUrl: '/', redirect: false })
+            if (result?.error) {
+                setError(
+                    result.error === 'Configuration'
+                        ? `Вход через ${provider} не настроен на сервере (проверьте переменные окружения).`
+                        : `Не удалось войти через ${provider}: ${result.error}`,
+                )
+                setIsLoading(false)
+                return
+            }
+            if (result?.url) {
+                window.location.assign(result.url)
+                return
+            }
+            setIsLoading(false)
         } catch (err) {
             setError('Ошибка при входе через ' + provider)
             setIsLoading(false)
         }
     }
+
+    const visibleOAuth = supportedOAuthProviders.filter((p) => oauthProviders && oauthProviders[p.id])
 
     return (
         <div className={styles.wrapper}>
@@ -89,7 +121,7 @@ export default function LoginPage() {
                         autoComplete="username"
                         size="medium"
                         state={isLoading ? "disabled" : error && email ? "error" : "enabled"}
-                        errorMessage={error && email ? "Неверный email или пароль" : undefined}
+                        errorMessage={error && email ? "Неверная почта или пароль" : undefined}
                     />
 
                     <Input
@@ -104,7 +136,7 @@ export default function LoginPage() {
                         size="medium"
                         showPasswordToggle={true}
                         state={isLoading ? "disabled" : error && password ? "error" : "enabled"}
-                        errorMessage={error && password ? "Неверный email или пароль" : undefined}
+                        errorMessage={error && password ? "Неверная почта или пароль" : undefined}
                     />
 
                     <button 
@@ -115,34 +147,39 @@ export default function LoginPage() {
                         {isLoading ? 'Вход...' : 'Войти'}
                     </button>
 
-                    <div className={styles.divider}>
-                        <span>или</span>
-                    </div>
-
-                    <div className={styles.oauthButtons}>
-                        {supportedOAuthProviders.map((provider) => (
-                            <button
-                                key={provider.id}
-                                type="button"
-                                className={styles.oauthButton}
-                                onClick={() => handleOAuthLogin(provider.id)}
-                                disabled={isLoading}
-                            >
-                                <Image
-                                    src={provider.iconSrc}
-                                    alt={provider.iconAlt}
-                                    width={24}
-                                    height={24}
-                                />
-                                <span>Войти через {provider.label}</span>
-                            </button>
-                        ))}
-                    </div>
-
                     <Link href="/forgot-password" className={styles.forgotPassword}>
                         Забыли пароль?
                     </Link>
                 </form>
+
+                {visibleOAuth.length > 0 && (
+                    <>
+                        <div className={styles.divider}>
+                            <span>или</span>
+                        </div>
+
+                        <div className={styles.oauthButtons}>
+                            {visibleOAuth.map((provider) => (
+                                <button
+                                    key={provider.id}
+                                    type="button"
+                                    className={styles.oauthButton}
+                                    onClick={() => handleOAuthLogin(provider.id)}
+                                    disabled={isLoading}
+                                >
+                                    <Image
+                                        src={provider.iconSrc}
+                                        alt={provider.iconAlt}
+                                        width={24}
+                                        height={24}
+                                        style={{ pointerEvents: 'none' }}
+                                    />
+                                    <span>Войти через {provider.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </>
+                )}
 
                 <div className={styles.separator}></div>
 

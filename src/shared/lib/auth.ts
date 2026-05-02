@@ -84,7 +84,7 @@ export const authOptions: AuthOptions = {
                         name: user.name,
                         image: user.image,
                         isAdmin: user.isAdmin ?? false,
-                        isService: user.isService ?? false,
+                        isHost: user.isService ?? false,
                         isUser: user.isUser ?? true,
                     }
                 } catch (error) {
@@ -106,7 +106,7 @@ export const authOptions: AuthOptions = {
                 token.image = user.image
                 token.picture = user.image
                 token.isAdmin = user.isAdmin
-                token.isService = user.isService
+                token.isHost = user.isHost
                 token.isUser = user.isUser
             }
 
@@ -117,7 +117,7 @@ export const authOptions: AuthOptions = {
                     token.image = session.user.image
                     token.picture = session.user.image
                 }
-                if (typeof session.user.isService !== 'undefined') token.isService = session.user.isService
+                if (typeof session.user.isHost !== 'undefined') token.isHost = session.user.isHost
                 if (typeof session.user.isAdmin !== 'undefined') token.isAdmin = session.user.isAdmin
                 if (typeof session.user.isUser !== 'undefined') token.isUser = session.user.isUser
             }
@@ -130,7 +130,7 @@ export const authOptions: AuthOptions = {
                 session.user.email = token.email ?? session.user.email
                 session.user.image = (token.image ?? token.picture) ?? session.user.image
                 session.user.isAdmin = token.isAdmin
-                session.user.isService = token.isService
+                session.user.isHost = token.isHost
                 session.user.isUser = token.isUser
             }
             return session

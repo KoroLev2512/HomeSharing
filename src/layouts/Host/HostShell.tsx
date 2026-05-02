@@ -36,7 +36,7 @@ export const HostShell: React.FC<IProps> = ({ children }) => {
         return null;
     }
 
-    if (!session.user.isService) {
+    if (!session.user.isHost) {
         return (
             <div className={styles.root}>
                 <div className={styles.gateBox}>

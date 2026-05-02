@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { HostListingsService } from '@/shared/lib/bookingsService';
+import { HostListingsService } from '@/shared/lib/hostListingsService';
 import type { IListing } from '@/shared/types/listing';
 import { dealLabel, formatPrice } from '@/shared/lib/formatListing';
 import styles from './listings.module.scss';

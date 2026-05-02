@@ -52,7 +52,7 @@ export default function UserProfilePage() {
     const roles: string[] = []
 
     if (session.user.isAdmin) roles.push('Администратор')
-    if (session.user.isService) roles.push('Сервис')
+    if (session.user.isHost) roles.push('Арендодатель')
     if (session.user.isUser || roles.length === 0) roles.push('Пользователь')
 
     return (

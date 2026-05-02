@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { signIn, useSession } from 'next-auth/react'
+import { getProviders, signIn, useSession } from 'next-auth/react'
+import type { ClientSafeProvider } from 'next-auth/react'
 import Image from 'next/image'
 import { Input } from '@/widgets/Input'
 import styles from './styles.module.scss'
@@ -21,7 +22,22 @@ export default function RegisterPage() {
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
+    const [oauthProviders, setOauthProviders] = useState<Record<string, ClientSafeProvider> | null>(null)
     const router = useRouter()
+
+    useEffect(() => {
+        let cancelled = false
+        getProviders()
+            .then((p) => {
+                if (!cancelled) setOauthProviders(p)
+            })
+            .catch(() => {
+                if (!cancelled) setOauthProviders(null)
+            })
+        return () => {
+            cancelled = true
+        }
+    }, [])
 
     useEffect(() => {
         if (status === 'authenticated' && session?.user) {
@@ -40,12 +56,28 @@ export default function RegisterPage() {
         setIsLoading(true)
         setError('')
         try {
-            await signIn(provider, { callbackUrl: '/' })
+            const result = await signIn(provider, { callbackUrl: '/', redirect: false })
+            if (result?.error) {
+                setError(
+                    result.error === 'Configuration'
+                        ? `Регистрация через ${provider} не настроена на сервере (проверьте переменные окружения).`
+                        : `Не удалось войти через ${provider}: ${result.error}`,
+                )
+                setIsLoading(false)
+                return
+            }
+            if (result?.url) {
+                window.location.assign(result.url)
+                return
+            }
+            setIsLoading(false)
         } catch (err) {
             setError('Ошибка при регистрации через ' + provider)
             setIsLoading(false)
         }
     }
+
+    const visibleOAuth = supportedOAuthProviders.filter((p) => oauthProviders && oauthProviders[p.id])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -116,25 +148,30 @@ export default function RegisterPage() {
                     <div className={styles.success}>{success}</div>
                 )}
 
-                <form onSubmit={handleSubmit} className={styles.form}>
-                    {supportedOAuthProviders.map((provider) => (
-                        <button
-                            key={provider.id}
-                            type="button"
-                            className={styles.oauthButton}
-                            onClick={() => handleOAuthRegister(provider.id)}
-                            disabled={isLoading}
-                        >
-                            <Image
-                                src={provider.iconSrc}
-                                alt={provider.iconAlt}
-                                width={24}
-                                height={24}
-                            />
-                            <span>Регистрация через {provider.label}</span>
-                        </button>
-                    ))}
+                {visibleOAuth.length > 0 && (
+                    <div className={styles.oauthButtons}>
+                        {visibleOAuth.map((provider) => (
+                            <button
+                                key={provider.id}
+                                type="button"
+                                className={styles.oauthButton}
+                                onClick={() => handleOAuthRegister(provider.id)}
+                                disabled={isLoading}
+                            >
+                                <Image
+                                    src={provider.iconSrc}
+                                    alt={provider.iconAlt}
+                                    width={24}
+                                    height={24}
+                                    style={{ pointerEvents: 'none' }}
+                                />
+                                <span>Регистрация через {provider.label}</span>
+                            </button>
+                        ))}
+                    </div>
+                )}
 
+                <form onSubmit={handleSubmit} className={styles.form}>
                     <Input
                         label="Имя"
                         type="text"

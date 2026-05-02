@@ -56,7 +56,7 @@ export const NavigationBar = (): React.JSX.Element => {
     const { data: session, status } = useSession();
     const [isSigningOut, setIsSigningOut] = useState(false);
     const isAuthenticated = status === 'authenticated' && !!session?.user;
-    const isHost = isAuthenticated && Boolean(session?.user?.isService);
+    const isHost = isAuthenticated && Boolean(session?.user?.isHost);
 
     const MenuItems: MenuItemProps[] = useMemo(() => compact([
         {icon: <HomeIcon/>, name: "Объявления", href: "/listings"},
@@ -66,6 +66,7 @@ export const NavigationBar = (): React.JSX.Element => {
         isAuthenticated ? {icon: <CalendarIcon color="#000000" width={24} height={24} />, name: "Бронирования", href: "/bookings"} : null,
         isAuthenticated ? {icon: <MessageIcon/>, name: "Сообщения", href: "/messages"} : null,
         isAuthenticated ? {icon: <NotifyIcon/>, name: "Уведомления", href: "/notifications"} : null,
+        isAuthenticated && session?.user?.isAdmin ? {icon: <SettingsIcon/>, name: "Админ", href: "/admin"} : null,
         isAuthenticated ? {icon: <SettingsIcon/>, name: "Параметры", href: "/settings"} : null,
     ]), [isAuthenticated, isHost]);
 
@@ -157,12 +158,19 @@ export const NavigationBar = (): React.JSX.Element => {
                     showMenu ? (
                         // Компактный вид (закрытый навбар): аватар + иконка выхода
                         <div className={styles.userRowCompact}>
-                            <div className={styles.avatar}>
-                                <img
-                                    src={typeof session.user.image === 'string' && session.user.image ? session.user.image : '/users/user_1.webp'}
-                                    alt="Аватар"
-                                />
-                            </div>
+                            <Link
+                                href="/settings"
+                                className={styles.avatarSettingsLink}
+                                aria-label="Параметры"
+                                onClick={() => toggleMenuPage(false)}
+                            >
+                                <div className={styles.avatar}>
+                                    <img
+                                        src={typeof session.user.image === 'string' && session.user.image ? session.user.image : '/users/user_1.webp'}
+                                        alt="Аватар"
+                                    />
+                                </div>
+                            </Link>
                             <button
                                 onClick={handleSignOut}
                                 className={styles.signOutIconBtn}
@@ -183,12 +191,19 @@ export const NavigationBar = (): React.JSX.Element => {
                     ) : (
                         // Полный вид (открытый навбар): имя/почта/роль и кнопка Выйти
                         <div className={styles.userInfo}>
-                            <div className={styles.avatarFull}>
-                                <img
-                                    src={typeof session.user.image === 'string' && session.user.image ? session.user.image : '/users/user_1.webp'}
-                                    alt="Аватар"
-                                />
-                            </div>
+                            <Link
+                                href="/settings"
+                                className={styles.avatarSettingsLink}
+                                aria-label="Параметры"
+                                onClick={() => toggleMenuPage(false)}
+                            >
+                                <div className={styles.avatarFull}>
+                                    <img
+                                        src={typeof session.user.image === 'string' && session.user.image ? session.user.image : '/users/user_1.webp'}
+                                        alt="Аватар"
+                                    />
+                                </div>
+                            </Link>
                             <div className={styles.username}>
                                 {session.user.name || session.user.email}
                             </div>
@@ -197,7 +212,7 @@ export const NavigationBar = (): React.JSX.Element => {
                             </div>
                             <div className={styles.role}>
                                 {session.user.isAdmin ? 'Администратор' :
-                                 session.user.isService ? 'Арендодатель' : 'Гость'}
+                                 session.user.isHost ? 'Арендодатель' : 'Гость'}
                             </div>
                             <button 
                                 onClick={handleSignOut}

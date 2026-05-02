@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Loader from '@/shared/ui/Loader/Loader';
-import BookingsService, { HostBookingsService } from '@/shared/lib/bookingsService';
+import BookingsService from '@/shared/lib/bookingsService';
+import { HostBookingsService } from '@/shared/lib/hostBookingsService';
 import { useFavorites } from '@/shared/lib/favorites';
 import { BOOKING_STATUS_LABEL, type IBookingWithListing } from '@/shared/types/booking';
 import styles from './styles.module.scss';
@@ -69,7 +70,7 @@ export const NotificationsBoard: React.FC = () => {
     useEffect(() => {
         if (status !== 'authenticated') return;
 
-        const isHost = Boolean(session?.user?.isService);
+        const isHost = Boolean(session?.user?.isHost);
 
         const load = async () => {
             try {
@@ -104,7 +105,7 @@ export const NotificationsBoard: React.FC = () => {
         };
 
         void load();
-    }, [favoritesCount, session?.user?.isService, status]);
+    }, [favoritesCount, session?.user?.isHost, status]);
 
     if (status === 'loading') {
         return <Loader />;

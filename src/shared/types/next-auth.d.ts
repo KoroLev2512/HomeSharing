@@ -8,7 +8,7 @@ declare module 'next-auth' {
             email?: string | null
             image?: string | null
             isAdmin?: boolean
-            isService?: boolean
+            isHost?: boolean
             isUser?: boolean
         }
     }
@@ -16,7 +16,7 @@ declare module 'next-auth' {
     interface User {
         id?: string
         isAdmin?: boolean
-        isService?: boolean
+        isHost?: boolean
         isUser?: boolean
     }
 }
@@ -29,7 +29,7 @@ declare module 'next-auth/jwt' {
         picture?: string | null
         image?: string | null
         isAdmin?: boolean
-        isService?: boolean
+        isHost?: boolean
         isUser?: boolean
     }
 }

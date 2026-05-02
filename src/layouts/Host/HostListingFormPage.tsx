@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import classNames from 'classnames';
 import Loader from '@/shared/ui/Loader/Loader';
-import { HostListingsService } from '@/shared/lib/bookingsService';
+import { HostListingsService } from '@/shared/lib/hostListingsService';
 import type {
     DealType,
     IListing,

@@ -4,7 +4,7 @@ import { getServiceClient } from '@/shared/utils/supabase/service';
 
 /**
  * Allow the current user to flip a small whitelist of self-managed flags.
- * Currently: `isService` (host opt-in/opt-out).
+ * Currently: `isHost` (host opt-in/opt-out).
  *
  * Note: NextAuth uses a JWT session, so the new value is reflected in the
  * session only after the next refresh. The client should re-fetch the session
@@ -43,7 +43,7 @@ export async function PATCH(req: Request) {
                 user: {
                     id: data.id as string,
                     isAdmin: Boolean(data.isAdmin),
-                    isService: Boolean(data.isService),
+                    isHost: Boolean(data.isService),
                     isUser: Boolean(data.isUser),
                 },
             },

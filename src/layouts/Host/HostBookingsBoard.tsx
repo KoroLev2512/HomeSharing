@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import classNames from 'classnames';
-import { HostBookingsService } from '@/shared/lib/bookingsService';
+import { HostBookingsService } from '@/shared/lib/hostBookingsService';
 import {
     BOOKING_STATUS_LABEL,
     BOOKING_STATUS_TONE,

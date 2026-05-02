@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Loader from '@/shared/ui/Loader/Loader';
-import BookingsService, { HostBookingsService } from '@/shared/lib/bookingsService';
+import BookingsService from '@/shared/lib/bookingsService';
+import { HostBookingsService } from '@/shared/lib/hostBookingsService';
 import { BOOKING_STATUS_LABEL, type IBookingWithListing } from '@/shared/types/booking';
 import styles from './styles.module.scss';
 
@@ -70,7 +71,7 @@ export const MessagesBoard: React.FC = () => {
     useEffect(() => {
         if (status !== 'authenticated') return;
 
-        const isHost = Boolean(session?.user?.isService);
+        const isHost = Boolean(session?.user?.isHost);
 
         const load = async () => {
             try {
@@ -93,7 +94,7 @@ export const MessagesBoard: React.FC = () => {
         };
 
         void load();
-    }, [session?.user?.isService, status]);
+    }, [session?.user?.isHost, status]);
 
     const summary = useMemo(() => {
         if (!threads) return 'Загружаем переписки...';
