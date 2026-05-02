@@ -137,54 +137,56 @@ export const ListingsBoard: React.FC = () => {
     return (
         <div className={styles.root}>
             <div className={styles.heroBar}>
-                <div className={styles.heroLeft}>
-                    {session?.user ? (
-                        <h1 className={styles.heroTitle}>Объявления</h1>
-                    ) : (
-                        <Link href="/listings" className={styles.heroLogo} aria-label="HomeSharing">
-                            <Logotype />
-                        </Link>
-                    )}
-                </div>
-                <div className={styles.heroActions}>
-                    <Link
-                        href="/favorites"
-                        className={classNames(styles.favoritesLink, {
-                            [styles.favoritesLinkActive]: favoritesCount > 0,
-                        })}
-                        aria-label="Избранное"
-                    >
-                        <svg
-                            width="18"
-                            height="18"
-                            viewBox="0 0 24 24"
-                            fill={favoritesCount > 0 ? '#ff2525' : 'none'}
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <path
-                                d="M12.1 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.65 11.54L12.1 21.35z"
-                                stroke={favoritesCount > 0 ? '#ff2525' : '#1a1a1a'}
-                                strokeWidth="1.8"
-                                strokeLinejoin="round"
-                            />
-                        </svg>
-                        <span>Избранное</span>
-                        {favoritesCount > 0 && (
-                            <span className={styles.favoritesCount}>
-                                {favoritesCount > 99 ? '99+' : favoritesCount}
-                            </span>
+                <div className={styles.heroBarInner}>
+                    <div className={styles.heroLeft}>
+                        {session?.user ? (
+                            <h1 className={styles.heroTitle}>Объявления</h1>
+                        ) : (
+                            <Link href="/listings" className={styles.heroLogo} aria-label="HomeSharing">
+                                <Logotype />
+                            </Link>
                         )}
-                    </Link>
-                    {!session?.user && (
-                        <>
-                            <Link href="/login" className={styles.loginLink}>
-                                Войти
-                            </Link>
-                            <Link href="/register" className={styles.publishLink}>
-                                Разместить объявление
-                            </Link>
-                        </>
-                    )}
+                    </div>
+                    <div className={styles.heroActions}>
+                        <Link
+                            href="/favorites"
+                            className={classNames(styles.favoritesLink, {
+                                [styles.favoritesLinkActive]: favoritesCount > 0,
+                            })}
+                            aria-label="Избранное"
+                        >
+                            <svg
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill={favoritesCount > 0 ? '#ff2525' : 'none'}
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    d="M12.1 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.65 11.54L12.1 21.35z"
+                                    stroke={favoritesCount > 0 ? '#ff2525' : '#1a1a1a'}
+                                    strokeWidth="1.8"
+                                    strokeLinejoin="round"
+                                />
+                            </svg>
+                            <span>Избранное</span>
+                            {favoritesCount > 0 && (
+                                <span className={styles.favoritesCount}>
+                                    {favoritesCount > 99 ? '99+' : favoritesCount}
+                                </span>
+                            )}
+                        </Link>
+                        {!session?.user && (
+                            <>
+                                <Link href="/login" className={styles.loginLink}>
+                                    Войти
+                                </Link>
+                                <Link href="/register" className={styles.publishLink}>
+                                    Разместить объявление
+                                </Link>
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
 
