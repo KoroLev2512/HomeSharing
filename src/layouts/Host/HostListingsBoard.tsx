@@ -53,7 +53,7 @@ export const HostListingsBoard: React.FC = () => {
                             : `Активных объявлений: ${listings.length}`}
                 </p>
                 <Link href="/host/listings/new" className={styles.primaryBtn}>
-                    + Создать объявление
+                    Создать объявление
                 </Link>
             </div>
 

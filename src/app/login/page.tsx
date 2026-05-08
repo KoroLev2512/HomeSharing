@@ -7,6 +7,7 @@ import type { ClientSafeProvider } from 'next-auth/react'
 import Image from 'next/image'
 import { Input } from '@/widgets/Input'
 import { supportedOAuthProviders, type SupportedOAuthProvider } from '@/shared/configs/authProviders'
+import { EsiaIcon } from '@/shared/icons/EsiaIcon'
 import styles from './styles.module.scss'
 
 export default function LoginPage() {
@@ -146,10 +147,6 @@ export default function LoginPage() {
                     >
                         {isLoading ? 'Вход...' : 'Войти'}
                     </button>
-
-                    <Link href="/forgot-password" className={styles.forgotPassword}>
-                        Забыли пароль?
-                    </Link>
                 </form>
 
                 {visibleOAuth.length > 0 && (
@@ -167,19 +164,27 @@ export default function LoginPage() {
                                     onClick={() => handleOAuthLogin(provider.id)}
                                     disabled={isLoading}
                                 >
-                                    <Image
-                                        src={provider.iconSrc}
-                                        alt={provider.iconAlt}
-                                        width={24}
-                                        height={24}
-                                        style={{ pointerEvents: 'none' }}
-                                    />
+                                    {provider.id === 'esia' ? (
+                                        <EsiaIcon />
+                                    ) : (
+                                        <Image
+                                            src={provider.iconSrc}
+                                            alt={provider.iconAlt}
+                                            width={24}
+                                            height={24}
+                                            style={{ pointerEvents: 'none' }}
+                                        />
+                                    )}
                                     <span>Войти через {provider.label}</span>
                                 </button>
                             ))}
                         </div>
                     </>
                 )}
+
+                <Link href="/forgot-password" className={styles.forgotPassword}>
+                    Забыли пароль?
+                </Link>
 
                 <div className={styles.separator}></div>
 

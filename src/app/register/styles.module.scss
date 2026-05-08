@@ -209,23 +209,33 @@
 .oauthButtons {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
+  align-items: stretch;
+  gap: 0.625rem;
   width: 100%;
+}
+
+.oauthDivider {
+  width: 100%;
+  text-align: center;
+  color: var(--Black, #000);
+  font-family: Inter, sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5rem;
 }
 
 .oauthButton {
   display: flex;
-  height: 2.5rem;
-  padding: 0.5rem;
+  height: 3rem;
+  padding: 0 1.25rem;
   justify-content: center;
   align-items: center;
-  gap: 0.5rem;
-  border-radius: 0.5rem;
+  gap: 0.75rem;
+  border-radius: 0.625rem;
   background: var(--Grey-100, #EEE);
-  border: 0.0625rem solid var(--Grey-200, #E2E2E2);
+  border: none;
   color: var(--Black, #000);
-  text-align: center;
+  text-align: left;
   font-family: Inter, sans-serif;
   font-size: 1rem;
   font-style: normal;
@@ -233,18 +243,20 @@
   line-height: 1.25rem;
   width: 100%;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, opacity 0.2s;
   
   span {
-    flex-shrink: 0;
+    font-size: 1rem;
+    line-height: 1.25rem;
   }
   
-  img {
+  img,
+  svg {
     flex-shrink: 0;
   }
   
   &:hover:not(:disabled) {
-    background: var(--Grey-200, #E2E2E2);
+    background: #e3e3e3;
   }
   
   &:disabled {
@@ -304,9 +316,9 @@
 
 .registerButton {
   display: flex;
-  height: 2.5rem;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
+  height: 3rem;
+  padding: 0 1.25rem;
+  border-radius: 0.625rem;
   background: var(--Black, #000);
   justify-content: center;
   align-items: center;

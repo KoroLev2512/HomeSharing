@@ -5,6 +5,7 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcrypt"
 import { getServiceClient } from "@/shared/utils/supabase/service"
 import { serverEnv } from "@/shared/configs/serverEnv"
+import { createEsiaMockProvider } from "@/shared/lib/esiaProvider"
 
 const oauthProviders = []
 
@@ -24,6 +25,10 @@ if (serverEnv.google) {
             clientSecret: serverEnv.google.clientSecret,
         }),
     )
+}
+
+if (serverEnv.esiaMockEnabled) {
+    oauthProviders.push(createEsiaMockProvider())
 }
 
 export const authOptions: AuthOptions = {
@@ -98,7 +103,59 @@ export const authOptions: AuthOptions = {
         strategy: "jwt",
     },
     callbacks: {
-        async jwt({ token, user, trigger, session }) {
+        async jwt({ token, user, account, trigger, session }) {
+            if (user && account?.provider === "esia") {
+                try {
+                    const supabase = getServiceClient()
+                    const email = user.email ?? ""
+                    let dbUser: any = null
+
+                    if (email) {
+                        const { data: existing } = await supabase
+                            .from("User")
+                            .select("*")
+                            .eq("email", email)
+                            .maybeSingle()
+                        dbUser = existing
+                    }
+
+                    if (!dbUser) {
+                        const { data: created, error: createError } = await supabase
+                            .from("User")
+                            .insert({
+                                email: email || `esia-${user.id}@example.local`,
+                                name: user.name ?? null,
+                                image: null,
+                                password: null,
+                                isAdmin: false,
+                                isUser: true,
+                                isService: false,
+                            })
+                            .select()
+                            .single()
+
+                        if (createError) {
+                            console.error("[AUTH][esia] Failed to create user:", createError)
+                        }
+                        dbUser = created
+                    }
+
+                    if (dbUser) {
+                        token.id = dbUser.id
+                        token.name = dbUser.name ?? user.name ?? null
+                        token.email = dbUser.email ?? email
+                        token.image = dbUser.image ?? null
+                        token.picture = dbUser.image ?? null
+                        token.isAdmin = dbUser.isAdmin ?? false
+                        token.isHost = dbUser.isService ?? false
+                        token.isUser = dbUser.isUser ?? true
+                    }
+                    return token
+                } catch (err) {
+                    console.error("[AUTH][esia] jwt linking failed:", err)
+                }
+            }
+
             if (user) {
                 token.id = user.id
                 token.name = user.name

@@ -46,4 +46,8 @@ export const serverEnv = {
   ),
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
   databaseUrl: process.env.DATABASE_URL,
+  esiaMockEnabled:
+    (process.env.ESIA_MOCK_ENABLED ?? "").toLowerCase() === "true" ||
+    process.env.NODE_ENV !== "production",
+  appUrl: process.env.NEXTAUTH_URL ?? "http://localhost:3000",
 };

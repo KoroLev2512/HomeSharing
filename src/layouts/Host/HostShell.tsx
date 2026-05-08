@@ -56,21 +56,25 @@ export const HostShell: React.FC<IProps> = ({ children }) => {
     return (
         <div className={styles.root}>
             <header className={styles.header}>
-                <h1 className={styles.title}>Кабинет арендодателя</h1>
-                <nav className={styles.tabs}>
-                    {TABS.map((t) => {
-                        const isActive = pathname?.startsWith(t.href);
-                        return (
-                            <Link
-                                key={t.href}
-                                href={t.href}
-                                className={classNames(styles.tab, { [styles.tabActive]: isActive })}
-                            >
-                                {t.label}
-                            </Link>
-                        );
-                    })}
-                </nav>
+                <div className={styles.heroLeft}>
+                    <h1 className={styles.title}>Кабинет арендодателя</h1>
+                </div>
+                <div className={styles.heroActions}>
+                    <nav className={styles.tabs}>
+                        {TABS.map((t) => {
+                            const isActive = pathname?.startsWith(t.href);
+                            return (
+                                <Link
+                                    key={t.href}
+                                    href={t.href}
+                                    className={classNames(styles.tab, { [styles.tabActive]: isActive })}
+                                >
+                                    {t.label}
+                                </Link>
+                            );
+                        })}
+                    </nav>
+                </div>
             </header>
             <main className={styles.body}>{children}</main>
         </div>

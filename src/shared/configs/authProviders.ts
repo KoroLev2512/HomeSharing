@@ -1,4 +1,4 @@
-export type SupportedOAuthProvider = "google" | "github";
+export type SupportedOAuthProvider = "google" | "github" | "esia";
 
 export const supportedOAuthProviders: Array<{
   id: SupportedOAuthProvider;
@@ -6,6 +6,12 @@ export const supportedOAuthProviders: Array<{
   iconSrc: string;
   iconAlt: string;
 }> = [
+  {
+    id: "esia",
+    label: "Госуслуги",
+    iconSrc: "/icons/gosuslugi_logo.svg",
+    iconAlt: "Госуслуги",
+  },
   {
     id: "google",
     label: "Google",

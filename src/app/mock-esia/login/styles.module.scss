@@ -1,0 +1,283 @@
+.wrapper {
+    min-height: 100dvh;
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background: #e4ecfd;
+    padding: 2.5rem 1.5rem 1.5rem;
+    box-sizing: border-box;
+    font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.card {
+    width: 100%;
+    max-width: 24rem;
+    background: #fff;
+    border-radius: 0.75rem;
+    box-shadow: none;
+    backdrop-filter: blur(0.375rem);
+    padding: 2.5rem 2rem;
+    box-sizing: border-box;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    width: 100%;
+}
+
+.wordmarkImage {
+    width: auto;
+    max-width: 13.5rem;
+    height: auto;
+    display: block;
+}
+
+.brandSubtitle {
+    font-size: 0.75rem;
+    color: #667085;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+}
+
+.title {
+    font-size: 1.625rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 0 0 0.25rem;
+}
+
+.subtitle {
+    margin: 0 0 2rem;
+    color: #0b1f33;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 400;
+}
+
+.scopes {
+    margin: 0;
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.625rem;
+    background: #f5f8ff;
+    border: 0.0625rem solid #dbe5ff;
+    font-size: 0.8125rem;
+    color: #344054;
+}
+
+.error {
+    background: #fef2f2;
+    border: 0.0625rem solid #fecaca;
+    color: #b91c1c;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+    margin-bottom: 0.75rem;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.users {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.userOption {
+    height: 2rem;
+    padding: 0 0.75rem;
+    border-radius: 0.625rem;
+    border: 0.0625rem solid #e5e7eb;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+    background: #fff;
+    color: #374151;
+    font-size: 0.8125rem;
+    font-family: inherit;
+    font-weight: 500;
+
+    &:hover {
+        background: #f9fafb;
+    }
+}
+
+.userOptionActive {
+    border-color: #7c9cff;
+    background: #eef2ff;
+    color: #374ad4;
+}
+
+.customFields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+}
+
+.fieldLabel {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    color: #000000;
+}
+
+.input {
+    width: 100%;
+    height: 3.25rem;
+    padding: 0.875rem 1rem;
+    border: 0;
+    border-radius: 0.2rem;
+    background: #f5f7fa;
+    font-size: 18px;
+    font-family: inherit;
+    color: #111827;
+    line-height: 18px;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    box-sizing: border-box;
+}
+
+.passwordField {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.passwordField .input {
+    width: 100%;
+    padding-right: 2.75rem;
+}
+
+.passwordToggle {
+    position: absolute;
+    top: 50%;
+    right: 0.75rem;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 0;
+    background: transparent;
+    color: #7a8699;
+    cursor: pointer;
+    padding: 0;
+}
+
+.recoverButton {
+    margin-top: 0.5rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    text-align: left;
+    box-shadow: none;
+    color: inherit;
+    color: #0d4cd3;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    letter-spacing: 0.04em;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.loginHelpButton {
+    margin-top: -0.125rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    text-align: center;
+    box-shadow: none;
+    color: inherit;
+    color: #0d4cd3;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    letter-spacing: 0.04em;
+    font-weight: 400;
+    cursor: pointer;
+    align-self: center;
+}
+
+.actions {
+    display: flex;
+    gap: 0.625rem;
+    margin-top: 0.25rem;
+}
+
+.cancelButton,
+.submitButton {
+    flex: 1;
+    height: 2.875rem;
+    border-radius: 0.75rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.cancelButton {
+    display: none;
+}
+
+.submitButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1rem 0;
+    background: #0d4cd3;
+    color: #fff;
+    border: none;
+    padding: 0.875rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 0.5rem;
+    font-weight: 300;
+
+    &:hover:not(:disabled) {
+        background: #0b43b8;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+.note {
+    margin-top: 1rem;
+    font-size: 0.8125rem;
+    color: #475467;
+    line-height: 1.4;
+
+    code {
+        background: #f3f4f6;
+        padding: 0.0625rem 0.25rem;
+        border-radius: 0.25rem;
+        font-size: 0.6875rem;
+    }
+}

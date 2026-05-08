@@ -9,6 +9,7 @@ import { Input } from '@/widgets/Input'
 import styles from './styles.module.scss'
 import AccountService from '@/shared/lib/accountService'
 import { supportedOAuthProviders, type SupportedOAuthProvider } from '@/shared/configs/authProviders'
+import { EsiaIcon } from '@/shared/icons/EsiaIcon'
 
 export default function RegisterPage() {
     const { data: session, status } = useSession()
@@ -148,29 +149,6 @@ export default function RegisterPage() {
                     <div className={styles.success}>{success}</div>
                 )}
 
-                {visibleOAuth.length > 0 && (
-                    <div className={styles.oauthButtons}>
-                        {visibleOAuth.map((provider) => (
-                            <button
-                                key={provider.id}
-                                type="button"
-                                className={styles.oauthButton}
-                                onClick={() => handleOAuthRegister(provider.id)}
-                                disabled={isLoading}
-                            >
-                                <Image
-                                    src={provider.iconSrc}
-                                    alt={provider.iconAlt}
-                                    width={24}
-                                    height={24}
-                                    style={{ pointerEvents: 'none' }}
-                                />
-                                <span>Регистрация через {provider.label}</span>
-                            </button>
-                        ))}
-                    </div>
-                )}
-
                 <form onSubmit={handleSubmit} className={styles.form}>
                     <Input
                         label="Имя"
@@ -262,9 +240,39 @@ export default function RegisterPage() {
                         type="submit"
                         disabled={isLoading}
                     >
-                        {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
+                        {isLoading ? 'Подтверждение...' : 'Подтвердить эл. почту'}
                     </button>
                 </form>
+
+                {visibleOAuth.length > 0 && (
+                    <>
+                        <div className={styles.oauthDivider}>или</div>
+                        <div className={styles.oauthButtons}>
+                            {visibleOAuth.map((provider) => (
+                                <button
+                                    key={provider.id}
+                                    type="button"
+                                    className={styles.oauthButton}
+                                    onClick={() => handleOAuthRegister(provider.id)}
+                                    disabled={isLoading}
+                                >
+                                    {provider.id === 'esia' ? (
+                                        <EsiaIcon />
+                                    ) : (
+                                        <Image
+                                            src={provider.iconSrc}
+                                            alt={provider.iconAlt}
+                                            width={24}
+                                            height={24}
+                                            style={{ pointerEvents: 'none' }}
+                                        />
+                                    )}
+                                    <span>Регистрация через {provider.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </>
+                )}
 
                 <div className={styles.separator}></div>
 

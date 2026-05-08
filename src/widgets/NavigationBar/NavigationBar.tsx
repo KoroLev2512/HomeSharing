@@ -9,7 +9,17 @@ import {useAppStore} from "@/shared/store/appStore";
 import classNames from "classnames";
 import {usePathname, useRouter} from "next/navigation";
 import {compact} from "lodash";
-import {HomeIcon, MessageIcon, NotifyIcon, SettingsIcon, ProfileIcon, StarIcon, CalendarIcon} from "@/shared/icons";
+import {
+    AdminPanelIcon,
+    HostCabinetIcon,
+    NavBookingsIcon,
+    NavFavoritesIcon,
+    NavHomeIcon,
+    NavMessagesIcon,
+    NavNotificationsIcon,
+    SettingsIcon,
+    ProfileIcon
+} from "@/shared/icons";
 import {useSession, signOut} from "next-auth/react";
 import {Burger} from "../../shared/ui/Burger";
 import Link from "next/link";
@@ -59,15 +69,14 @@ export const NavigationBar = (): React.JSX.Element => {
     const isHost = isAuthenticated && Boolean(session?.user?.isHost);
 
     const MenuItems: MenuItemProps[] = useMemo(() => compact([
-        {icon: <HomeIcon/>, name: "Объявления", href: "/listings"},
-        {icon: <StarIcon color="#000000" width={16} height={16} />, name: "Избранное", href: "/favorites"},
-        isHost ? {icon: <HomeIcon/>, name: "Мои объявления", href: "/host/listings"} : null,
-        isHost ? {icon: <HomeIcon/>, name: "Заявки гостей", href: "/host/bookings"} : null,
-        isAuthenticated ? {icon: <CalendarIcon color="#000000" width={24} height={24} />, name: "Бронирования", href: "/bookings"} : null,
-        isAuthenticated ? {icon: <MessageIcon/>, name: "Сообщения", href: "/messages"} : null,
-        isAuthenticated ? {icon: <NotifyIcon/>, name: "Уведомления", href: "/notifications"} : null,
-        isAuthenticated && session?.user?.isAdmin ? {icon: <SettingsIcon/>, name: "Админ", href: "/admin"} : null,
-        isAuthenticated ? {icon: <SettingsIcon/>, name: "Параметры", href: "/settings"} : null,
+        {icon: <NavHomeIcon width={24} height={24} color="#000000" />, name: "Объявления", href: "/listings"},
+        {icon: <NavFavoritesIcon width={24} height={24} color="#000000" />, name: "Избранное", href: "/favorites"},
+        isHost ? {icon: <HostCabinetIcon width={24} height={24} color="#000000" />, name: "Кабинет арендодателя", href: "/host/listings"} : null,
+        isAuthenticated ? {icon: <NavBookingsIcon width={24} height={24} color="#000000" />, name: "Бронирования", href: "/bookings"} : null,
+        isAuthenticated ? {icon: <NavMessagesIcon width={24} height={24} color="#000000" />, name: "Сообщения", href: "/messages"} : null,
+        isAuthenticated ? {icon: <NavNotificationsIcon width={24} height={24} color="#000000" />, name: "Уведомления", href: "/notifications"} : null,
+        isAuthenticated && session?.user?.isAdmin ? {icon: <AdminPanelIcon width={24} height={24} color="#000000" />, name: "Администрирование", href: "/admin"} : null,
+        isAuthenticated ? {icon: <SettingsIcon width={20} height={20} color="#000000" />, name: "Параметры", href: "/settings"} : null,
     ]), [isAuthenticated, isHost]);
 
     const homeHref = isAuthenticated ? "/" : "/listings";

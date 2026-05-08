@@ -1,144 +1,368 @@
-# HomeSharing: internal project notes
+# HomeSharing: Codex Project Notes
 
-## Purpose
+Last analyzed: 2026-05-05.
 
-This repository is a `Next.js` application for managing rental properties / lockbox-style access workflows.
-The current product surface is centered on:
+This document is the working map I should use before changing this repository. It describes the code that is active now, not just the historical intent in older docs.
 
-- authentication and registration
-- public listings browsing and favorites
-- owner listings and bookings
-- a mostly UI-only settings screen
+## Product Shape
 
-Despite the current repo name (`homesharing`), parts of the codebase and docs still use the older product name `LockBox`.
+HomeSharing is a `Next.js` App Router application for property listings, favorites, bookings, host listing management, and admin moderation.
 
-## Current stack
+Main user areas:
 
-- `Next.js 16.1.1` with App Router
+- Public catalog: `/listings`, `/listings/[id]`
+- Guest area: `/favorites`, `/bookings`
+- Host area: `/host/listings`, `/host/listings/new`, `/host/listings/[id]/edit`, `/host/bookings`
+- Admin area: `/admin/users`, `/admin/listings`, `/admin/bookings`
+- Account/auth: `/login`, `/register`, `/settings`
+- Mostly static/placeholder areas: `/messages`, `/notifications`, `/users/[id]`, `/test`, `/listing`
+
+Some UI text and metadata still says `LockBox`; current repository/product name is `HomeSharing`.
+
+## Stack
+
+- `Next.js 16.1.1` with App Router and Turbopack scripts
 - `React 19`
 - `TypeScript`
-- `SCSS modules`
-- `next-auth` v4 with JWT session strategy
-- `Supabase` used as the live data backend
-- `Zustand` for client UI/global state
-- `Prisma` schema and migrations exist as a retained fallback layer, but runtime CRUD currently goes through Supabase tables directly
+- `SCSS Modules`
+- `next-auth` v4 with JWT sessions
+- `Supabase` as the live runtime data backend
+- `Zustand` for UI state
+- `Prisma` schema/migrations retained in repo, but not the primary runtime data access path
 
-## What is actually used at runtime
+Important scripts from `package.json`:
 
-### Main application shell
+- `npm run dev` -> `next dev --turbopack`
+- `npm run build` -> `next build --turbopack`
+- `npm run lint` -> `eslint .`
+- `npm run typecheck` -> `tsc --noEmit`
+- `npm test` -> `npm run typecheck`
 
-- Root layout: [src/app/layout.tsx](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/app/layout.tsx)
-- App wrapper with navbar/content shell: [src/widgets/Wrappers/AppWrapper.tsx](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/widgets/Wrappers/AppWrapper.tsx)
-- Primary dashboard page: [src/app/page.tsx](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/app/page.tsx)
-- Dashboard layout implementation: [src/layouts/Home/HomeLayout.tsx](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/layouts/Home/HomeLayout.tsx)
-- Active owner dashboard implementation is now aligned with [src/layouts/Host/HostShell.tsx](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/layouts/Host/HostShell.tsx) and [src/layouts/Host/HostListingsBoard.tsx](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/layouts/Host/HostListingsBoard.tsx)
+## Application Shell
 
-### Auth flow in use
+Root layout:
 
-Active auth configuration is in [src/shared/lib/auth.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/shared/lib/auth.ts).
+- [src/app/layout.tsx](/Users/qwerty/WebstormProjects/study/homesharing/src/app/layout.tsx)
 
-Providers currently wired in code:
+The root layout wraps all pages in:
 
-- `credentials`
-- `github`
-- `google`
+- `SessionProviderWrapper`
+- `AppWrapper`
+- global styles from [src/styles/globals.scss](/Users/qwerty/WebstormProjects/study/homesharing/src/styles/globals.scss)
 
-Auth route:
+Main wrapper/navigation:
 
-- [src/app/api/auth/[...nextauth]/route.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/app/api/auth/[...nextauth]/route.ts)
+- [src/widgets/Wrappers/AppWrapper.tsx](/Users/qwerty/WebstormProjects/study/homesharing/src/widgets/Wrappers/AppWrapper.tsx)
+- [src/widgets/NavigationBar/NavigationBar.tsx](/Users/qwerty/WebstormProjects/study/homesharing/src/widgets/NavigationBar/NavigationBar.tsx)
+- [src/shared/store/appStore.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/store/appStore.ts)
 
-Session model:
+Navigation is shown only when `next-auth` reports `authenticated`. Public users land on catalog-style pages without the sidebar.
 
-- JWT session strategy
-- `session.user` is extended with `id`, `isAdmin`, `isService`, `isUser`
-- typings live in [src/shared/types/next-auth.d.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/shared/types/next-auth.d.ts)
+## Auth
 
-Registration flow:
+Active auth configuration:
 
-- page: [src/app/register/page.tsx](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/app/register/page.tsx)
-- service: [src/shared/lib/accountService.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/shared/lib/accountService.ts)
-- API: [src/app/api/signup/route.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/app/api/signup/route.ts)
+- [src/shared/lib/auth.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/lib/auth.ts)
+- [src/app/api/auth/[...nextauth]/route.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/app/api/auth/[...nextauth]/route.ts)
+- [src/shared/types/next-auth.d.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/types/next-auth.d.ts)
 
-Login flow:
+Providers:
 
-- page: [src/app/login/page.tsx](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/app/login/page.tsx)
-- credentials auth delegates to `next-auth`
+- credentials
+- GitHub, only when `GITHUB_ID` and `GITHUB_SECRET` are both set
+- Google, only when `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are both set
 
-### Listings data flow
+Session strategy is JWT. The app extends `session.user`/token with:
 
-Public and owner listing flows are now the active domain path.
+- `id`
+- `isAdmin`
+- `isHost`
+- `isUser`
 
-Client services:
+Credentials login reads table `User` through `getServiceClient()` and verifies `password` with `bcrypt`.
 
-- [src/shared/lib/listingsService.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/shared/lib/listingsService.ts)
-- [src/shared/lib/bookingsService.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/shared/lib/bookingsService.ts) for host listing operations
+Registration:
 
-API routes:
+- page: [src/app/register/page.tsx](/Users/qwerty/WebstormProjects/study/homesharing/src/app/register/page.tsx)
+- API: [src/app/api/signup/route.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/app/api/signup/route.ts)
+- service: [src/shared/lib/accountService.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/lib/accountService.ts)
 
-- [src/app/api/listings/route.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/app/api/listings/route.ts)
-- [src/app/api/listings/[id]/route.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/app/api/listings/[id]/route.ts)
-- [src/app/api/host/listings/route.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/app/api/host/listings/route.ts)
-- [src/app/api/host/listings/[id]/route.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/app/api/host/listings/[id]/route.ts)
+Server-side route guard helper:
 
-Behavior:
+- [src/shared/lib/sessionGuards.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/lib/sessionGuards.ts)
 
-- public catalog reads from `listings`
-- owner dashboard and host CRUD also read/write `listings`
-- bookings and favorites are built around `listings`, not `Flat`
+`loadSession()` normalizes `getServerSession(authOptions)` into `{ userId, isHost, isAdmin }`.
 
-### Flat legacy flow
+## Environment
 
-The old `Flat` layer is no longer used by the active dashboard path, but still exists in the repo as an isolated legacy layer.
+Public env is centralized in:
+
+- [src/shared/configs/publicEnv.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/configs/publicEnv.ts)
+
+Required:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+Server env is centralized in:
+
+- [src/shared/configs/serverEnv.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/configs/serverEnv.ts)
+
+Required:
+
+- `NEXTAUTH_SECRET`
+
+Optional/conditional:
+
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `DATABASE_URL`
+- `GITHUB_ID` + `GITHUB_SECRET`
+- `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET`
+
+OAuth pairs are validated as pairs: both values must be present or both absent.
+
+## Supabase Runtime Model
+
+Supabase helpers:
+
+- browser client: [src/shared/utils/supabase/client.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/utils/supabase/client.ts)
+- server client: [src/shared/utils/supabase/server.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/utils/supabase/server.ts)
+- service client: [src/shared/utils/supabase/service.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/utils/supabase/service.ts)
+
+The important runtime path is server route handlers using `getServiceClient()`. `SUPABASE_SERVICE_ROLE_KEY` is expected for private CRUD. If it is missing, the service client falls back to anon key and logs a warning, but private operations may fail depending on Supabase policies.
+
+See [SUPABASE_SETUP.md](/Users/qwerty/WebstormProjects/study/homesharing/SUPABASE_SETUP.md) for the intended deployed table schema and RLS notes.
+
+## Domain Models
+
+### Listings
+
+Type definitions:
+
+- [src/shared/types/listing.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/types/listing.ts)
+
+Primary table:
+
+- `listings`
+
+Main fields exposed to UI:
+
+- `dealType`: `rent_long` | `rent_short` | `sale`
+- `propertyType`: `flat` | `room` | `house` | `studio`
+- `rooms`, `area`, `floor`, `totalFloors`
+- `price`, `pricePeriod`, `deposit`
+- `city`, `district`, `metro`, `address`
+- `amenities`, `images`
+- owner snapshot fields
+
+Public listing repo/service:
+
+- [src/shared/lib/listingsRepo.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/lib/listingsRepo.ts)
+- [src/shared/lib/listingsService.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/lib/listingsService.ts)
+
+Public listing API:
+
+- `GET /api/listings`
+- `GET /api/listings/[id]`
+
+Public listing UI:
+
+- [src/layouts/Listings/ListingsBoard.tsx](/Users/qwerty/WebstormProjects/study/homesharing/src/layouts/Listings/ListingsBoard.tsx)
+- [src/layouts/Listings/ListingDetail.tsx](/Users/qwerty/WebstormProjects/study/homesharing/src/layouts/Listings/ListingDetail.tsx)
+- [src/widgets/ListingFilters/ListingFilters.tsx](/Users/qwerty/WebstormProjects/study/homesharing/src/widgets/ListingFilters/ListingFilters.tsx)
+- [src/widgets/ListingCard/ListingCard.tsx](/Users/qwerty/WebstormProjects/study/homesharing/src/widgets/ListingCard/ListingCard.tsx)
+
+Filtering and sorting are implemented in `ListingsRepo.list()`: ids, excluded ids, deal/property type, city, rooms, price range, area range, search term, sort, pagination.
+
+### Host Listings
+
+Host repo/service:
+
+- [src/shared/lib/hostListingsRepo.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/lib/hostListingsRepo.ts)
+- [src/shared/lib/hostListingsService.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/lib/hostListingsService.ts)
+
+Host APIs:
+
+- `GET /api/host/listings`
+- `POST /api/host/listings`
+- `GET /api/host/listings/[id]`
+- `PUT /api/host/listings/[id]`
+- `DELETE /api/host/listings/[id]`
+
+Host UI:
+
+- [src/layouts/Host/HostShell.tsx](/Users/qwerty/WebstormProjects/study/homesharing/src/layouts/Host/HostShell.tsx)
+- [src/layouts/Host/HostListingsBoard.tsx](/Users/qwerty/WebstormProjects/study/homesharing/src/layouts/Host/HostListingsBoard.tsx)
+- [src/layouts/Host/HostListingFormPage.tsx](/Users/qwerty/WebstormProjects/study/homesharing/src/layouts/Host/HostListingFormPage.tsx)
+
+Access requires `session.user.isHost` / `User.isService`.
+
+`validateDraft()` in `hostListingsRepo.ts` is the central server-side listing draft validation. It enforces required title/city/address/description/ownerName, enum values, numeric fields, total floors >= floor, and `pricePeriod` for rental listings.
+
+### Bookings
+
+Type definitions:
+
+- [src/shared/types/booking.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/types/booking.ts)
+
+Repo/service:
+
+- [src/shared/lib/bookingsRepo.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/lib/bookingsRepo.ts)
+- [src/shared/lib/bookingsService.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/lib/bookingsService.ts)
+- [src/shared/lib/bookingPricing.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/lib/bookingPricing.ts)
+
+Guest APIs:
+
+- `GET /api/bookings`
+- `POST /api/bookings`
+- `PATCH /api/bookings/[id]`
+
+Host APIs:
+
+- `GET /api/host/bookings`
+- `PATCH /api/host/bookings/[id]`
+
+Admin APIs:
+
+- `GET /api/admin/bookings`
+- `PATCH /api/admin/bookings/[id]`
+
+Booking creation rules observed in code:
+
+- auth required
+- listing must exist
+- sale listings cannot be booked
+- users cannot book their own listing
+- date strings must be `YYYY-MM-DD`
+- `endDate` must be after `startDate`
+- overlapping `pending`/`confirmed` bookings are rejected
+- total price is computed server-side
+
+Statuses:
+
+- `pending`
+- `confirmed`
+- `cancelled`
+- `rejected`
+- `completed`
+
+### Favorites
+
+Client store/hook:
+
+- [src/shared/lib/favorites.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/lib/favorites.ts)
+
+APIs:
+
+- `GET /api/favorites`
+- `POST /api/favorites`
+- `DELETE /api/favorites`
+- `DELETE /api/favorites/[listingId]`
+
+Favorites are local-first in `localStorage` under `homesharing.favorites`. After login, the store reconciles with the server by loading server favorites and uploading local-only ids.
+
+### Account / Me
+
+Service:
+
+- [src/shared/lib/meService.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/lib/meService.ts)
+
+APIs:
+
+- `PATCH /api/me` toggles host role through `{ isHost: boolean }`
+- `POST /api/me/avatar` uploads avatar to Supabase Storage
+- `DELETE /api/me/avatar` resets avatar
+
+Settings UI:
+
+- [src/app/settings/page.tsx](/Users/qwerty/WebstormProjects/study/homesharing/src/app/settings/page.tsx)
+
+### Admin
 
 Client service:
 
-- [src/shared/lib/flatService.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/shared/lib/flatService.ts)
+- [src/shared/lib/adminService.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/lib/adminService.ts)
 
-API routes:
+Admin APIs:
 
-- [src/app/api/flats/route.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/app/api/flats/route.ts)
-- [src/app/api/flats/[id]/route.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/app/api/flats/[id]/route.ts)
+- `GET /api/admin/users`
+- `PATCH /api/admin/users/[id]`
+- `GET /api/admin/listings`
+- `DELETE /api/admin/listings/[id]`
+- `GET /api/admin/bookings`
+- `PATCH /api/admin/bookings/[id]`
 
-Behavior:
+Admin UI:
 
-- all flat CRUD is scoped to `session.user.id`
-- data is read/written against Supabase table `"Flat"`
-- UI maps DB data into `IFlatCard`
-- missing images fall back to `/rooms/room.png`
-- `persons` in the mapped card model is still hardcoded as `[]`
+- [src/layouts/Admin/AdminShell.tsx](/Users/qwerty/WebstormProjects/study/homesharing/src/layouts/Admin/AdminShell.tsx)
+- [src/layouts/Admin/AdminUsersBoard.tsx](/Users/qwerty/WebstormProjects/study/homesharing/src/layouts/Admin/AdminUsersBoard.tsx)
+- [src/layouts/Admin/AdminListingsBoard.tsx](/Users/qwerty/WebstormProjects/study/homesharing/src/layouts/Admin/AdminListingsBoard.tsx)
+- [src/layouts/Admin/AdminBookingsBoard.tsx](/Users/qwerty/WebstormProjects/study/homesharing/src/layouts/Admin/AdminBookingsBoard.tsx)
 
-### Supabase integration
+Access requires `session.user.isAdmin` / `User.isAdmin`.
 
-Supabase utilities:
+## Legacy Flat Layer
 
-- server client: [src/shared/utils/supabase/server.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/shared/utils/supabase/server.ts)
-- browser client: [src/shared/utils/supabase/client.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/shared/utils/supabase/client.ts)
+There is still a legacy `Flat` domain:
 
-Important detail:
+- [src/shared/lib/flatService.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/shared/lib/flatService.ts)
+- [src/app/api/flats/route.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/app/api/flats/route.ts)
+- [src/app/api/flats/[id]/route.ts](/Users/qwerty/WebstormProjects/study/homesharing/src/app/api/flats/[id]/route.ts)
+- [src/widgets/Flat/Flat.tsx](/Users/qwerty/WebstormProjects/study/homesharing/src/widgets/Flat/Flat.tsx)
+- [src/widgets/FlatCard/FlatCard.tsx](/Users/qwerty/WebstormProjects/study/homesharing/src/widgets/FlatCard/FlatCard.tsx)
 
-- general app CRUD uses `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- signup and credentials auth create their own Supabase client and prefer `SUPABASE_SERVICE_ROLE_KEY`, falling back to anon key if missing
-- required env access is now centralized through `src/shared/configs/publicEnv.ts` and `src/shared/configs/serverEnv.ts`
+Treat this as historical compatibility unless a task explicitly targets it. New product work should use `listings` and host/listing flows.
 
-## Route map
+Additional historical notes:
 
-Pages currently present under `src/app`:
+- [docs/LEGACY_FLAT_LAYER.md](/Users/qwerty/WebstormProjects/study/homesharing/docs/LEGACY_FLAT_LAYER.md)
 
-- `/` dashboard
-- `/listings`
-- `/favorites`
+## Prisma Status
+
+Prisma files:
+
+- [prisma/schema.prisma](/Users/qwerty/WebstormProjects/study/homesharing/prisma/schema.prisma)
+- [prisma/migrations](/Users/qwerty/WebstormProjects/study/homesharing/prisma/migrations)
+
+Current reality:
+
+- Runtime CRUD goes through Supabase clients directly, not Prisma Client.
+- Prisma is retained as a fallback/history layer.
+- `prisma/schema.prisma` currently contains a duplicated `model User` declaration. Do not treat it as authoritative until repaired and reconciled with Supabase.
+
+## Route Map
+
+Pages:
+
+- `/`
+- `/admin`
+- `/admin/users`
+- `/admin/listings`
+- `/admin/bookings`
 - `/bookings`
-- `/host/*`
+- `/favorites`
+- `/host`
+- `/host/listings`
+- `/host/listings/new`
+- `/host/listings/[id]/edit`
+- `/host/bookings`
+- `/listing`
+- `/listings`
+- `/listings/[id]`
 - `/login`
+- `/messages`
+- `/notifications`
 - `/register`
 - `/settings`
 - `/test`
 - `/users/[id]`
 
-Implemented API routes:
+API route handlers:
 
 - `/api/auth/[...nextauth]`
 - `/api/signup`
+- `/api/me`
+- `/api/me/avatar`
 - `/api/listings`
 - `/api/listings/[id]`
 - `/api/bookings`
@@ -149,109 +373,60 @@ Implemented API routes:
 - `/api/host/listings/[id]`
 - `/api/host/bookings`
 - `/api/host/bookings/[id]`
-- `/api/me`
-- `/api/me/avatar`
+- `/api/admin/users`
+- `/api/admin/users/[id]`
+- `/api/admin/listings`
+- `/api/admin/listings/[id]`
+- `/api/admin/bookings`
+- `/api/admin/bookings/[id]`
 - `/api/flats`
 - `/api/flats/[id]`
+- `/api/test/[id]`
 
-There are also legacy or placeholder files under `src/app/api/_app.tsx` and other repo docs/spec files that do not match the live route surface.
+## Styling And UI Organization
 
-## Database model
+Project structure is not a strict FSD implementation, but roughly:
 
-Prisma schema file:
+- `src/app`: Next routes
+- `src/layouts`: page-level feature layouts
+- `src/widgets`: larger reusable UI blocks
+- `src/shared/ui`: smaller reusable UI primitives
+- `src/shared/icons`: React icon components
+- `src/shared/lib`: services, repos, domain helpers
+- `src/shared/types`: DTO/domain types
+- `src/shared/configs`: environment and constants
+- `src/styles`: global SCSS variables/mixins/base styles
 
-- [prisma/schema.prisma](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/prisma/schema.prisma)
+Use existing SCSS module patterns and component organization before introducing new abstractions.
 
-Effective domain entities:
+## Known Risks And Technical Debt
 
-- `User`
-- `Account`
-- `Session`
-- `VerificationToken`
-- `listings`
-- `bookings`
-- `favorites`
-- `Flat`
+- Prisma schema has duplicate `model User`; Prisma should not be used as source of truth until fixed.
+- Supabase and Prisma are not currently aligned as one migration authority.
+- `README.md`, `swagger.yaml`, and some old docs may lag behind actual App Router code.
+- Some UI still says `LockBox`.
+- `Flat` layer still exists but is legacy.
+- Several areas look placeholder/minimal: messages, notifications, `/users/[id]`, `/test`, `/listing`.
+- Supabase private CRUD relies on service role key; missing `SUPABASE_SERVICE_ROLE_KEY` can break behavior under RLS.
+- Session helper usage is mixed (`loadSession()` and direct `getServerSession()`), though both use `next-auth`.
 
-Important: the schema currently contains a duplicated `model User` declaration. That is not a documentation issue; it is a real schema defect that should be cleaned up before treating Prisma as authoritative again.
-At the same time, Prisma should remain in the repository even if it is not the active runtime path right now.
+## Practical Rules For Future Work
 
-## State management
+1. Use `next-auth` as the only auth/session source.
+2. For listings and booking work, prefer `listings`, `hostListingsRepo`, `BookingsRepo`, and the current `/api/*` route handlers.
+3. Treat host role as `session.user.isHost` in app code and `User.isService` in Supabase.
+4. Keep server mutations behind route handlers and `getServiceClient()`.
+5. Do not add new client-side direct Supabase access for private data unless RLS policies are intentionally designed.
+6. Do not remove Prisma or Flat casually; both are historical/compatibility layers.
+7. Before editing UI, check nearby SCSS module and component patterns.
+8. Before relying on external docs in repo, verify against current code.
 
-Current UI/session layer:
-- `next-auth` session hooks
-- `Zustand` UI store in [src/shared/store/appStore.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/shared/store/appStore.ts)
+## Verification Notes
 
-Legacy auth layer status:
-- the old custom cookie/JWT auth store has been removed from active `src` code
-- current auth-aware screens should use `next-auth` directly
-- if old auth behavior is ever needed again, it should be reintroduced deliberately rather than inferred from stale modules
+For code changes, preferred checks:
 
-## Files that look stale or mismatched
+- `npm run typecheck`
+- `npm run lint`
+- `npm run build` when touching Next config, routing, server components, auth, or env behavior
 
-These files should be treated carefully because they do not reflect the current runtime path cleanly:
-
-- [README.md](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/README.md)
-- [swagger.yaml](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/swagger.yaml)
-- [src/app/users/[id]/page.tsx](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/app/users/[id]/page.tsx)
-
-Notes:
-
-- `README.md` describes a project that is close in spirit but outdated in concrete structure and versions.
-- `swagger.yaml` documents user/event/notify endpoints that are not the current App Router API surface.
-- `/users/[id]` now reads auth state from `next-auth`, but the route is still minimal and should not be treated as a fully developed profile area.
-
-## Confirmed risks and technical debt
-
-### 1. Secrets hygiene issue
-
-`.env.example` has been converted back to placeholders, but local env files still need to be treated as sensitive and should not be copied into tracked templates.
-
-### 2. Mixed auth architectures
-
-This was previously a major issue, but the active app path has now been cleaned to use `next-auth`.
-Residual risk remains mostly in outdated docs and historical assumptions, not in the runtime wiring.
-
-### 3. Supabase and Prisma are not aligned as a single source of truth
-
-Prisma schema and migrations exist, but runtime server routes interact with Supabase tables directly.
-This means schema evolution discipline is weak unless a deliberate policy is chosen.
-Current working assumption: Supabase is the active runtime source, while Prisma is intentionally preserved as a standby layer for a possible return later.
-
-### 4. OAuth UI over-promises providers
-
-This has been cleaned in the current UI. Active login/register flows now match the configured providers.
-Residual risk remains if future provider additions are made in UI without updating `next-auth` config and env pairs together.
-
-### 5. Legacy docs and route contracts are unreliable
-
-`README.md` and `swagger.yaml` should not be assumed current when implementing new features.
-
-## Verified status
-
-What has been checked directly:
-
-- repository structure
-- active route files
-- active auth config
-- Supabase integration points
-- main page/layout wiring
-- TypeScript check: `npx tsc --noEmit` passed
-
-What has not been confirmed fully:
-
-- end-to-end production build completion
-- live OAuth provider configuration in external consoles
-- whether Supabase RLS policies in docs match the currently deployed project
-
-## Practical guidance for future edits
-
-When changing this repo, prefer these rules:
-
-1. For auth/session-aware screens, use `next-auth` as the single source of truth.
-2. For active product work around objects and bookings, use the `listings` / `host/listings` / `bookings` routes and their current service layers.
-3. Treat `README.md` and `swagger.yaml` as historical references until updated.
-4. Keep auth changes aligned with `next-auth` session data instead of reintroducing a parallel client auth store.
-5. Do not remove `Prisma` just because it is inactive at runtime; treat it as a retained fallback layer.
-6. Treat `Flat` as legacy unless there is a deliberate migration/backfill task for it.
-7. If Prisma work is needed, first repair `prisma/schema.prisma` and reconcile Prisma-vs-Supabase ownership.
+This documentation update itself does not require runtime verification.
