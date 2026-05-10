@@ -28,6 +28,8 @@ interface ListingRow {
     district: string | null;
     metro: string | null;
     metro_distance_min: number | null;
+    latitude: number | null;
+    longitude: number | null;
     address: string;
     description: string;
     amenities: string[] | null;
@@ -60,6 +62,8 @@ const toListing = (row: ListingRow): IListing => ({
     district: row.district ?? undefined,
     metro: row.metro ?? undefined,
     metroDistanceMin: row.metro_distance_min ?? undefined,
+    latitude: row.latitude != null && Number.isFinite(Number(row.latitude)) ? Number(row.latitude) : undefined,
+    longitude: row.longitude != null && Number.isFinite(Number(row.longitude)) ? Number(row.longitude) : undefined,
     address: row.address,
     description: row.description,
     amenities: row.amenities ?? [],

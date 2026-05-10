@@ -42,4 +42,16 @@ export class HostListingsService {
             }),
         );
     }
+
+    /** Загрузка одного фото объявления в Supabase Storage (хост). */
+    static async uploadListingImage(file: File): Promise<string> {
+        const body = new FormData();
+        body.set('file', file);
+        const res = await fetch('/api/host/listing-images', {
+            method: 'POST',
+            body,
+        });
+        const data = (await handle(res)) as { url: string };
+        return data.url;
+    }
 }

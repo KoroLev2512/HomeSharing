@@ -10,6 +10,7 @@ import {
     type BookingStatus,
     type IBookingWithListing,
 } from '@/shared/types/booking';
+import { AdminCardsSkeletonList } from '@/layouts/Admin/AdminBoardSkeletons';
 import styles from './table.module.scss';
 
 const formatDate = (s: string) => {
@@ -85,7 +86,7 @@ export const AdminBookingsBoard: React.FC = () => {
             {error && <div className={styles.error}>{error}</div>}
 
             {!bookings ? (
-                <div className={styles.empty}>Загрузка...</div>
+                <AdminCardsSkeletonList />
             ) : bookings.length === 0 ? (
                 <div className={styles.empty}>Бронирования не найдены</div>
             ) : (

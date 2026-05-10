@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import { AdminService } from '@/shared/lib/adminService';
 import type { IListing } from '@/shared/types/listing';
 import { dealLabel, formatPrice } from '@/shared/lib/formatListing';
+import { AdminCardsSkeletonList } from '@/layouts/Admin/AdminBoardSkeletons';
 import styles from './table.module.scss';
 
 type DealFilter = 'all' | 'rent_long' | 'rent_short' | 'sale';
@@ -80,7 +81,7 @@ export const AdminListingsBoard: React.FC = () => {
             {error && <div className={styles.error}>{error}</div>}
 
             {!items ? (
-                <div className={styles.empty}>Загрузка...</div>
+                <AdminCardsSkeletonList />
             ) : items.length === 0 ? (
                 <div className={styles.empty}>Объявления не найдены</div>
             ) : (

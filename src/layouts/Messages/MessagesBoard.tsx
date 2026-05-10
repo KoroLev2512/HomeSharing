@@ -4,8 +4,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Loader from '@/shared/ui/Loader/Loader';
 import BookingsService from '@/shared/lib/bookingsService';
+import { MessagesBoardSkeleton } from '@/layouts/Messages/MessagesBoardSkeleton';
 import { HostBookingsService } from '@/shared/lib/hostBookingsService';
 import { BOOKING_STATUS_LABEL, type IBookingWithListing } from '@/shared/types/booking';
 import styles from './styles.module.scss';
@@ -103,7 +103,7 @@ export const MessagesBoard: React.FC = () => {
     }, [threads]);
 
     if (status === 'loading') {
-        return <Loader />;
+        return <MessagesBoardSkeleton />;
     }
 
     if (status !== 'authenticated') {
@@ -126,7 +126,7 @@ export const MessagesBoard: React.FC = () => {
             {error && <div className={styles.error}>{error}</div>}
 
             {!threads ? (
-                <Loader />
+                <MessagesBoardSkeleton embedded />
             ) : threads.length === 0 ? (
                 <div className={styles.empty}>
                     <h3>Пока нет сообщений</h3>

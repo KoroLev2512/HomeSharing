@@ -10,6 +10,7 @@ import {
     buildListingSubtitle,
     formatPrice,
     formatPublishedAt,
+    isListingSubtitleRedundantWithTitle,
 } from '@/shared/lib/formatListing';
 import { useFavorites } from '@/shared/lib/favorites';
 import styles from './styles.module.scss';
@@ -188,7 +189,9 @@ export const ListingCard: React.FC<IProps> = ({ listing, layout = 'list', classN
                 </div>
 
                 <h3 className={styles.title}>{listing.title}</h3>
-                <div className={styles.subtitle}>{buildListingSubtitle(listing)}</div>
+                {!isListingSubtitleRedundantWithTitle(listing) && (
+                    <div className={styles.subtitle}>{buildListingSubtitle(listing)}</div>
+                )}
 
                 <div className={styles.location}>
                     <LocationIcon width={16} height={16} color="#757575" />

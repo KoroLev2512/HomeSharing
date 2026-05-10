@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import classNames from 'classnames';
 import { useSession } from 'next-auth/react';
-import Loader from '@/shared/ui/Loader/Loader';
 import BookingsService from '@/shared/lib/bookingsService';
+import { BookingsBoardSkeleton } from '@/layouts/Bookings/BookingsBoardSkeleton';
 import {
     BOOKING_STATUS_LABEL,
     BOOKING_STATUS_TONE,
@@ -77,7 +77,7 @@ export const BookingsBoard: React.FC = () => {
     );
 
     if (status === 'loading') {
-        return <Loader />;
+        return <BookingsBoardSkeleton />;
     }
 
     if (status !== 'authenticated') {
@@ -85,14 +85,7 @@ export const BookingsBoard: React.FC = () => {
     }
 
     if (!bookings) {
-        return (
-            <div className={styles.root}>
-                <header className={styles.header}>
-                    <h1 className={styles.title}>Мои бронирования</h1>
-                </header>
-                <Loader />
-            </div>
-        );
+        return <BookingsBoardSkeleton />;
     }
 
     return (

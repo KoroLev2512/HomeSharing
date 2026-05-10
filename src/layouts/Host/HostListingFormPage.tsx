@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import classNames from 'classnames';
 import Loader from '@/shared/ui/Loader/Loader';
+import { Select, type ISelectOption } from '@/shared/ui/Select';
 import { HostListingsService } from '@/shared/lib/hostListingsService';
 import type {
     DealType,
@@ -14,7 +15,11 @@ import type {
     PropertyType,
 } from '@/shared/types/listing';
 import type { IListingDraft } from '@/shared/lib/hostListingsRepo';
+import { publicEnv } from '@/shared/configs/publicEnv';
+import { YandexMapPicker } from '@/widgets/YandexMapPicker';
 import styles from './form.module.scss';
+
+const MAX_LISTING_PHOTOS = 10;
 
 type FormState = {
     title: string;
@@ -33,15 +38,48 @@ type FormState = {
     district: string;
     metro: string;
     metroDistanceMin: string;
+    latitude: string;
+    longitude: string;
     address: string;
     description: string;
     amenities: string;
-    images: string;
+    images: string[];
     ownerName: string;
     ownerType: 'owner' | 'agency';
     ownerAvatar: string;
     ownerPhoneMasked: string;
 };
+
+const DEAL_OPTIONS: Array<ISelectOption<DealType>> = [
+    { value: 'rent_long', label: 'Аренда (длительная)' },
+    { value: 'rent_short', label: 'Аренда (посуточно)' },
+    { value: 'sale', label: 'Продажа' },
+];
+
+const PROPERTY_OPTIONS: Array<ISelectOption<'flat' | 'room' | 'house'>> = [
+    { value: 'flat', label: 'Квартира' },
+    { value: 'room', label: 'Комната' },
+    { value: 'house', label: 'Дом' },
+];
+
+const ROOM_OPTIONS: Array<ISelectOption<string>> = [
+    { value: '0', label: 'Студия' },
+    { value: '1', label: '1' },
+    { value: '2', label: '2' },
+    { value: '3', label: '3' },
+    { value: '4', label: '4' },
+    { value: '6', label: '5 и более' },
+];
+
+const PRICE_PERIOD_OPTIONS: Array<ISelectOption<PricePeriod>> = [
+    { value: 'month', label: 'в месяц' },
+    { value: 'day', label: 'в сутки' },
+];
+
+const OWNER_TYPE_OPTIONS: Array<ISelectOption<'owner' | 'agency'>> = [
+    { value: 'owner', label: 'Собственник' },
+    { value: 'agency', label: 'Агентство' },
+];
 
 const EMPTY: FormState = {
     title: '',
@@ -60,21 +98,30 @@ const EMPTY: FormState = {
     district: '',
     metro: '',
     metroDistanceMin: '',
+    latitude: '',
+    longitude: '',
     address: '',
     description: '',
     amenities: '',
-    images: '',
+    images: [],
     ownerName: '',
     ownerType: 'owner',
     ownerAvatar: '',
     ownerPhoneMasked: '',
 };
 
+/** Значение селекта «комнат»: 0 — студия, 1–4 — число, 6 — «5 и более» (в т.ч. было ровно 5). */
+const roomsToFormValue = (rooms: number): string => {
+    if (rooms <= 0) return '0';
+    if (rooms >= 5) return '6';
+    return String(rooms);
+};
+
 const fromListing = (l: IListing): FormState => ({
     title: l.title,
     dealType: l.dealType,
-    propertyType: l.propertyType,
-    rooms: String(l.rooms),
+    propertyType: l.propertyType === 'studio' ? 'flat' : l.propertyType,
+    rooms: roomsToFormValue(l.rooms),
     area: String(l.area),
     livingArea: l.livingArea != null ? String(l.livingArea) : '',
     kitchenArea: l.kitchenArea != null ? String(l.kitchenArea) : '',
@@ -87,10 +134,12 @@ const fromListing = (l: IListing): FormState => ({
     district: l.district ?? '',
     metro: l.metro ?? '',
     metroDistanceMin: l.metroDistanceMin != null ? String(l.metroDistanceMin) : '',
+    latitude: l.latitude != null && Number.isFinite(l.latitude) ? String(l.latitude) : '',
+    longitude: l.longitude != null && Number.isFinite(l.longitude) ? String(l.longitude) : '',
     address: l.address,
     description: l.description,
     amenities: (l.amenities ?? []).join(', '),
-    images: (l.images ?? []).join('\n'),
+    images: (l.images ?? []).slice(0, MAX_LISTING_PHOTOS),
     ownerName: l.owner.name,
     ownerType: l.owner.type,
     ownerAvatar: l.owner.avatar ?? '',
@@ -107,38 +156,51 @@ const parseFloat0 = (s: string): number => {
     return Number.isFinite(n) ? n : 0;
 };
 
-const toDraft = (f: FormState): IListingDraft => ({
-    title: f.title.trim(),
-    dealType: f.dealType,
-    propertyType: f.propertyType,
-    rooms: parseInt0(f.rooms),
-    area: parseFloat0(f.area),
-    livingArea: f.livingArea.trim() ? parseFloat0(f.livingArea) : null,
-    kitchenArea: f.kitchenArea.trim() ? parseFloat0(f.kitchenArea) : null,
-    floor: parseInt0(f.floor),
-    totalFloors: parseInt0(f.totalFloors),
-    price: parseFloat0(f.price),
-    pricePeriod: f.dealType === 'sale' ? null : f.pricePeriod,
-    deposit: f.deposit.trim() ? parseFloat0(f.deposit) : null,
-    city: f.city.trim(),
-    district: f.district.trim() || null,
-    metro: f.metro.trim() || null,
-    metroDistanceMin: f.metroDistanceMin.trim() ? parseInt0(f.metroDistanceMin) : null,
-    address: f.address.trim(),
-    description: f.description.trim(),
-    amenities: f.amenities
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean),
-    images: f.images
-        .split(/[\n,]/)
-        .map((s) => s.trim())
-        .filter(Boolean),
-    ownerName: f.ownerName.trim(),
-    ownerType: f.ownerType,
-    ownerAvatar: f.ownerAvatar.trim() || null,
-    ownerPhoneMasked: f.ownerPhoneMasked.trim() || null,
-});
+const toDraft = (f: FormState): IListingDraft => {
+    const rooms = parseInt0(f.rooms);
+    const propertyType = rooms === 0 ? 'studio' : f.propertyType;
+    return {
+        title: f.title.trim(),
+        dealType: f.dealType,
+        propertyType,
+        rooms,
+        area: parseFloat0(f.area),
+        livingArea: f.livingArea.trim() ? parseFloat0(f.livingArea) : null,
+        kitchenArea: f.kitchenArea.trim() ? parseFloat0(f.kitchenArea) : null,
+        floor: parseInt0(f.floor),
+        totalFloors: parseInt0(f.totalFloors),
+        price: parseFloat0(f.price),
+        pricePeriod: f.dealType === 'sale' ? null : f.pricePeriod,
+        deposit: f.deposit.trim() ? parseFloat0(f.deposit) : null,
+        city: f.city.trim(),
+        district: f.district.trim() || null,
+        metro: f.metro.trim() || null,
+        metroDistanceMin: f.metroDistanceMin.trim() ? parseInt0(f.metroDistanceMin) : null,
+        latitude: (() => {
+            const a = f.latitude.trim();
+            const b = f.longitude.trim();
+            if (!a && !b) return null;
+            return parseFloat0(a);
+        })(),
+        longitude: (() => {
+            const a = f.latitude.trim();
+            const b = f.longitude.trim();
+            if (!a && !b) return null;
+            return parseFloat0(b);
+        })(),
+        address: f.address.trim(),
+        description: f.description.trim(),
+        amenities: f.amenities
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean),
+        images: f.images.map((s) => s.trim()).filter(Boolean).slice(0, MAX_LISTING_PHOTOS),
+        ownerName: f.ownerName.trim(),
+        ownerType: f.ownerType,
+        ownerAvatar: f.ownerAvatar.trim() || null,
+        ownerPhoneMasked: f.ownerPhoneMasked.trim() || null,
+    };
+};
 
 interface IProps {
     mode: 'create' | 'edit';
@@ -152,6 +214,7 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
     const [isLoading, setIsLoading] = useState<boolean>(mode === 'edit');
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isUploadingPhotos, setIsUploadingPhotos] = useState(false);
 
     useEffect(() => {
         if (mode === 'create' && session?.user) {
@@ -191,6 +254,11 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
         async (e: React.FormEvent) => {
             e.preventDefault();
             setError(null);
+            const latT = form.latitude.trim();
+            const lngT = form.longitude.trim();
+            if ((latT && !lngT) || (!latT && lngT)) {
+                return setError('Задайте точку на карте полностью или нажмите «Сбросить точку»');
+            }
             const draft = toDraft(form);
             if (!draft.title) return setError('Введите заголовок');
             if (!draft.city) return setError('Укажите город');
@@ -221,7 +289,50 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
 
     const isRent = form.dealType !== 'sale';
 
-    const heading = useMemo(() => (mode === 'create' ? 'Новое объявление' : 'Редактирование объявления'), [mode]);
+    const heading = useMemo(() => (mode === 'create' ? 'Добавление объявления' : 'Редактирование объявления'), [mode]);
+
+    const hostSelectParts = useMemo(
+        () => ({
+            trigger: styles.selectTrigger,
+            triggerOpen: styles.selectTriggerOpen,
+            panel: styles.selectPanel,
+            option: styles.selectOption,
+            optionActive: styles.selectOptionActive,
+            optionSelected: styles.selectOptionSelected,
+            chevron: styles.selectChevron,
+            chevronOpen: styles.selectChevronOpen,
+        }),
+        [],
+    );
+
+    const uploadPickedPhotos = useCallback(async (fileList: FileList | File[], currentImages: string[]) => {
+        const files = Array.from(fileList).filter((f) => f.type.startsWith('image/'));
+        if (files.length === 0) return;
+        const remaining = MAX_LISTING_PHOTOS - currentImages.length;
+        if (remaining <= 0) return;
+        const take = files.slice(0, remaining);
+
+        setError(null);
+        setIsUploadingPhotos(true);
+        try {
+            const urls: string[] = [];
+            for (const file of take) {
+                urls.push(await HostListingsService.uploadListingImage(file));
+            }
+            setForm((p) => ({
+                ...p,
+                images: [...p.images, ...urls].slice(0, MAX_LISTING_PHOTOS),
+            }));
+        } catch (e) {
+            setError(e instanceof Error ? e.message : 'Не удалось загрузить фото');
+        } finally {
+            setIsUploadingPhotos(false);
+        }
+    }, []);
+
+    const removePhotoAt = useCallback((index: number) => {
+        setForm((p) => ({ ...p, images: p.images.filter((_, i) => i !== index) }));
+    }, []);
 
     if (sessionStatus === 'loading' || isLoading) {
         return <Loader />;
@@ -231,9 +342,9 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
         <form className={styles.root} onSubmit={handleSubmit}>
             <div className={styles.formHeader}>
                 <h2 className={styles.heading}>{heading}</h2>
-                <Link href="/host/listings" className={styles.linkBack}>
+                {/* <Link href="/host/listings" className={styles.linkBack}>
                     ← Все мои объявления
-                </Link>
+                </Link> */}
             </div>
 
             <fieldset className={styles.fieldset}>
@@ -247,30 +358,32 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
                 <div className={styles.grid3}>
                     <label className={styles.field}>
                         <span>Тип сделки</span>
-                        <select className={styles.input} value={form.dealType} onChange={set('dealType')}>
-                            <option value="rent_long">Аренда (длительная)</option>
-                            <option value="rent_short">Аренда (посуточно)</option>
-                            <option value="sale">Продажа</option>
-                        </select>
+                        <Select<DealType>
+                            className={styles.selectRoot}
+                            partsClassNames={hostSelectParts}
+                            value={form.dealType}
+                            onChange={(dealType) => setForm((p) => ({ ...p, dealType }))}
+                            options={DEAL_OPTIONS}
+                        />
                     </label>
                     <label className={styles.field}>
                         <span>Тип объекта</span>
-                        <select className={styles.input} value={form.propertyType} onChange={set('propertyType')}>
-                            <option value="flat">Квартира</option>
-                            <option value="studio">Студия</option>
-                            <option value="room">Комната</option>
-                            <option value="house">Дом</option>
-                        </select>
+                        <Select<'flat' | 'room' | 'house'>
+                            className={styles.selectRoot}
+                            partsClassNames={hostSelectParts}
+                            value={form.propertyType === 'studio' ? 'flat' : form.propertyType}
+                            onChange={(propertyType) => setForm((p) => ({ ...p, propertyType }))}
+                            options={PROPERTY_OPTIONS}
+                        />
                     </label>
                     <label className={styles.field}>
-                        <span>Комнат</span>
-                        <input
-                            type="number"
-                            min={0}
-                            max={20}
-                            className={styles.input}
+                        <span>Количество комнат</span>
+                        <Select<string>
+                            className={styles.selectRoot}
+                            partsClassNames={hostSelectParts}
                             value={form.rooms}
-                            onChange={set('rooms')}
+                            onChange={(rooms) => setForm((p) => ({ ...p, rooms }))}
+                            options={ROOM_OPTIONS}
                         />
                     </label>
                 </div>
@@ -328,10 +441,13 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
                     {isRent && (
                         <label className={styles.field}>
                             <span>Период</span>
-                            <select className={styles.input} value={form.pricePeriod} onChange={set('pricePeriod')}>
-                                <option value="month">в месяц</option>
-                                <option value="day">в сутки</option>
-                            </select>
+                            <Select<PricePeriod>
+                                className={styles.selectRoot}
+                                partsClassNames={hostSelectParts}
+                                value={form.pricePeriod}
+                                onChange={(pricePeriod) => setForm((p) => ({ ...p, pricePeriod }))}
+                                options={PRICE_PERIOD_OPTIONS}
+                            />
                         </label>
                     )}
                     <label className={styles.field}>
@@ -373,6 +489,30 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
                     <span>Полный адрес</span>
                     <input className={styles.input} value={form.address} onChange={set('address')} required />
                 </label>
+                <div className={styles.field}>
+                    <span>Точка на Яндекс.Картах</span>
+                    {/* <p className={styles.fieldHint}>Необязательно. Клик по карте, перетаскивание метки или поиск по заполненному адресу.</p> */}
+                    <YandexMapPicker
+                        apiKey={publicEnv.yandexMapsApiKey}
+                        value={
+                            form.latitude.trim() && form.longitude.trim()
+                                ? {
+                                      latitude: parseFloat0(form.latitude),
+                                      longitude: parseFloat0(form.longitude),
+                                  }
+                                : null
+                        }
+                        onChange={(latitude, longitude) =>
+                            setForm((p) => ({
+                                ...p,
+                                latitude: String(latitude),
+                                longitude: String(longitude),
+                            }))
+                        }
+                        onClear={() => setForm((p) => ({ ...p, latitude: '', longitude: '' }))}
+                        geocodeQuery={[form.city, form.district, form.metro, form.address].filter(Boolean).join(', ')}
+                    />
+                </div>
             </fieldset>
 
             <fieldset className={styles.fieldset}>
@@ -396,16 +536,73 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
                         placeholder="Wi-Fi, Кондиционер, Парковка"
                     />
                 </label>
-                <label className={styles.field}>
-                    <span>Фотографии (URL по одному в строке)</span>
-                    <textarea
-                        className={classNames(styles.input, styles.textarea)}
-                        value={form.images}
-                        onChange={set('images')}
-                        rows={3}
-                        placeholder="/rooms/room.png"
-                    />
-                </label>
+                <div className={styles.field}>
+                    <span>Фотографии</span>
+                    <p className={styles.fieldHint}>До {MAX_LISTING_PHOTOS} файлов: JPG, PNG, WebP или GIF, до 5 МБ каждый.</p>
+                    <div className={styles.photosGrid}>
+                        {form.images.map((url, index) => (
+                            <div key={`${url}-${index}`} className={styles.photoCard}>
+                                {/* eslint-disable-next-line @next/next/no-img-element -- произвольные URL из Storage */}
+                                <img src={url} alt="" className={styles.photoThumb} />
+                                <button
+                                    type="button"
+                                    className={styles.photoRemove}
+                                    onClick={() => removePhotoAt(index)}
+                                    aria-label="Удалить фото"
+                                >
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+                                        <path
+                                            d="M6 6l12 12M18 6L6 18"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                        />
+                                    </svg>
+                                </button>
+                            </div>
+                        ))}
+                        {form.images.length < MAX_LISTING_PHOTOS && (
+                            <div
+                                className={classNames(styles.photoAdd, {
+                                    [styles.photoAddBusy]: isUploadingPhotos,
+                                })}
+                                onDragOver={(e) => {
+                                    e.preventDefault();
+                                    e.dataTransfer.dropEffect = 'copy';
+                                }}
+                                onDrop={(e) => {
+                                    e.preventDefault();
+                                    if (isUploadingPhotos) return;
+                                    void uploadPickedPhotos(e.dataTransfer.files, form.images);
+                                }}
+                            >
+                                <input
+                                    type="file"
+                                    accept="image/png,image/jpeg,image/webp,image/gif"
+                                    multiple
+                                    className={styles.photoAddInput}
+                                    disabled={isUploadingPhotos}
+                                    onChange={(e) => {
+                                        const { files } = e.target;
+                                        e.target.value = '';
+                                        if (files?.length) void uploadPickedPhotos(files, form.images);
+                                    }}
+                                />
+                                {isUploadingPhotos ? (
+                                    <span className={styles.photoAddLabel}>Загрузка…</span>
+                                ) : (
+                                    <>
+                                        <span className={styles.photoAddPlus} aria-hidden>
+                                            +
+                                        </span>
+                                        <span className={styles.photoAddLabel}>Добавить</span>
+                                        <span className={styles.photoAddHint}>или перетащите сюда</span>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
             </fieldset>
 
             <fieldset className={styles.fieldset}>
@@ -417,10 +614,13 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
                     </label>
                     <label className={styles.field}>
                         <span>Тип</span>
-                        <select className={styles.input} value={form.ownerType} onChange={set('ownerType')}>
-                            <option value="owner">Собственник</option>
-                            <option value="agency">Агентство</option>
-                        </select>
+                        <Select<'owner' | 'agency'>
+                            className={styles.selectRoot}
+                            partsClassNames={hostSelectParts}
+                            value={form.ownerType}
+                            onChange={(ownerType) => setForm((p) => ({ ...p, ownerType }))}
+                            options={OWNER_TYPE_OPTIONS}
+                        />
                     </label>
                 </div>
                 <div className={styles.grid2}>

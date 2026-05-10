@@ -1,0 +1,130 @@
+.shimmer {
+  background: linear-gradient(90deg, #ececec 0%, #f6f6f6 50%, #ececec 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 0.375rem;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.line {
+  background: #ececec;
+  border-radius: 0.375rem;
+}
+
+.shellTitle {
+  height: 2.25rem;
+  width: 16rem;
+  max-width: min(16rem, 70vw);
+  border-radius: 0.375rem;
+}
+
+.shellTabs {
+  display: flex;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.shellTab {
+  height: 2.5rem;
+  width: 9rem;
+  border-radius: 0.625rem;
+}
+
+.shellTabMid {
+  width: 7.5rem;
+}
+
+.shellTabWide {
+  width: 11rem;
+}
+
+.filterPill {
+  height: 2.125rem;
+  width: 6.5rem;
+  border-radius: 62.4375rem;
+}
+
+.filterPillWide {
+  width: 9rem;
+}
+
+.filterPillNarrow {
+  width: 5rem;
+}
+
+.toolbarCount {
+  height: 0.875rem;
+  width: 7.5rem;
+  margin-left: auto;
+  border-radius: 0.375rem;
+}
+
+.userName {
+  height: 0.875rem;
+  width: 8rem;
+}
+
+.userEmail {
+  margin-top: 0.25rem;
+  height: 0.75rem;
+  width: 11rem;
+}
+
+.rolePill {
+  height: 1.25rem;
+  width: 3.25rem;
+  border-radius: 62.4375rem;
+}
+
+.dateCell {
+  height: 0.875rem;
+  width: 5.5rem;
+}
+
+.actionSm {
+  height: 2rem;
+  width: 5.5rem;
+  border-radius: 0.5rem;
+}
+
+.cardTitle {
+  height: 0.9375rem;
+  flex: 1;
+  min-width: 6rem;
+  max-width: 70%;
+}
+
+.badge {
+  height: 1.375rem;
+  width: 4.5rem;
+  border-radius: 62.4375rem;
+}
+
+.metaFull {
+  height: 0.8125rem;
+  width: 88%;
+}
+
+.metaShort {
+  height: 0.8125rem;
+  width: 7rem;
+}
+
+.actionBtn {
+  height: 2rem;
+  width: 4.5rem;
+  border-radius: 0.5rem;
+}
+
+.actionBtnWide {
+  width: 6.5rem;
+}

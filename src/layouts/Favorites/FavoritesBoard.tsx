@@ -94,7 +94,7 @@ export const FavoritesBoard: React.FC = () => {
                 </div>
                 <div className={styles.heroActions}>
                     <Link href="/listings" className={styles.backLink}>
-                        ← К объявлениям
+                        К объявлениям
                     </Link>
                 </div>
             </div>

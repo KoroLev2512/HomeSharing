@@ -29,6 +29,9 @@ export interface IListing {
     district?: string;
     metro?: string;
     metroDistanceMin?: number;
+    /** WGS84, необязательно */
+    latitude?: number;
+    longitude?: number;
     address: string;
     description: string;
     amenities: string[];

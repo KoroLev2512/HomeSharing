@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { AdminService, type AdminUserPatch } from '@/shared/lib/adminService';
 import type { IAdminUser } from '@/shared/types/admin';
+import { AdminUsersTableSkeleton } from '@/layouts/Admin/AdminBoardSkeletons';
 import styles from './table.module.scss';
 
 const formatDate = (s: string) => {
@@ -69,7 +70,7 @@ export const AdminUsersBoard: React.FC = () => {
             {error && <div className={styles.error}>{error}</div>}
 
             {!users ? (
-                <div className={styles.empty}>Загрузка...</div>
+                <AdminUsersTableSkeleton />
             ) : users.length === 0 ? (
                 <div className={styles.empty}>Пользователи не найдены</div>
             ) : (

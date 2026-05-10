@@ -10,8 +10,8 @@ import {
     type BookingStatus,
     type IBookingWithListing,
 } from '@/shared/types/booking';
-import bookingStyles from '@/layouts/Bookings/styles.module.scss';
 import styles from './hostBookings.module.scss';
+import { HostBookingsSkeletonList, HostBookingsSubtitleSkeleton } from '@/layouts/Host/HostCabinetSkeletons';
 
 const formatPrice = (n: number): string =>
     Number.isFinite(n) ? new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format(n) + ' ₽' : '—';
@@ -80,26 +80,30 @@ export const HostBookingsBoard: React.FC = () => {
         [load],
     );
 
-    if (!bookings) {
-        return <div className={bookingStyles.root}><div>Загружаем...</div></div>;
-    }
-
     return (
         <div className={styles.root}>
-            <p className={styles.subtitle}>
-                {bookings.length === 0
-                    ? 'Пока ни одной заявки на ваши объекты'
-                    : `Всего заявок: ${bookings.length}`}
-            </p>
+            {bookings === null ? (
+                <HostBookingsSubtitleSkeleton />
+            ) : (
+                <p className={styles.subtitle}>
+                    {bookings.length === 0
+                        ? 'Пока ни одной заявки на ваши объекты'
+                        : `Всего заявок: ${bookings.length}`}
+                </p>
+            )}
 
             {error && <div className={styles.error}>{error}</div>}
 
-            {bookings.length === 0 ? (
+            {bookings === null ? (
+                <HostBookingsSkeletonList count={3} />
+            ) : null}
+
+            {bookings && bookings.length === 0 ? (
                 <div className={styles.empty}>
                     <h3>Нет входящих заявок</h3>
                     <p>Когда гости начнут бронировать ваши объекты, заявки появятся здесь.</p>
                 </div>
-            ) : (
+            ) : bookings && bookings.length > 0 ? (
                 <div className={styles.list}>
                     {bookings.map((b) => {
                         const tone = BOOKING_STATUS_TONE[b.status];
@@ -177,7 +181,7 @@ export const HostBookingsBoard: React.FC = () => {
                         );
                     })}
                 </div>
-            )}
+            ) : null}
         </div>
     );
 };

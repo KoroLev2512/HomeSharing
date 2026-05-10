@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { HostListingsService } from '@/shared/lib/hostListingsService';
 import type { IListing } from '@/shared/types/listing';
 import { dealLabel, formatPrice } from '@/shared/lib/formatListing';
+import { HostListingsSkeletonList, HostListingsToolbarSkeleton } from '@/layouts/Host/HostCabinetSkeletons';
 import styles from './listings.module.scss';
 
 export const HostListingsBoard: React.FC = () => {
@@ -45,19 +46,23 @@ export const HostListingsBoard: React.FC = () => {
     return (
         <div className={styles.root}>
             <div className={styles.toolbar}>
-                <p className={styles.subtitle}>
-                    {listings === null
-                        ? 'Загружаем...'
-                        : listings.length === 0
+                {listings === null ? (
+                    <HostListingsToolbarSkeleton />
+                ) : (
+                    <p className={styles.subtitle}>
+                        {listings.length === 0
                             ? 'Пока ни одного объявления'
                             : `Активных объявлений: ${listings.length}`}
-                </p>
+                    </p>
+                )}
                 <Link href="/host/listings/new" className={styles.primaryBtn}>
                     Создать объявление
                 </Link>
             </div>
 
             {error && <div className={styles.error}>{error}</div>}
+
+            {listings === null ? <HostListingsSkeletonList count={3} /> : null}
 
             {listings && listings.length === 0 ? (
                 <div className={styles.empty}>

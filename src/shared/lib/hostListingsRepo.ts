@@ -28,6 +28,8 @@ export interface IListingDraft {
     district?: string | null;
     metro?: string | null;
     metroDistanceMin?: number | null;
+    latitude?: number | null;
+    longitude?: number | null;
     address: string;
     description: string;
     amenities?: string[];
@@ -57,6 +59,8 @@ export interface HostListingRow {
     district: string | null;
     metro: string | null;
     metro_distance_min: number | null;
+    latitude: number | null;
+    longitude: number | null;
     address: string;
     description: string;
     amenities: string[] | null;
@@ -91,6 +95,8 @@ export const rowToListing = (row: HostListingRow): IListing => ({
     district: row.district ?? undefined,
     metro: row.metro ?? undefined,
     metroDistanceMin: row.metro_distance_min ?? undefined,
+    latitude: row.latitude != null && Number.isFinite(Number(row.latitude)) ? Number(row.latitude) : undefined,
+    longitude: row.longitude != null && Number.isFinite(Number(row.longitude)) ? Number(row.longitude) : undefined,
     address: row.address,
     description: row.description,
     amenities: row.amenities ?? [],
@@ -139,6 +145,23 @@ export const validateDraft = (raw: Partial<IListingDraft> | undefined): { ok: tr
         }
     }
 
+    let latitude: number | null = null;
+    let longitude: number | null = null;
+    const latRaw = raw.latitude;
+    const lngRaw = raw.longitude;
+    if (latRaw != null || lngRaw != null) {
+        if (typeof latRaw !== 'number' || !Number.isFinite(latRaw)) {
+            return { ok: false, error: 'latitude must be a finite number when provided' };
+        }
+        if (typeof lngRaw !== 'number' || !Number.isFinite(lngRaw)) {
+            return { ok: false, error: 'longitude must be a finite number when provided' };
+        }
+        if (latRaw < -90 || latRaw > 90) return { ok: false, error: 'latitude must be between -90 and 90' };
+        if (lngRaw < -180 || lngRaw > 180) return { ok: false, error: 'longitude must be between -180 and 180' };
+        latitude = latRaw;
+        longitude = lngRaw;
+    }
+
     return {
         ok: true,
         draft: {
@@ -158,10 +181,12 @@ export const validateDraft = (raw: Partial<IListingDraft> | undefined): { ok: tr
             district: typeof raw.district === 'string' && raw.district.trim() ? raw.district.trim() : null,
             metro: typeof raw.metro === 'string' && raw.metro.trim() ? raw.metro.trim() : null,
             metroDistanceMin: typeof raw.metroDistanceMin === 'number' ? raw.metroDistanceMin : null,
+            latitude,
+            longitude,
             address: (raw.address as string).trim(),
             description: (raw.description as string).trim(),
             amenities: Array.isArray(raw.amenities) ? raw.amenities.filter((a): a is string => typeof a === 'string').slice(0, 30) : [],
-            images: Array.isArray(raw.images) ? raw.images.filter((a): a is string => typeof a === 'string').slice(0, 20) : [],
+            images: Array.isArray(raw.images) ? raw.images.filter((a): a is string => typeof a === 'string').slice(0, 10) : [],
             ownerName: (raw.ownerName as string).trim(),
             ownerType: raw.ownerType,
             ownerAvatar: typeof raw.ownerAvatar === 'string' && raw.ownerAvatar.trim() ? raw.ownerAvatar : null,
@@ -190,6 +215,8 @@ const draftToInsertRow = (draft: IListingDraft, userId: string, id?: string) => 
     district: draft.district ?? null,
     metro: draft.metro ?? null,
     metro_distance_min: draft.metroDistanceMin ?? null,
+    latitude: draft.latitude ?? null,
+    longitude: draft.longitude ?? null,
     address: draft.address,
     description: draft.description,
     amenities: draft.amenities ?? [],

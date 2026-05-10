@@ -69,7 +69,7 @@ export const NavigationBar = (): React.JSX.Element => {
     const isHost = isAuthenticated && Boolean(session?.user?.isHost);
 
     const MenuItems: MenuItemProps[] = useMemo(() => compact([
-        {icon: <NavHomeIcon width={24} height={24} color="#000000" />, name: "Объявления", href: "/listings"},
+        {icon: <NavHomeIcon width={24} height={24} color="#000000" />, name: "Главная", href: "/listings"},
         {icon: <NavFavoritesIcon width={24} height={24} color="#000000" />, name: "Избранное", href: "/favorites"},
         isHost ? {icon: <HostCabinetIcon width={24} height={24} color="#000000" />, name: "Кабинет арендодателя", href: "/host/listings"} : null,
         isAuthenticated ? {icon: <NavBookingsIcon width={24} height={24} color="#000000" />, name: "Бронирования", href: "/bookings"} : null,

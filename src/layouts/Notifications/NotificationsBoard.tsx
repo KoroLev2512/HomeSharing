@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Loader from '@/shared/ui/Loader/Loader';
 import BookingsService from '@/shared/lib/bookingsService';
+import { NotificationsBoardSkeleton } from '@/layouts/Notifications/NotificationsBoardSkeleton';
 import { HostBookingsService } from '@/shared/lib/hostBookingsService';
 import { useFavorites } from '@/shared/lib/favorites';
 import { BOOKING_STATUS_LABEL, type IBookingWithListing } from '@/shared/types/booking';
@@ -108,7 +108,7 @@ export const NotificationsBoard: React.FC = () => {
     }, [favoritesCount, session?.user?.isHost, status]);
 
     if (status === 'loading') {
-        return <Loader />;
+        return <NotificationsBoardSkeleton />;
     }
 
     if (status !== 'authenticated') {
@@ -130,7 +130,7 @@ export const NotificationsBoard: React.FC = () => {
             {error && <div className={styles.error}>{error}</div>}
 
             {!items ? (
-                <Loader />
+                <NotificationsBoardSkeleton embedded />
             ) : items.length === 0 ? (
                 <div className={styles.empty}>
                     <h3>Уведомлений пока нет</h3>

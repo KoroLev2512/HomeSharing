@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import classNames from 'classnames';
 import { useSession } from 'next-auth/react';
-import Loader from '@/shared/ui/Loader/Loader';
+import { AdminShellSessionSkeleton, type AdminShellSkeletonVariant } from '@/layouts/Admin/AdminBoardSkeletons';
 import styles from './shell.module.scss';
 
 interface IProps {
@@ -18,6 +18,12 @@ const TABS = [
     { href: '/admin/bookings', label: 'Бронирования' },
 ];
 
+const shellSkeletonVariant = (pathname: string | null): AdminShellSkeletonVariant => {
+    if (pathname?.startsWith('/admin/bookings')) return 'bookings';
+    if (pathname?.startsWith('/admin/listings')) return 'listings';
+    return 'users';
+};
+
 export const AdminShell: React.FC<IProps> = ({ children }) => {
     const pathname = usePathname();
     const router = useRouter();
@@ -27,7 +33,9 @@ export const AdminShell: React.FC<IProps> = ({ children }) => {
         if (status === 'unauthenticated') router.replace('/login');
     }, [status, router]);
 
-    if (status === 'loading') return <Loader />;
+    if (status === 'loading') {
+        return <AdminShellSessionSkeleton variant={shellSkeletonVariant(pathname)} />;
+    }
     if (status !== 'authenticated' || !session?.user) return null;
 
     if (!session.user.isAdmin) {

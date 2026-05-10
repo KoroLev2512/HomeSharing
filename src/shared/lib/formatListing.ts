@@ -49,6 +49,26 @@ export const buildListingSubtitle = (listing: IListing): string => {
     return parts.join(' · ');
 };
 
+/** Сжатие строки для сравнения «подзаголовок уже есть в заголовке» (разный пунктуация/пробелы). */
+const compactForMatch = (s: string): string =>
+    s.toLowerCase().replace(/[\s.·,]/g, '');
+
+/**
+ * true, если все части подзаголовка (комнаты · м² · этаж) уже отражены в title — тогда вторую строку не показываем.
+ */
+export const isListingSubtitleRedundantWithTitle = (listing: IListing): boolean => {
+    const subtitle = buildListingSubtitle(listing);
+    if (!subtitle.trim()) return true;
+    const titleCompact = compactForMatch(listing.title.trim());
+    if (!titleCompact) return false;
+    const segments = subtitle
+        .split('·')
+        .map((p) => p.trim())
+        .filter(Boolean);
+    if (segments.length === 0) return true;
+    return segments.every((seg) => titleCompact.includes(compactForMatch(seg)));
+};
+
 export const buildListingLocation = (listing: IListing): string => {
     const parts: string[] = [];
     if (listing.metro) {

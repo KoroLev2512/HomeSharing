@@ -1,4 +1,4 @@
-// Seeds public.listings from the same generator used by src/shared/store/mockListings.ts.
+// Seeds public.listings with deterministic demo data.
 // Run: node --env-file=.env.local scripts/seed-listings.mjs
 import { createClient } from '@supabase/supabase-js';
 
@@ -57,7 +57,53 @@ const roomImages = Array.from({ length: 22 }, (_, i) => {
 
 const sample = (arr, seed) => arr[Math.abs(seed) % arr.length];
 
-const buildTitle = (rooms, area) => (rooms === 0 ? `Студия, ${area} м²` : `${rooms}-комн. квартира, ${area} м²`);
+const ADJECTIVES = [
+    'Просторная',
+    'Уютная',
+    'Светлая',
+    'Стильная',
+    'Современная',
+    'Тихая',
+    'Панорамная',
+    'Новая',
+    'Солнечная',
+    'Комфортная',
+];
+
+/** Районы, для которых уместно «в центре». */
+const CENTRAL_DISTRICTS = new Set([
+    'Центральный',
+    'Адмиралтейский',
+    'Тверской',
+    'Пресненский',
+    'Басманный',
+    'Замоскворечье',
+    'Хамовники',
+]);
+
+function buildLocationPhrase(seed, salt) {
+    const h = (Math.abs(salt) * 17 + (seed.address?.length ?? 0)) % 8;
+    const central = CENTRAL_DISTRICTS.has(seed.district);
+    const ploshchadShort = seed.metro?.startsWith('Площадь ') ? seed.metro.slice('Площадь '.length) : null;
+
+    if (h === 0 && central) return 'в центре';
+    if (h === 1 && ploshchadShort) return `на ${ploshchadShort}`;
+    if (h === 2 && seed.metro) return `у м. ${seed.metro}`;
+    if (h === 3 && seed.district) return `в ${seed.district} районе`;
+    if (h === 4 && seed.metro) return `рядом с ${seed.metro}`;
+    if (h === 5 && central && seed.metro) return `в центре, у м. ${seed.metro}`;
+    if (ploshchadShort) return `на ${ploshchadShort}`;
+    if (seed.metro) return `у м. ${seed.metro}`;
+    if (seed.district) return `в ${seed.district} районе`;
+    return 'в хорошем месте';
+}
+
+/** Человекочитаемый заголовок без дублирования площади и комнат (они в карточке отдельно). */
+function buildTitle(rooms, seed, salt) {
+    const adj = sample(ADJECTIVES, salt + rooms * 3);
+    const kind = rooms === 0 ? 'студия' : 'квартира';
+    return `${adj} ${kind} ${buildLocationPhrase(seed, salt + rooms)}`;
+}
 
 const generate = () => {
     const items = [];
@@ -88,7 +134,7 @@ const generate = () => {
 
             items.push({
                 id,
-                title: buildTitle(rooms, area),
+                title: buildTitle(rooms, seed, idx * 31 + vIdx * 7),
                 deal_type: dealType,
                 property_type: rooms === 0 ? 'studio' : 'flat',
                 rooms,

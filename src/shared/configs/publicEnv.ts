@@ -15,4 +15,6 @@ export const publicEnv = {
     "NEXT_PUBLIC_SUPABASE_ANON_KEY",
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   ),
+  /** Ключ JavaScript API Яндекс.Карт (карта в форме объявления). */
+  yandexMapsApiKey: process.env.NEXT_PUBLIC_YANDEX_MAPS_API_KEY?.trim() ?? "",
 };

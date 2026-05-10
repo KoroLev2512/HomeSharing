@@ -9,6 +9,18 @@ export interface ISelectOption<T extends string = string> {
     label: string;
 }
 
+/** Дополнительные className к частям селекта (например, тема формы). */
+export interface ISelectPartsClassNames {
+    trigger?: string;
+    triggerOpen?: string;
+    panel?: string;
+    option?: string;
+    optionActive?: string;
+    optionSelected?: string;
+    chevron?: string;
+    chevronOpen?: string;
+}
+
 interface IProps<T extends string = string> {
     value: T;
     onChange: (next: T) => void;
@@ -17,6 +29,8 @@ interface IProps<T extends string = string> {
     /** Префикс, отображаемый перед лейблом выбранной опции в триггере. Например: "Сортировка: ". */
     triggerPrefix?: string;
     className?: string;
+    /** Классы для триггера, панели и пунктов (поверх дефолтных). */
+    partsClassNames?: ISelectPartsClassNames;
     /** Минимальная ширина панели в пикселях (по умолчанию равна ширине триггера). */
     minPanelWidth?: number;
     disabled?: boolean;
@@ -29,6 +43,7 @@ export const Select = <T extends string = string>({
     placeholder,
     triggerPrefix,
     className,
+    partsClassNames,
     minPanelWidth,
     disabled,
 }: IProps<T>): React.JSX.Element => {
@@ -103,10 +118,15 @@ export const Select = <T extends string = string>({
         <div ref={rootRef} className={classNames(styles.root, className)}>
             <button
                 type="button"
-                className={classNames(styles.trigger, {
-                    [styles.triggerOpen]: open,
-                    [styles.triggerDisabled]: disabled,
-                })}
+                className={classNames(
+                    styles.trigger,
+                    partsClassNames?.trigger,
+                    {
+                        [styles.triggerOpen]: open,
+                        [styles.triggerDisabled]: disabled,
+                    },
+                    open && partsClassNames?.triggerOpen,
+                )}
                 onClick={() => !disabled && setOpen((v) => !v)}
                 aria-haspopup="listbox"
                 aria-expanded={open}
@@ -120,7 +140,12 @@ export const Select = <T extends string = string>({
                     {triggerLabel}
                 </span>
                 <svg
-                    className={classNames(styles.chevron, { [styles.chevronOpen]: open })}
+                    className={classNames(
+                        styles.chevron,
+                        partsClassNames?.chevron,
+                        { [styles.chevronOpen]: open },
+                        open && partsClassNames?.chevronOpen,
+                    )}
                     width="14"
                     height="14"
                     viewBox="0 0 24 24"
@@ -139,7 +164,7 @@ export const Select = <T extends string = string>({
 
             {open && (
                 <div
-                    className={styles.panel}
+                    className={classNames(styles.panel, partsClassNames?.panel)}
                     role="listbox"
                     style={minPanelWidth ? { minWidth: minPanelWidth } : undefined}
                 >
@@ -152,10 +177,16 @@ export const Select = <T extends string = string>({
                                     key={opt.value}
                                     type="button"
                                     data-index={i}
-                                    className={classNames(styles.option, {
-                                        [styles.optionSelected]: selected,
-                                        [styles.optionActive]: active,
-                                    })}
+                                    className={classNames(
+                                        styles.option,
+                                        partsClassNames?.option,
+                                        {
+                                            [styles.optionSelected]: selected,
+                                            [styles.optionActive]: active,
+                                        },
+                                        selected && partsClassNames?.optionSelected,
+                                        active && partsClassNames?.optionActive,
+                                    )}
                                     onMouseEnter={() => setActiveIndex(i)}
                                     onClick={() => handleSelect(opt.value)}
                                     role="option"

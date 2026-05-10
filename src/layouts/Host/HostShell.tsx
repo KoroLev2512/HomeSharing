@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import classNames from 'classnames';
 import { useSession } from 'next-auth/react';
-import Loader from '@/shared/ui/Loader/Loader';
+import { HostShellSessionSkeleton } from '@/layouts/Host/HostCabinetSkeletons';
 import styles from './shell.module.scss';
 
 interface IProps {
@@ -29,7 +29,8 @@ export const HostShell: React.FC<IProps> = ({ children }) => {
     }, [status, router]);
 
     if (status === 'loading') {
-        return <Loader />;
+        const variant = pathname?.startsWith('/host/bookings') ? 'bookings' : 'listings';
+        return <HostShellSessionSkeleton variant={variant} />;
     }
 
     if (status !== 'authenticated' || !session?.user) {

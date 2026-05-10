@@ -108,6 +108,8 @@ API для аватаров:
 | `district`            | `text`         |                                                             |
 | `metro`               | `text`         |                                                             |
 | `metro_distance_min`  | `integer`      | минут пешком до метро                                       |
+| `latitude`            | `double precision` | WGS84, необязательно (точка на карте)                  |
+| `longitude`           | `double precision` | WGS84, необязательно                                   |
 | `address`             | `text` NOT NULL |                                                            |
 | `description`         | `text` NOT NULL |                                                            |
 | `amenities`           | `text[]` default `'{}'` |                                                    |
