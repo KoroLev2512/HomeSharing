@@ -1,0 +1,176 @@
+version: '3.9'
+
+# Production docker-compose overlay.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# Differences from dev:
+#   - App runs as non-root (uid 1001)
+#   - No source-code bind mounts
+#   - Resources capped per container
+#   - Postgres & Redis data in named volumes with backup labels
+#   - Prometheus retention extended to 30d
+#   - Grafana behind basic-auth (configure GF_AUTH_* via env)
+#   - RabbitMQ management UI disabled
+
+services:
+  app:
+    restart: always
+    environment:
+      NODE_ENV: production
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:3000/api/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: json-file
+      options:
+        max-size: '50m'
+        max-file: '5'
+
+  postgres:
+    restart: always
+    command:
+      - postgres
+      - -c
+      - shared_buffers=512MB
+      - -c
+      - effective_cache_size=2GB
+      - -c
+      - maintenance_work_mem=128MB
+      - -c
+      - checkpoint_completion_target=0.9
+      - -c
+      - wal_buffers=16MB
+      - -c
+      - default_statistics_target=100
+      - -c
+      - random_page_cost=1.1
+      - -c
+      - effective_io_concurrency=200
+      - -c
+      - max_connections=200
+      - -c
+      - log_min_duration_statement=500
+      - -c
+      - log_checkpoints=on
+      - -c
+      - log_lock_waits=on
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    labels:
+      backup: 'true'
+      backup.schedule: '0 2 * * *'
+    logging:
+      driver: json-file
+      options:
+        max-size: '100m'
+        max-file: '3'
+
+  redis:
+    restart: always
+    command:
+      - redis-server
+      - --maxmemory
+      - 512mb
+      - --maxmemory-policy
+      - allkeys-lru
+      - --save
+      - '3600 1'
+      - --save
+      - '300 100'
+      - --appendonly
+      - 'yes'
+      - --requirepass
+      - ${REDIS_PASSWORD:-changeme}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 640M
+    volumes:
+      - redis_prod_data:/data
+    labels:
+      backup: 'true'
+
+  rabbitmq:
+    restart: always
+    # Disable management UI in production (security)
+    image: rabbitmq:3.13-alpine
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+    volumes:
+      - rabbitmq_prod_data:/var/lib/rabbitmq
+
+  prometheus:
+    restart: always
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=30d
+      - --storage.tsdb.retention.size=10GB
+      - --web.enable-lifecycle
+      - --web.listen-address=:9090
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    volumes:
+      - prometheus_prod_data:/prometheus
+
+  grafana:
+    restart: always
+    environment:
+      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-http://localhost:3001}
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-changeme}
+      GF_AUTH_ANONYMOUS_ENABLED: 'false'
+      GF_ANALYTICS_REPORTING_ENABLED: 'false'
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+    volumes:
+      - grafana_prod_data:/var/lib/grafana
+
+volumes:
+  postgres_prod_data:
+    driver: local
+    labels:
+      com.homesharing.backup: 'daily'
+  redis_prod_data:
+    driver: local
+  rabbitmq_prod_data:
+    driver: local
+  prometheus_prod_data:
+    driver: local
+  grafana_prod_data:
+    driver: local

@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Turbopack configuration for faster builds
   turbopack: {},
-  // Improve HMR stability
   reactStrictMode: true,
+  // Optional soft dependencies — not bundled; resolved at runtime if installed.
+  serverExternalPackages: ['ioredis', 'amqplib'],
 };
 
 export default nextConfig;

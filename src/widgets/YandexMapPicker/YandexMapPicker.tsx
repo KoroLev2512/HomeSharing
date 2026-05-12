@@ -13,8 +13,14 @@ declare global {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             Placemark: new (geometry: number[], props?: Record<string, unknown>, options?: Record<string, unknown>) => any;
             geocode: (query: string, options?: unknown) => Promise<unknown>;
+            suggest?: (query: string, options?: unknown) => Promise<IYmapsSuggestItem[]>;
         };
     }
+}
+
+interface IYmapsSuggestItem {
+    displayName?: string;
+    value?: string;
 }
 
 export interface YandexMapPickerValue {
@@ -22,11 +28,32 @@ export interface YandexMapPickerValue {
     longitude: number;
 }
 
+interface IAddressSuggestion {
+    id: string;
+    title: string;
+    subtitle: string;
+    value: string;
+}
+
+interface IAddressSearchResult {
+    id: string;
+    title: string;
+    subtitle: string;
+    coords: [number, number];
+    components: Array<{ kind: string; name: string }>;
+}
+
+export interface IResolvedAddress {
+    city: string;
+    address: string;
+}
+
 interface IProps {
     apiKey: string;
     value: YandexMapPickerValue | null;
     onChange: (latitude: number, longitude: number) => void;
     onClear: () => void;
+    onAddressResolved?: (info: IResolvedAddress) => void;
     /** Строка для геокодера (город, адрес и т.д.) */
     geocodeQuery?: string;
 }
@@ -70,7 +97,7 @@ function ensureYmaps(apiKey: string): Promise<void> {
     return ymapsScriptPromise;
 }
 
-export const YandexMapPicker: React.FC<IProps> = ({ apiKey, value, onChange, onClear, geocodeQuery }) => {
+export const YandexMapPicker: React.FC<IProps> = ({ apiKey, value, onChange, onClear, onAddressResolved, geocodeQuery }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- API Яндекс.Карт без типов в проекте
     const mapRef = useRef<any>(null);
@@ -83,6 +110,14 @@ export const YandexMapPicker: React.FC<IProps> = ({ apiKey, value, onChange, onC
     const [geocodeError, setGeocodeError] = useState<string | null>(null);
     const [geocoding, setGeocoding] = useState(false);
     const [mapReady, setMapReady] = useState(false);
+    const [addressQuery, setAddressQuery] = useState(geocodeQuery ?? "");
+    const [searchResults, setSearchResults] = useState<IAddressSearchResult[]>([]);
+    const [searchTouched, setSearchTouched] = useState(false);
+    const [suggestions, setSuggestions] = useState<IAddressSuggestion[]>([]);
+    const [suggestionsOpen, setSuggestionsOpen] = useState(false);
+    const [suggestLoading, setSuggestLoading] = useState(false);
+    const [highlightedSuggestion, setHighlightedSuggestion] = useState(-1);
+    const [searchFocused, setSearchFocused] = useState(false);
 
     const ensurePlacemark = useCallback(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -176,6 +211,75 @@ export const YandexMapPicker: React.FC<IProps> = ({ apiKey, value, onChange, onC
         }
     }, [value, ensurePlacemark]);
 
+    useEffect(() => {
+        if (searchTouched) return;
+        setAddressQuery(geocodeQuery ?? "");
+    }, [geocodeQuery, searchTouched]);
+
+    useEffect(() => {
+        const query = addressQuery.trim();
+        const suggest = window.ymaps?.suggest;
+
+        if (!searchFocused || !mapReady || !suggest || query.length < 3) {
+            setSuggestions([]);
+            setSuggestionsOpen(false);
+            setSuggestLoading(false);
+            setHighlightedSuggestion(-1);
+            return;
+        }
+
+        let cancelled = false;
+        setSuggestLoading(true);
+
+        const timer = window.setTimeout(() => {
+            suggest(query, { results: 7 })
+                .then((items) => {
+                    if (cancelled) return;
+
+                    const next = items
+                        .map((item, index) => {
+                            const value = String(item.value ?? item.displayName ?? "").trim();
+                            const displayName = String(item.displayName ?? value).trim();
+                            const [title, ...rest] = displayName.split(", ");
+
+                            return {
+                                id: `${value}-${index}`,
+                                title: title || value,
+                                subtitle: rest.join(", "),
+                                value,
+                            };
+                        })
+                        .filter((item) => item.value.length > 0);
+
+                    setSuggestions(next);
+                    setSuggestionsOpen(next.length > 0);
+                    setHighlightedSuggestion(next.length > 0 ? 0 : -1);
+                    setSuggestLoading(false);
+                }, () => {
+                    if (!cancelled) {
+                        setSuggestions([]);
+                        setSuggestionsOpen(false);
+                        setHighlightedSuggestion(-1);
+                        setSuggestLoading(false);
+                    }
+                });
+        }, 250);
+
+        return () => {
+            cancelled = true;
+            window.clearTimeout(timer);
+        };
+    }, [addressQuery, mapReady, searchFocused]);
+
+    const applyPoint = (coords: [number, number]) => {
+        const map = mapRef.current;
+        const ymaps = window.ymaps;
+        if (!map || !ymaps) return;
+        ensurePlacemark(ymaps, map, coords);
+        map.setCenter(coords, POINT_ZOOM);
+        onChange(coords[0], coords[1]);
+    };
+
     const handlePlaceCenter = () => {
         const map = mapRef.current;
         const ymaps = window.ymaps;
@@ -186,29 +290,107 @@ export const YandexMapPicker: React.FC<IProps> = ({ apiKey, value, onChange, onC
         onChange(coords[0], coords[1]);
     };
 
-    const handleGeocode = () => {
-        const q = geocodeQuery?.trim();
+    const geocodeAddress = (query: string) => {
+        const q = query.trim();
         if (!q || !window.ymaps || !mapRef.current) return;
         setGeocodeError(null);
+        setSuggestionsOpen(false);
+        setSearchResults([]);
         setGeocoding(true);
         window.ymaps
-            .geocode(q, { results: 1 })
+            .geocode(q, { results: 5 })
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .then((res: any) => {
-                const first = res.geoObjects.get(0);
-                if (!first) {
+                const found: IAddressSearchResult[] = [];
+                res.geoObjects.each((geoObject: any, index: number) => {
+                    const coords = geoObject.geometry.getCoordinates() as [number, number];
+                    const title = String(geoObject.properties.get("name") ?? "Найденный адрес");
+                    const subtitle = String(
+                        geoObject.properties.get("description") ??
+                        geoObject.properties.get("text") ??
+                        "",
+                    );
+                    const meta = geoObject.properties.get("metaDataProperty.GeocoderMetaData");
+                    const components: Array<{ kind: string; name: string }> =
+                        meta?.Address?.Components ?? [];
+                    found.push({
+                        id: `${coords[0]}-${coords[1]}-${index}`,
+                        title,
+                        subtitle,
+                        coords,
+                        components,
+                    });
+                });
+
+                if (found.length === 0) {
                     setGeocodeError("Адрес не найден");
+                    setGeocoding(false);
                     return;
                 }
-                const coords = first.geometry.getCoordinates() as [number, number];
-                const map = mapRef.current;
-                if (!map) return;
-                ensurePlacemark(window.ymaps, map, coords);
-                map.setCenter(coords, POINT_ZOOM);
-                onChange(coords[0], coords[1]);
-            })
-            .catch(() => setGeocodeError("Ошибка поиска адреса"))
-            .finally(() => setGeocoding(false));
+
+                setSearchResults(found);
+                applyPoint(found[0]!.coords);
+
+                if (onAddressResolved && found[0]) {
+                    const { components } = found[0];
+                    const city =
+                        components.find((c) => c.kind === "locality")?.name ||
+                        components.find((c) => c.kind === "province")?.name ||
+                        "";
+                    const street = components.find((c) => c.kind === "street")?.name ?? "";
+                    const house = components.find((c) => c.kind === "house")?.name ?? "";
+                    const address = [street, house].filter(Boolean).join(", ");
+                    onAddressResolved({ city, address });
+                }
+
+                setGeocoding(false);
+            }, () => {
+                setGeocodeError("Ошибка поиска адреса");
+                setGeocoding(false);
+            });
+    };
+
+    const handleAddressSearch = () => {
+        geocodeAddress(addressQuery);
+    };
+
+    const handleSuggestionSelect = (suggestion: IAddressSuggestion) => {
+        setSearchTouched(true);
+        setAddressQuery(suggestion.value);
+        setSuggestionsOpen(false);
+        setSuggestions([]);
+        setHighlightedSuggestion(-1);
+        geocodeAddress(suggestion.value);
+    };
+
+    const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            if (suggestionsOpen && suggestions.length > 0 && highlightedSuggestion >= 0) {
+                handleSuggestionSelect(suggestions[highlightedSuggestion]!);
+                return;
+            }
+            handleAddressSearch();
+            return;
+        }
+
+        if (e.key === "Escape") {
+            setSuggestionsOpen(false);
+            setHighlightedSuggestion(-1);
+            return;
+        }
+
+        if (!suggestionsOpen || suggestions.length === 0) return;
+
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            setHighlightedSuggestion((current) => (current + 1) % suggestions.length);
+        }
+
+        if (e.key === "ArrowUp") {
+            e.preventDefault();
+            setHighlightedSuggestion((current) => (current <= 0 ? suggestions.length - 1 : current - 1));
+        }
     };
 
     if (!apiKey.trim()) {
@@ -226,15 +408,91 @@ export const YandexMapPicker: React.FC<IProps> = ({ apiKey, value, onChange, onC
 
     return (
         <div className={styles.root}>
+            <div
+                className={styles.searchPanel}
+            >
+                <label className={styles.searchLabel}>
+                    <span>Поиск на карте</span>
+                    <div className={styles.searchRow}>
+                        <input
+                            className={styles.searchInput}
+                            value={addressQuery}
+                            onChange={(e) => {
+                                setSearchTouched(true);
+                                setAddressQuery(e.target.value);
+                                setSearchResults([]);
+                                setGeocodeError(null);
+                            }}
+                            onFocus={() => {
+                                setSearchFocused(true);
+                                if (suggestions.length > 0) setSuggestionsOpen(true);
+                            }}
+                            onBlur={() => {
+                                window.setTimeout(() => {
+                                    setSearchFocused(false);
+                                    setSuggestionsOpen(false);
+                                }, 120);
+                            }}
+                            onKeyDown={handleSearchKeyDown}
+                            placeholder="Например: Санкт-Петербург, Невский проспект, 28"
+                            autoComplete="off"
+                            disabled={!mapReady || geocoding}
+                        />
+                        <button
+                            type="button"
+                            className={styles.mapBtn}
+                            onClick={handleAddressSearch}
+                            disabled={!addressQuery.trim() || geocoding || !mapReady}
+                        >
+                            {geocoding ? "Ищем…" : "Найти"}
+                        </button>
+                    </div>
+                </label>
+                {(suggestionsOpen || suggestLoading) && (
+                    <div className={styles.searchResults} role="listbox" aria-label="Подсказки адресов">
+                        {suggestLoading && suggestions.length === 0 ? (
+                            <div className={styles.searchStatus}>Ищем адреса…</div>
+                        ) : (
+                            suggestions.map((suggestion, index) => (
+                                <button
+                                    key={suggestion.id}
+                                    type="button"
+                                    role="option"
+                                    aria-selected={index === highlightedSuggestion}
+                                    className={classNames(styles.searchResult, {
+                                        [styles.searchResultActive]: index === highlightedSuggestion,
+                                    })}
+                                    onMouseDown={(e) => e.preventDefault()}
+                                    onClick={() => handleSuggestionSelect(suggestion)}
+                                >
+                                    <span className={styles.searchResultTitle}>{suggestion.title}</span>
+                                    {suggestion.subtitle && (
+                                        <span className={styles.searchResultSubtitle}>{suggestion.subtitle}</span>
+                                    )}
+                                </button>
+                            ))
+                        )}
+                    </div>
+                )}
+                {searchResults.length > 0 && (
+                    <div className={styles.searchResults} aria-label="Найденные адреса">
+                        {searchResults.map((result) => (
+                            <button
+                                key={result.id}
+                                type="button"
+                                className={styles.searchResult}
+                                onClick={() => applyPoint(result.coords)}
+                            >
+                                <span className={styles.searchResultTitle}>{result.title}</span>
+                                {result.subtitle && (
+                                    <span className={styles.searchResultSubtitle}>{result.subtitle}</span>
+                                )}
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </div>
             <div className={styles.toolbar}>
-                <button
-                    type="button"
-                    className={styles.mapBtn}
-                    onClick={handleGeocode}
-                    disabled={!geocodeQuery?.trim() || geocoding || !mapReady}
-                >
-                    {geocoding ? "Поиск…" : "Найти по адресу"}
-                </button>
                 <button
                     type="button"
                     className={classNames(styles.mapBtn, styles.mapBtnPrimary)}

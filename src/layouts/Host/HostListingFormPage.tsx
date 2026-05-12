@@ -487,11 +487,9 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
                 </div>
                 <label className={styles.field}>
                     <span>Полный адрес</span>
-                    <input className={styles.input} value={form.address} onChange={set('address')} required />
+                    <input className={styles.input} value={form.address} onChange={set('address')} required placeholder="Невский проспект, 28" />
                 </label>
                 <div className={styles.field}>
-                    <span>Точка на Яндекс.Картах</span>
-                    {/* <p className={styles.fieldHint}>Необязательно. Клик по карте, перетаскивание метки или поиск по заполненному адресу.</p> */}
                     <YandexMapPicker
                         apiKey={publicEnv.yandexMapsApiKey}
                         value={
@@ -510,6 +508,13 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
                             }))
                         }
                         onClear={() => setForm((p) => ({ ...p, latitude: '', longitude: '' }))}
+                        onAddressResolved={(info) =>
+                            setForm((p) => ({
+                                ...p,
+                                ...(info.city ? { city: info.city } : {}),
+                                ...(info.address ? { address: info.address } : {}),
+                            }))
+                        }
                         geocodeQuery={[form.city, form.district, form.metro, form.address].filter(Boolean).join(', ')}
                     />
                 </div>

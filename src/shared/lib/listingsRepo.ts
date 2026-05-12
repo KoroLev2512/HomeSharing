@@ -1,4 +1,5 @@
 import { getServiceClient } from '@/shared/utils/supabase/service';
+import { cache, CachePrefix, TTL, hashQuery } from '@/shared/lib/cache/redisCache';
 import type {
     DealType,
     IListing,
@@ -101,6 +102,11 @@ const applySort = <T extends Orderable<T>>(builder: T, sort: ListingsSort): T =>
 
 export class ListingsRepo {
     static async list(query: IListingsQuery = {}): Promise<IListingsResponse> {
+        const cacheKey = CachePrefix.listings + hashQuery(query as Record<string, unknown>);
+
+        const cached = await cache.get<IListingsResponse>(cacheKey);
+        if (cached) return cached;
+
         const supabase = getServiceClient();
         const page = Math.max(1, query.page ?? 1);
         const perPage = Math.min(60, Math.max(6, query.perPage ?? 12));
@@ -156,16 +162,23 @@ export class ListingsRepo {
         const totalPages = Math.max(1, Math.ceil(total / perPage));
         const safePage = Math.min(page, totalPages);
 
-        return {
+        const result: IListingsResponse = {
             items: (data ?? []).map((row) => toListing(row as ListingRow)),
             total,
             page: safePage,
             perPage,
             totalPages,
         };
+
+        await cache.set(cacheKey, result, TTL.listings);
+        return result;
     }
 
     static async getById(id: string): Promise<{ listing: IListing; similar: IListing[] } | null> {
+        const cacheKey = CachePrefix.property + id;
+        const cached = await cache.get<{ listing: IListing; similar: IListing[] }>(cacheKey);
+        if (cached) return cached;
+
         const supabase = getServiceClient();
 
         const { data, error } = await supabase.from('listings').select('*').eq('id', id).maybeSingle();
@@ -184,9 +197,21 @@ export class ListingsRepo {
             .limit(6);
         if (similarErr) throw similarErr;
 
-        return {
+        const result = {
             listing,
             similar: (similarRows ?? []).map((row) => toListing(row as ListingRow)),
         };
+
+        await cache.set(cacheKey, result, TTL.property);
+        return result;
+    }
+
+    /** Invalidate cached pages for a city/dealType after a listing is created or updated */
+    static async invalidateListCache(): Promise<void> {
+        await cache.invalidatePattern(`${CachePrefix.listings}*`);
+    }
+
+    static async invalidateById(id: string): Promise<void> {
+        await cache.del(`${CachePrefix.property}${id}`);
     }
 }

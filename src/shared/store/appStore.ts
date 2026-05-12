@@ -22,12 +22,15 @@ const readSavedMenuOpen = (defaultValue: boolean): boolean => {
 
 export const useAppStore = create<AppState>()(devtools(immer((set) => {
     return ({
-        menuPageIsOpen: readSavedMenuOpen(true),
+        menuPageIsOpen: true,
         backendIsAvailable: null,
         isLoading: false,
         profilePageIsClose: true,
         notificationsVisible: true,
         isDarkMode: false,
+        hydrateMenuPage: () => {
+            set({ menuPageIsOpen: readSavedMenuOpen(true) });
+        },
         toggleProfilePage: (value) => {
             set((state) => {
                 return ({profilePageIsClose: !isUndefined(value) ? value : !state.profilePageIsClose});

@@ -61,6 +61,7 @@ export const NavigationBar = (): React.JSX.Element => {
 
     const menuPageIsOpen = useAppStore(state => state.menuPageIsOpen);
     const toggleMenuPage = useAppStore(state => state.toggleMenuPage);
+    const hydrateMenuPage = useAppStore(state => state.hydrateMenuPage);
     const route = usePathname();
     const router = useRouter();
     const { data: session, status } = useSession();
@@ -80,6 +81,10 @@ export const NavigationBar = (): React.JSX.Element => {
     ]), [isAuthenticated, isHost]);
 
     const homeHref = isAuthenticated ? "/" : "/listings";
+
+    useEffect(() => {
+        hydrateMenuPage();
+    }, [hydrateMenuPage]);
 
     const handleSignOut = async () => {
         if (isSigningOut) return;

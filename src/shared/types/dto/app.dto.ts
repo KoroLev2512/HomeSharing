@@ -7,6 +7,7 @@ export type AppState = {
     isDarkMode: boolean;
     toggleProfilePage: (value?:boolean) => void;
     toggleMenuPage: (value?: boolean) => void;
+    hydrateMenuPage: () => void;
     toggleNotifications: () => void;
     toggleDarkMode: (value: boolean) => void;
 }
