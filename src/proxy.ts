@@ -78,7 +78,7 @@ function maybeEvict(): void {
 // ---------------------------------------------------------------------------
 // Middleware
 // ---------------------------------------------------------------------------
-export function middleware(req: NextRequest): NextResponse {
+export function proxy(req: NextRequest): NextResponse {
     const { pathname } = req.nextUrl;
 
     // Generate correlation / request ID
