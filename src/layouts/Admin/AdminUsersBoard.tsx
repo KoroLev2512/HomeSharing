@@ -1,14 +1,17 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from 'react';
+import Image from 'next/image';
 import { AdminService, type AdminUserPatch } from '@/shared/lib/adminService';
 import type { IAdminUser } from '@/shared/types/admin';
 import { AdminUsersTableSkeleton } from '@/layouts/Admin/AdminBoardSkeletons';
 import styles from './table.module.scss';
 
+const adminUserDateFmt = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+
 const formatDate = (s: string) => {
     try {
-        return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(s));
+        return adminUserDateFmt.format(new Date(s));
     } catch { return s; }
 };
 
@@ -90,7 +93,7 @@ export const AdminUsersBoard: React.FC = () => {
                                     <td className={styles.td}>
                                         <div className={styles.userCell}>
                                             {u.image ? (
-                                                <img src={u.image} alt="" className={styles.avatar} />
+                                                <Image src={u.image} alt="" width={32} height={32} className={styles.avatar} />
                                             ) : (
                                                 <div className={styles.avatarFallback}>
                                                     {(u.name ?? u.email).slice(0, 1).toUpperCase()}

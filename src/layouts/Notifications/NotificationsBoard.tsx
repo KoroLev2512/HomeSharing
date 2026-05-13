@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -20,17 +20,13 @@ type NotificationItem = {
     tone: 'default' | 'success' | 'info';
 };
 
+const notifDateFmt = new Intl.DateTimeFormat('ru-RU', {
+    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
+});
+
 const formatDateTime = (value: string): string => {
-    try {
-        return new Intl.DateTimeFormat('ru-RU', {
-            day: '2-digit',
-            month: 'short',
-            hour: '2-digit',
-            minute: '2-digit',
-        }).format(new Date(value));
-    } catch {
-        return value;
-    }
+    try { return notifDateFmt.format(new Date(value)); }
+    catch { return value; }
 };
 
 const fromGuestBooking = (b: IBookingWithListing): NotificationItem => ({
@@ -54,18 +50,22 @@ const fromHostBooking = (b: IBookingWithListing): NotificationItem => ({
     tone: b.status === 'pending' ? 'info' : 'default',
 });
 
+type NotificationsFeedState = {
+    items: NotificationItem[] | null;
+    error: string | null;
+};
+
 export const NotificationsBoard: React.FC = () => {
-    const router = useRouter();
+    const { replace } = useRouter();
     const { data: session, status } = useSession();
     const { count: favoritesCount } = useFavorites();
-    const [items, setItems] = useState<NotificationItem[] | null>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [feed, setFeed] = useState<NotificationsFeedState>({ items: null, error: null });
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (status === 'unauthenticated') {
-            router.replace('/login');
+            replace('/login');
         }
-    }, [status, router]);
+    }, [status, replace]);
 
     useEffect(() => {
         if (status !== 'authenticated') return;
@@ -74,7 +74,6 @@ export const NotificationsBoard: React.FC = () => {
 
         const load = async () => {
             try {
-                setError(null);
                 const [guestBookings, hostBookings] = await Promise.all([
                     BookingsService.listMyBookings().catch(() => [] as IBookingWithListing[]),
                     isHost ? HostBookingsService.list().catch(() => [] as IBookingWithListing[]) : Promise.resolve([] as IBookingWithListing[]),
@@ -97,10 +96,12 @@ export const NotificationsBoard: React.FC = () => {
                 }
 
                 dynamic.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-                setItems(dynamic);
+                setFeed({ items: dynamic, error: null });
             } catch (err) {
-                setError(err instanceof Error ? err.message : 'Не удалось загрузить уведомления');
-                setItems([]);
+                setFeed({
+                    items: [],
+                    error: err instanceof Error ? err.message : 'Не удалось загрузить уведомления',
+                });
             }
         };
 
@@ -127,11 +128,11 @@ export const NotificationsBoard: React.FC = () => {
                 </div>
             </header>
 
-            {error && <div className={styles.error}>{error}</div>}
+            {feed.error && <div className={styles.error}>{feed.error}</div>}
 
-            {!items ? (
+            {!feed.items ? (
                 <NotificationsBoardSkeleton embedded />
-            ) : items.length === 0 ? (
+            ) : feed.items.length === 0 ? (
                 <div className={styles.empty}>
                     <h3>Уведомлений пока нет</h3>
                     <p>Когда появятся заявки, изменения статусов или сохраненные объекты, они отобразятся здесь.</p>
@@ -141,7 +142,7 @@ export const NotificationsBoard: React.FC = () => {
                 </div>
             ) : (
                 <div className={styles.list}>
-                    {items.map((item) => (
+                    {feed.items.map((item) => (
                         <Link key={item.id} href={item.href} className={styles.linkCard}>
                             <article className={styles.card}>
                                 <div className={styles.cardHead}>

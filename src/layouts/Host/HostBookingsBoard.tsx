@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import classNames from 'classnames';
 import { HostBookingsService } from '@/shared/lib/hostBookingsService';
 import {
@@ -13,17 +14,16 @@ import {
 import styles from './hostBookings.module.scss';
 import { HostBookingsSkeletonList, HostBookingsSubtitleSkeleton } from '@/layouts/Host/HostCabinetSkeletons';
 
+const hostBookingPriceFmt = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 });
+const hostBookingDateFmt  = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+
 const formatPrice = (n: number): string =>
-    Number.isFinite(n) ? new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format(n) + ' ₽' : '—';
+    Number.isFinite(n) ? hostBookingPriceFmt.format(n) + ' ₽' : '—';
 
 const formatDate = (s: string): string => {
     if (!s) return '—';
     try {
-        return new Intl.DateTimeFormat('ru-RU', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
-        }).format(new Date(s));
+        return hostBookingDateFmt.format(new Date(s));
     } catch {
         return s;
     }
@@ -111,8 +111,14 @@ export const HostBookingsBoard: React.FC = () => {
                         const cover = b.listing.images?.[0] ?? '/rooms/room.png';
                         return (
                             <article key={b.id} className={styles.card}>
-                                <Link href={`/listings/${b.listingId}`} className={styles.cover}>
-                                    <img src={cover} alt={b.listing.title} loading="lazy" />
+                                <Link href={`/listings/${b.listingId}`} className={styles.cover} style={{ position: 'relative' }}>
+                                    <Image
+                                        src={cover}
+                                        alt={b.listing.title}
+                                        fill
+                                        sizes="(max-width: 48rem) 40vw, 10rem"
+                                        style={{ objectFit: 'cover' }}
+                                    />
                                 </Link>
                                 <div className={styles.body}>
                                     <div className={styles.cardHead}>

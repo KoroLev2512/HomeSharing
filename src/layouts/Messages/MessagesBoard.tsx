@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -20,17 +20,13 @@ type Thread = {
     role: 'guest' | 'host';
 };
 
+const msgDateFmt = new Intl.DateTimeFormat('ru-RU', {
+    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
+});
+
 const formatDateTime = (value: string): string => {
-    try {
-        return new Intl.DateTimeFormat('ru-RU', {
-            day: '2-digit',
-            month: 'short',
-            hour: '2-digit',
-            minute: '2-digit',
-        }).format(new Date(value));
-    } catch {
-        return value;
-    }
+    try { return msgDateFmt.format(new Date(value)); }
+    catch { return value; }
 };
 
 const trimId = (id: string | null | undefined): string =>
@@ -57,16 +53,16 @@ const createHostThread = (b: IBookingWithListing): Thread => ({
 });
 
 export const MessagesBoard: React.FC = () => {
-    const router = useRouter();
+    const { replace } = useRouter();
     const { data: session, status } = useSession();
     const [threads, setThreads] = useState<Thread[] | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (status === 'unauthenticated') {
-            router.replace('/login');
+            replace('/login');
         }
-    }, [status, router]);
+    }, [status, replace]);
 
     useEffect(() => {
         if (status !== 'authenticated') return;

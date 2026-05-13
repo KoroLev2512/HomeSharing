@@ -2,7 +2,7 @@ import {create} from "zustand";
 import {devtools} from "zustand/middleware";
 import {immer} from "zustand/middleware/immer";
 import {AppState} from "@/shared/types/dto/app.dto";
-import {isUndefined} from "lodash";
+import isUndefined from "lodash/isUndefined";
 import {setCookie} from "nookies";
 
 const MENU_STORAGE_KEY = 'menuPageIsOpen';

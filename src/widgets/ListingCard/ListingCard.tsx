@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import classNames from 'classnames';
 import type { IListing } from '@/shared/types/listing';
 import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon, LocationIcon, StarIcon } from '@/shared/icons';
@@ -94,13 +95,16 @@ const PhotoCarousel: React.FC<ICarouselProps> = ({ photos, alt }) => {
                 {photos.map((src, i) => (
                     <div key={`${src}-${i}`} className={styles.slide}>
                         {!loaded.has(i) && <div className={styles.slideSkeleton} aria-hidden />}
-                        <img
+                        <Image
+                            fill
                             src={src}
                             alt={i === 0 ? alt : ''}
+                            sizes="(max-width: 48rem) 100vw, 20rem"
                             className={classNames(styles.image, { [styles.imageLoaded]: loaded.has(i) })}
                             loading={i === 0 ? 'eager' : 'lazy'}
                             onLoad={() => markLoaded(i)}
                             draggable={false}
+                            aria-hidden={i !== 0 || undefined}
                         />
                     </div>
                 ))}

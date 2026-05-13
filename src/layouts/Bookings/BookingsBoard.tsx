@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import classNames from 'classnames';
 import { useSession } from 'next-auth/react';
@@ -14,36 +15,35 @@ import {
 } from '@/shared/types/booking';
 import styles from './styles.module.scss';
 
+const bookingPriceFmt = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 });
+const bookingDateFmt  = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+
 const formatPrice = (n: number): string =>
     Number.isFinite(n)
-        ? new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format(n) + ' ₽'
+        ? bookingPriceFmt.format(n) + ' ₽'
         : '—';
 
 const formatDate = (s: string): string => {
     if (!s) return '—';
     try {
-        return new Intl.DateTimeFormat('ru-RU', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
-        }).format(new Date(s));
+        return bookingDateFmt.format(new Date(s));
     } catch {
         return s;
     }
 };
 
 export const BookingsBoard: React.FC = () => {
-    const router = useRouter();
+    const { replace } = useRouter();
     const { status } = useSession();
     const [bookings, setBookings] = useState<IBookingWithListing[] | null>(null);
     const [pendingId, setPendingId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (status === 'unauthenticated') {
-            router.replace('/login');
+            replace('/login');
         }
-    }, [status, router]);
+    }, [status, replace]);
 
     const load = useCallback(async () => {
         try {
@@ -117,8 +117,14 @@ export const BookingsBoard: React.FC = () => {
                         const cancellable = b.status === 'pending' || b.status === 'confirmed';
                         return (
                             <article key={b.id} className={styles.card}>
-                                <Link href={`/listings/${b.listingId}`} className={styles.cover}>
-                                    <img src={cover} alt={b.listing.title} loading="lazy" />
+                                <Link href={`/listings/${b.listingId}`} className={styles.cover} style={{ position: 'relative' }}>
+                                    <Image
+                                        src={cover}
+                                        alt={b.listing.title}
+                                        fill
+                                        sizes="(max-width: 48rem) 40vw, 10rem"
+                                        style={{ objectFit: 'cover' }}
+                                    />
                                 </Link>
                                 <div className={styles.body}>
                                     <div className={styles.cardHead}>

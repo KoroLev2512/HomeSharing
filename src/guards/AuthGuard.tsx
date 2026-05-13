@@ -2,7 +2,8 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
+import styles from './AuthGuard.module.scss'
 
 interface CustomUser {
   name?: string | null
@@ -18,35 +19,17 @@ interface AuthGuardProps {
 }
 
 const LoadingSpinner = () => (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh'
-    }}>
-      <div style={{
-        width: '40px',
-        height: '40px',
-        border: '4px solid #f3f3f3',
-        borderTop: '4px solid #3498db',
-        borderRadius: '50%',
-        animation: 'spin 1s linear infinite'
-      }} />
-      <style jsx>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
-    </div>
+  <div className={styles.root}>
+    <div className={styles.spinner} />
+  </div>
 )
 
 export const AuthGuard = ({ children, requiredRole }: AuthGuardProps) => {
   const { data: session, status } = useSession()
 
-  const router = useRouter()
+  const { push } = useRouter()
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (status === 'loading') return
 
     if (requiredRole && session && session.user) {
@@ -55,11 +38,11 @@ export const AuthGuard = ({ children, requiredRole }: AuthGuardProps) => {
           user.isHost ? 'service' : 'user'
 
       if (userRole !== requiredRole && userRole !== 'admin') {
-        router.push('/')
+        push('/')
         return
       }
     }
-  }, [session, status, router, requiredRole])
+  }, [session, status, push, requiredRole])
 
   if (status === 'loading') {
     return <LoadingSpinner />

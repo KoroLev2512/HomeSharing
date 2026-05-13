@@ -1,206 +1,32 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useId, useMemo, useReducer, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import classNames from 'classnames';
 import Loader from '@/shared/ui/Loader/Loader';
-import { Select, type ISelectOption } from '@/shared/ui/Select';
+import { Select } from '@/shared/ui/Select';
 import { HostListingsService } from '@/shared/lib/hostListingsService';
-import type {
-    DealType,
-    IListing,
-    PricePeriod,
-    PropertyType,
-} from '@/shared/types/listing';
-import type { IListingDraft } from '@/shared/lib/hostListingsRepo';
+import type { DealType, PricePeriod } from '@/shared/types/listing';
 import { publicEnv } from '@/shared/configs/publicEnv';
 import { YandexMapPicker } from '@/widgets/YandexMapPicker';
+import Image from 'next/image';
+import {
+    DEAL_OPTIONS,
+    EMPTY,
+    fromListing,
+    MAX_LISTING_PHOTOS,
+    OWNER_TYPE_OPTIONS,
+    PRICE_PERIOD_OPTIONS,
+    PROPERTY_OPTIONS,
+    ROOM_OPTIONS,
+    parseFloat0,
+    toDraft,
+    type FormState,
+} from './hostListingFormModel';
+import { hostListingFormReducer } from './hostListingFormReducer';
 import styles from './form.module.scss';
-
-const MAX_LISTING_PHOTOS = 10;
-
-type FormState = {
-    title: string;
-    dealType: DealType;
-    propertyType: PropertyType;
-    rooms: string;
-    area: string;
-    livingArea: string;
-    kitchenArea: string;
-    floor: string;
-    totalFloors: string;
-    price: string;
-    pricePeriod: PricePeriod;
-    deposit: string;
-    city: string;
-    district: string;
-    metro: string;
-    metroDistanceMin: string;
-    latitude: string;
-    longitude: string;
-    address: string;
-    description: string;
-    amenities: string;
-    images: string[];
-    ownerName: string;
-    ownerType: 'owner' | 'agency';
-    ownerAvatar: string;
-    ownerPhoneMasked: string;
-};
-
-const DEAL_OPTIONS: Array<ISelectOption<DealType>> = [
-    { value: 'rent_long', label: 'Аренда (длительная)' },
-    { value: 'rent_short', label: 'Аренда (посуточно)' },
-    { value: 'sale', label: 'Продажа' },
-];
-
-const PROPERTY_OPTIONS: Array<ISelectOption<'flat' | 'room' | 'house'>> = [
-    { value: 'flat', label: 'Квартира' },
-    { value: 'room', label: 'Комната' },
-    { value: 'house', label: 'Дом' },
-];
-
-const ROOM_OPTIONS: Array<ISelectOption<string>> = [
-    { value: '0', label: 'Студия' },
-    { value: '1', label: '1' },
-    { value: '2', label: '2' },
-    { value: '3', label: '3' },
-    { value: '4', label: '4' },
-    { value: '6', label: '5 и более' },
-];
-
-const PRICE_PERIOD_OPTIONS: Array<ISelectOption<PricePeriod>> = [
-    { value: 'month', label: 'в месяц' },
-    { value: 'day', label: 'в сутки' },
-];
-
-const OWNER_TYPE_OPTIONS: Array<ISelectOption<'owner' | 'agency'>> = [
-    { value: 'owner', label: 'Собственник' },
-    { value: 'agency', label: 'Агентство' },
-];
-
-const EMPTY: FormState = {
-    title: '',
-    dealType: 'rent_long',
-    propertyType: 'flat',
-    rooms: '1',
-    area: '',
-    livingArea: '',
-    kitchenArea: '',
-    floor: '',
-    totalFloors: '',
-    price: '',
-    pricePeriod: 'month',
-    deposit: '',
-    city: '',
-    district: '',
-    metro: '',
-    metroDistanceMin: '',
-    latitude: '',
-    longitude: '',
-    address: '',
-    description: '',
-    amenities: '',
-    images: [],
-    ownerName: '',
-    ownerType: 'owner',
-    ownerAvatar: '',
-    ownerPhoneMasked: '',
-};
-
-/** Значение селекта «комнат»: 0 — студия, 1–4 — число, 6 — «5 и более» (в т.ч. было ровно 5). */
-const roomsToFormValue = (rooms: number): string => {
-    if (rooms <= 0) return '0';
-    if (rooms >= 5) return '6';
-    return String(rooms);
-};
-
-const fromListing = (l: IListing): FormState => ({
-    title: l.title,
-    dealType: l.dealType,
-    propertyType: l.propertyType === 'studio' ? 'flat' : l.propertyType,
-    rooms: roomsToFormValue(l.rooms),
-    area: String(l.area),
-    livingArea: l.livingArea != null ? String(l.livingArea) : '',
-    kitchenArea: l.kitchenArea != null ? String(l.kitchenArea) : '',
-    floor: String(l.floor),
-    totalFloors: String(l.totalFloors),
-    price: String(l.price),
-    pricePeriod: l.pricePeriod ?? 'month',
-    deposit: l.deposit != null ? String(l.deposit) : '',
-    city: l.city,
-    district: l.district ?? '',
-    metro: l.metro ?? '',
-    metroDistanceMin: l.metroDistanceMin != null ? String(l.metroDistanceMin) : '',
-    latitude: l.latitude != null && Number.isFinite(l.latitude) ? String(l.latitude) : '',
-    longitude: l.longitude != null && Number.isFinite(l.longitude) ? String(l.longitude) : '',
-    address: l.address,
-    description: l.description,
-    amenities: (l.amenities ?? []).join(', '),
-    images: (l.images ?? []).slice(0, MAX_LISTING_PHOTOS),
-    ownerName: l.owner.name,
-    ownerType: l.owner.type,
-    ownerAvatar: l.owner.avatar ?? '',
-    ownerPhoneMasked: l.owner.phoneMasked ?? '',
-});
-
-const parseInt0 = (s: string): number => {
-    const n = Number.parseInt(s, 10);
-    return Number.isFinite(n) ? n : 0;
-};
-
-const parseFloat0 = (s: string): number => {
-    const n = Number.parseFloat(s.replace(',', '.'));
-    return Number.isFinite(n) ? n : 0;
-};
-
-const toDraft = (f: FormState): IListingDraft => {
-    const rooms = parseInt0(f.rooms);
-    const propertyType = rooms === 0 ? 'studio' : f.propertyType;
-    return {
-        title: f.title.trim(),
-        dealType: f.dealType,
-        propertyType,
-        rooms,
-        area: parseFloat0(f.area),
-        livingArea: f.livingArea.trim() ? parseFloat0(f.livingArea) : null,
-        kitchenArea: f.kitchenArea.trim() ? parseFloat0(f.kitchenArea) : null,
-        floor: parseInt0(f.floor),
-        totalFloors: parseInt0(f.totalFloors),
-        price: parseFloat0(f.price),
-        pricePeriod: f.dealType === 'sale' ? null : f.pricePeriod,
-        deposit: f.deposit.trim() ? parseFloat0(f.deposit) : null,
-        city: f.city.trim(),
-        district: f.district.trim() || null,
-        metro: f.metro.trim() || null,
-        metroDistanceMin: f.metroDistanceMin.trim() ? parseInt0(f.metroDistanceMin) : null,
-        latitude: (() => {
-            const a = f.latitude.trim();
-            const b = f.longitude.trim();
-            if (!a && !b) return null;
-            return parseFloat0(a);
-        })(),
-        longitude: (() => {
-            const a = f.latitude.trim();
-            const b = f.longitude.trim();
-            if (!a && !b) return null;
-            return parseFloat0(b);
-        })(),
-        address: f.address.trim(),
-        description: f.description.trim(),
-        amenities: f.amenities
-            .split(',')
-            .map((s) => s.trim())
-            .filter(Boolean),
-        images: f.images.map((s) => s.trim()).filter(Boolean).slice(0, MAX_LISTING_PHOTOS),
-        ownerName: f.ownerName.trim(),
-        ownerType: f.ownerType,
-        ownerAvatar: f.ownerAvatar.trim() || null,
-        ownerPhoneMasked: f.ownerPhoneMasked.trim() || null,
-    };
-};
 
 interface IProps {
     mode: 'create' | 'edit';
@@ -208,22 +34,27 @@ interface IProps {
 }
 
 export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
-    const router = useRouter();
+    const { replace } = useRouter();
     const { data: session, status: sessionStatus } = useSession();
-    const [form, setForm] = useState<FormState>(EMPTY);
+    const [form, dispatch] = useReducer(hostListingFormReducer, EMPTY);
     const [isLoading, setIsLoading] = useState<boolean>(mode === 'edit');
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isUploadingPhotos, setIsUploadingPhotos] = useState(false);
 
+    const baseFieldId = useId();
+    const fid = (suffix: string) => `${baseFieldId}-${suffix}`;
+
     useEffect(() => {
-        if (mode === 'create' && session?.user) {
-            setForm((prev) => ({
-                ...prev,
-                ownerName: prev.ownerName || session.user.name || session.user.email || '',
-                ownerAvatar: prev.ownerAvatar || (typeof session.user.image === 'string' ? session.user.image : ''),
-            }));
-        }
+        if (mode !== 'create' || !session?.user) return;
+        dispatch({
+            type: 'hydrateOwnerFromSession',
+            payload: {
+                name: session.user.name,
+                email: session.user.email,
+                image: session.user.image,
+            },
+        });
     }, [mode, session?.user]);
 
     useEffect(() => {
@@ -232,7 +63,7 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
         const load = async () => {
             try {
                 const listing = await HostListingsService.getById(listingId);
-                if (!cancelled) setForm(fromListing(listing));
+                if (!cancelled) dispatch({ type: 'replace', state: fromListing(listing) });
             } catch (err) {
                 if (!cancelled) setError(err instanceof Error ? err.message : 'Не удалось загрузить объявление');
             } finally {
@@ -247,7 +78,7 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
 
     const set = useCallback(<K extends keyof FormState>(key: K) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const value = e.target.value as FormState[K];
-        setForm((prev) => ({ ...prev, [key]: value }));
+        dispatch({ type: 'patch', patch: { [key]: value } as Partial<FormState> });
     }, []);
 
     const handleSubmit = useCallback(
@@ -272,11 +103,11 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
             try {
                 if (mode === 'create') {
                     const listing = await HostListingsService.create(draft);
-                    router.replace(`/host/listings`);
+                    replace(`/host/listings`);
                     void listing;
                 } else if (listingId) {
                     await HostListingsService.update(listingId, draft);
-                    router.replace('/host/listings');
+                    replace('/host/listings');
                 }
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Не удалось сохранить');
@@ -284,7 +115,7 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
                 setIsSubmitting(false);
             }
         },
-        [form, mode, listingId, router],
+        [form, mode, listingId, replace],
     );
 
     const isRent = form.dealType !== 'sale';
@@ -319,10 +150,7 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
             for (const file of take) {
                 urls.push(await HostListingsService.uploadListingImage(file));
             }
-            setForm((p) => ({
-                ...p,
-                images: [...p.images, ...urls].slice(0, MAX_LISTING_PHOTOS),
-            }));
+            dispatch({ type: 'appendImages', urls });
         } catch (e) {
             setError(e instanceof Error ? e.message : 'Не удалось загрузить фото');
         } finally {
@@ -331,7 +159,7 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
     }, []);
 
     const removePhotoAt = useCallback((index: number) => {
-        setForm((p) => ({ ...p, images: p.images.filter((_, i) => i !== index) }));
+        dispatch({ type: 'removeImageAt', index });
     }, []);
 
     if (sessionStatus === 'loading' || isLoading) {
@@ -350,65 +178,69 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
             <fieldset className={styles.fieldset}>
                 <legend className={styles.legend}>Основное</legend>
                 <div className={styles.row}>
-                    <label className={styles.field}>
+                    <label htmlFor={fid('title')} className={styles.field}>
                         <span>Заголовок</span>
-                        <input className={styles.input} value={form.title} onChange={set('title')} required />
+                        <input id={fid('title')} className={styles.input} value={form.title} onChange={set('title')} required />
                     </label>
                 </div>
                 <div className={styles.grid3}>
-                    <label className={styles.field}>
-                        <span>Тип сделки</span>
+                    <div className={styles.field} role="group" aria-labelledby={fid('dealType')}>
+                        <span id={fid('dealType')}>Тип сделки</span>
                         <Select<DealType>
                             className={styles.selectRoot}
                             partsClassNames={hostSelectParts}
                             value={form.dealType}
-                            onChange={(dealType) => setForm((p) => ({ ...p, dealType }))}
+                            onChange={(dealType) => dispatch({ type: 'patch', patch: { dealType } })}
                             options={DEAL_OPTIONS}
+                            ariaLabelledBy={fid('dealType')}
                         />
-                    </label>
-                    <label className={styles.field}>
-                        <span>Тип объекта</span>
+                    </div>
+                    <div className={styles.field} role="group" aria-labelledby={fid('propertyType')}>
+                        <span id={fid('propertyType')}>Тип объекта</span>
                         <Select<'flat' | 'room' | 'house'>
                             className={styles.selectRoot}
                             partsClassNames={hostSelectParts}
                             value={form.propertyType === 'studio' ? 'flat' : form.propertyType}
-                            onChange={(propertyType) => setForm((p) => ({ ...p, propertyType }))}
+                            onChange={(propertyType) => dispatch({ type: 'patch', patch: { propertyType } })}
                             options={PROPERTY_OPTIONS}
+                            ariaLabelledBy={fid('propertyType')}
                         />
-                    </label>
-                    <label className={styles.field}>
-                        <span>Количество комнат</span>
+                    </div>
+                    <div className={styles.field} role="group" aria-labelledby={fid('rooms')}>
+                        <span id={fid('rooms')}>Количество комнат</span>
                         <Select<string>
                             className={styles.selectRoot}
                             partsClassNames={hostSelectParts}
                             value={form.rooms}
-                            onChange={(rooms) => setForm((p) => ({ ...p, rooms }))}
+                            onChange={(rooms) => dispatch({ type: 'patch', patch: { rooms } })}
                             options={ROOM_OPTIONS}
+                            ariaLabelledBy={fid('rooms')}
                         />
-                    </label>
+                    </div>
                 </div>
             </fieldset>
 
             <fieldset className={styles.fieldset}>
                 <legend className={styles.legend}>Площадь и этаж</legend>
                 <div className={styles.grid3}>
-                    <label className={styles.field}>
+                    <label htmlFor={fid('area')} className={styles.field}>
                         <span>Общая, м²</span>
-                        <input className={styles.input} value={form.area} onChange={set('area')} required />
+                        <input id={fid('area')} className={styles.input} value={form.area} onChange={set('area')} required />
                     </label>
-                    <label className={styles.field}>
+                    <label htmlFor={fid('livingArea')} className={styles.field}>
                         <span>Жилая, м²</span>
-                        <input className={styles.input} value={form.livingArea} onChange={set('livingArea')} />
+                        <input id={fid('livingArea')} className={styles.input} value={form.livingArea} onChange={set('livingArea')} />
                     </label>
-                    <label className={styles.field}>
+                    <label htmlFor={fid('kitchenArea')} className={styles.field}>
                         <span>Кухня, м²</span>
-                        <input className={styles.input} value={form.kitchenArea} onChange={set('kitchenArea')} />
+                        <input id={fid('kitchenArea')} className={styles.input} value={form.kitchenArea} onChange={set('kitchenArea')} />
                     </label>
                 </div>
                 <div className={styles.grid2}>
-                    <label className={styles.field}>
+                    <label htmlFor={fid('floor')} className={styles.field}>
                         <span>Этаж</span>
                         <input
+                            id={fid('floor')}
                             type="number"
                             min={0}
                             className={styles.input}
@@ -417,9 +249,10 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
                             required
                         />
                     </label>
-                    <label className={styles.field}>
+                    <label htmlFor={fid('totalFloors')} className={styles.field}>
                         <span>Всего этажей</span>
                         <input
+                            id={fid('totalFloors')}
                             type="number"
                             min={0}
                             className={styles.input}
@@ -434,25 +267,26 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
             <fieldset className={styles.fieldset}>
                 <legend className={styles.legend}>Цена</legend>
                 <div className={classNames(isRent ? styles.grid3 : styles.grid2)}>
-                    <label className={styles.field}>
+                    <label htmlFor={fid('price')} className={styles.field}>
                         <span>Стоимость, ₽</span>
-                        <input className={styles.input} value={form.price} onChange={set('price')} required />
+                        <input id={fid('price')} className={styles.input} value={form.price} onChange={set('price')} required />
                     </label>
                     {isRent && (
-                        <label className={styles.field}>
-                            <span>Период</span>
+                        <div className={styles.field} role="group" aria-labelledby={fid('pricePeriod')}>
+                            <span id={fid('pricePeriod')}>Период</span>
                             <Select<PricePeriod>
                                 className={styles.selectRoot}
                                 partsClassNames={hostSelectParts}
                                 value={form.pricePeriod}
-                                onChange={(pricePeriod) => setForm((p) => ({ ...p, pricePeriod }))}
+                                onChange={(pricePeriod) => dispatch({ type: 'patch', patch: { pricePeriod } })}
                                 options={PRICE_PERIOD_OPTIONS}
+                                ariaLabelledBy={fid('pricePeriod')}
                             />
-                        </label>
+                        </div>
                     )}
-                    <label className={styles.field}>
+                    <label htmlFor={fid('deposit')} className={styles.field}>
                         <span>Залог, ₽</span>
-                        <input className={styles.input} value={form.deposit} onChange={set('deposit')} />
+                        <input id={fid('deposit')} className={styles.input} value={form.deposit} onChange={set('deposit')} />
                     </label>
                 </div>
             </fieldset>
@@ -460,23 +294,24 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
             <fieldset className={styles.fieldset}>
                 <legend className={styles.legend}>Адрес</legend>
                 <div className={styles.grid2}>
-                    <label className={styles.field}>
+                    <label htmlFor={fid('city')} className={styles.field}>
                         <span>Город</span>
-                        <input className={styles.input} value={form.city} onChange={set('city')} required />
+                        <input id={fid('city')} className={styles.input} value={form.city} onChange={set('city')} required />
                     </label>
-                    <label className={styles.field}>
+                    <label htmlFor={fid('district')} className={styles.field}>
                         <span>Район</span>
-                        <input className={styles.input} value={form.district} onChange={set('district')} />
+                        <input id={fid('district')} className={styles.input} value={form.district} onChange={set('district')} />
                     </label>
                 </div>
                 <div className={styles.grid2}>
-                    <label className={styles.field}>
+                    <label htmlFor={fid('metro')} className={styles.field}>
                         <span>Метро</span>
-                        <input className={styles.input} value={form.metro} onChange={set('metro')} />
+                        <input id={fid('metro')} className={styles.input} value={form.metro} onChange={set('metro')} />
                     </label>
-                    <label className={styles.field}>
+                    <label htmlFor={fid('metroDistanceMin')} className={styles.field}>
                         <span>До метро, мин</span>
                         <input
+                            id={fid('metroDistanceMin')}
                             type="number"
                             min={0}
                             className={styles.input}
@@ -485,9 +320,9 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
                         />
                     </label>
                 </div>
-                <label className={styles.field}>
+                <label htmlFor={fid('address')} className={styles.field}>
                     <span>Полный адрес</span>
-                    <input className={styles.input} value={form.address} onChange={set('address')} required placeholder="Невский проспект, 28" />
+                    <input id={fid('address')} className={styles.input} value={form.address} onChange={set('address')} required placeholder="Невский проспект, 28" />
                 </label>
                 <div className={styles.field}>
                     <YandexMapPicker
@@ -501,19 +336,20 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
                                 : null
                         }
                         onChange={(latitude, longitude) =>
-                            setForm((p) => ({
-                                ...p,
-                                latitude: String(latitude),
-                                longitude: String(longitude),
-                            }))
+                            dispatch({
+                                type: 'patch',
+                                patch: { latitude: String(latitude), longitude: String(longitude) },
+                            })
                         }
-                        onClear={() => setForm((p) => ({ ...p, latitude: '', longitude: '' }))}
+                        onClear={() => dispatch({ type: 'patch', patch: { latitude: '', longitude: '' } })}
                         onAddressResolved={(info) =>
-                            setForm((p) => ({
-                                ...p,
-                                ...(info.city ? { city: info.city } : {}),
-                                ...(info.address ? { address: info.address } : {}),
-                            }))
+                            dispatch({
+                                type: 'patch',
+                                patch: {
+                                    ...(info.city ? { city: info.city } : {}),
+                                    ...(info.address ? { address: info.address } : {}),
+                                },
+                            })
                         }
                         geocodeQuery={[form.city, form.district, form.metro, form.address].filter(Boolean).join(', ')}
                     />
@@ -522,9 +358,10 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
 
             <fieldset className={styles.fieldset}>
                 <legend className={styles.legend}>Описание и удобства</legend>
-                <label className={styles.field}>
+                <label htmlFor={fid('description')} className={styles.field}>
                     <span>Описание</span>
                     <textarea
+                        id={fid('description')}
                         className={classNames(styles.input, styles.textarea)}
                         value={form.description}
                         onChange={set('description')}
@@ -532,9 +369,10 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
                         required
                     />
                 </label>
-                <label className={styles.field}>
+                <label htmlFor={fid('amenities')} className={styles.field}>
                     <span>Удобства (через запятую)</span>
                     <input
+                        id={fid('amenities')}
                         className={styles.input}
                         value={form.amenities}
                         onChange={set('amenities')}
@@ -546,9 +384,14 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
                     <p className={styles.fieldHint}>До {MAX_LISTING_PHOTOS} файлов: JPG, PNG, WebP или GIF, до 5 МБ каждый.</p>
                     <div className={styles.photosGrid}>
                         {form.images.map((url, index) => (
-                            <div key={`${url}-${index}`} className={styles.photoCard}>
-                                {/* eslint-disable-next-line @next/next/no-img-element -- произвольные URL из Storage */}
-                                <img src={url} alt="" className={styles.photoThumb} />
+                            <div key={url} className={styles.photoCard}>
+                                <Image
+                                    src={url}
+                                    alt=""
+                                    fill
+                                    sizes="(max-width: 48rem) 30vw, 8rem"
+                                    style={{ objectFit: 'cover' }}
+                                />
                                 <button
                                     type="button"
                                     className={styles.photoRemove}
@@ -613,29 +456,31 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
             <fieldset className={styles.fieldset}>
                 <legend className={styles.legend}>Контактные данные</legend>
                 <div className={styles.grid2}>
-                    <label className={styles.field}>
+                    <label htmlFor={fid('ownerName')} className={styles.field}>
                         <span>Имя контактного лица / агентства</span>
-                        <input className={styles.input} value={form.ownerName} onChange={set('ownerName')} required />
+                        <input id={fid('ownerName')} className={styles.input} value={form.ownerName} onChange={set('ownerName')} required />
                     </label>
-                    <label className={styles.field}>
-                        <span>Тип</span>
+                    <div className={styles.field} role="group" aria-labelledby={fid('ownerType')}>
+                        <span id={fid('ownerType')}>Тип</span>
                         <Select<'owner' | 'agency'>
                             className={styles.selectRoot}
                             partsClassNames={hostSelectParts}
                             value={form.ownerType}
-                            onChange={(ownerType) => setForm((p) => ({ ...p, ownerType }))}
+                            onChange={(ownerType) => dispatch({ type: 'patch', patch: { ownerType } })}
                             options={OWNER_TYPE_OPTIONS}
+                            ariaLabelledBy={fid('ownerType')}
                         />
-                    </label>
+                    </div>
                 </div>
                 <div className={styles.grid2}>
-                    <label className={styles.field}>
+                    <label htmlFor={fid('ownerAvatar')} className={styles.field}>
                         <span>Аватар (URL)</span>
-                        <input className={styles.input} value={form.ownerAvatar} onChange={set('ownerAvatar')} />
+                        <input id={fid('ownerAvatar')} className={styles.input} value={form.ownerAvatar} onChange={set('ownerAvatar')} />
                     </label>
-                    <label className={styles.field}>
+                    <label htmlFor={fid('ownerPhoneMasked')} className={styles.field}>
                         <span>Телефон (можно с маской)</span>
                         <input
+                            id={fid('ownerPhoneMasked')}
                             className={styles.input}
                             value={form.ownerPhoneMasked}
                             onChange={set('ownerPhoneMasked')}

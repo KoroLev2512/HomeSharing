@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import classNames from 'classnames';
@@ -23,6 +23,7 @@ import {
 } from '@/shared/icons';
 import { useFavorites } from '@/shared/lib/favorites';
 import { BookingForm } from '@/widgets/BookingForm';
+import Image from 'next/image';
 import styles from './detail.module.scss';
 
 interface IProps {
@@ -78,15 +79,20 @@ export const ListingDetail: React.FC<IProps> = ({ id }) => {
         setPhotoIdx((i) => (i + 1) % photosCount);
     }, [photosCount]);
 
+    const goPrevRef = useRef(goPrev);
+    const goNextRef = useRef(goNext);
+    goPrevRef.current = goPrev;
+    goNextRef.current = goNext;
+
     useEffect(() => {
         if (!listing) return;
         const onKey = (e: KeyboardEvent) => {
-            if (e.key === 'ArrowLeft') goPrev();
-            else if (e.key === 'ArrowRight') goNext();
+            if (e.key === 'ArrowLeft') goPrevRef.current();
+            else if (e.key === 'ArrowRight') goNextRef.current();
         };
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
-    }, [listing, goPrev, goNext]);
+    }, [listing]);
 
     const markLoaded = (i: number) => {
         setLoadedPhotos((prev) => {
@@ -125,10 +131,12 @@ export const ListingDetail: React.FC<IProps> = ({ id }) => {
     return (
         <div className={styles.root}>
             <div className={styles.heroBar}>
-                <h1 className={styles.heroTitle}>{heroTitle}</h1>
-                <Link href="/listings" className={styles.heroBackLink}>
-                    Все объявления
-                </Link>
+                <div className={styles.heroBarInner}>
+                    <h1 className={styles.heroTitle}>{heroTitle}</h1>
+                    <Link href="/listings" className={styles.heroBackLink}>
+                        Все объявления
+                    </Link>
+                </div>
             </div>
 
             <div className={styles.content}>
@@ -228,8 +236,15 @@ export const ListingDetail: React.FC<IProps> = ({ id }) => {
                                         key={p + i}
                                         className={classNames(styles.thumb, { [styles.thumbActive]: i === photoIdx })}
                                         onClick={() => setPhotoIdx(i)}
+                                        style={{ position: 'relative' }}
                                     >
-                                        <img src={p} alt="" />
+                                        <Image
+                                            src={p}
+                                            alt=""
+                                            fill
+                                            sizes="(max-width: 48rem) 100vw, min(90vw, 48rem)"
+                                            style={{ objectFit: 'cover' }}
+                                        />
                                     </button>
                                 ))}
                             </div>

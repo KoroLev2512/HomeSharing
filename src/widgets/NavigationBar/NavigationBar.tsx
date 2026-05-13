@@ -1,6 +1,7 @@
 "use client";
 
 import React, {useMemo, useState, useEffect} from "react";
+import Image from "next/image";
 import {Logotype} from "@/shared/ui/Logotype";
 import {Menu} from "@/widgets/Menu";
 import {MenuItem} from "@/widgets/MenuItem";
@@ -8,7 +9,7 @@ import {MenuItemProps} from "@/widgets/MenuItem/types";
 import {useAppStore} from "@/shared/store/appStore";
 import classNames from "classnames";
 import {usePathname, useRouter} from "next/navigation";
-import {compact} from "lodash";
+import compact from "lodash/compact";
 import {
     AdminPanelIcon,
     HostCabinetIcon,
@@ -31,8 +32,12 @@ const NavigationBarToggle = ({ menuPageIsOpen }: { menuPageIsOpen: boolean }): R
     const toggleProfilePage = useAppStore(state => state.toggleProfilePage);
     const profilePageIsClose = useAppStore(state => state.profilePageIsClose);
     return (
-        <div
+        <button
+            type="button"
             className={styles.burger}
+            aria-expanded={menuPageIsOpen}
+            aria-controls="nav-side-panel"
+            aria-label={menuPageIsOpen ? 'Закрыть меню' : 'Открыть меню'}
             onClick={() => {
                 toggleMenuPage();
                 if (profilePageIsClose && window.innerWidth <= 720) {
@@ -43,7 +48,7 @@ const NavigationBarToggle = ({ menuPageIsOpen }: { menuPageIsOpen: boolean }): R
             <Burger
                 menuPageIsOpen={menuPageIsOpen}
             />
-        </div>
+        </button>
     );
 };
 
@@ -63,7 +68,7 @@ export const NavigationBar = (): React.JSX.Element => {
     const toggleMenuPage = useAppStore(state => state.toggleMenuPage);
     const hydrateMenuPage = useAppStore(state => state.hydrateMenuPage);
     const route = usePathname();
-    const router = useRouter();
+    const { replace, push } = useRouter();
     const { data: session, status } = useSession();
     const [isSigningOut, setIsSigningOut] = useState(false);
     const isAuthenticated = status === 'authenticated' && !!session?.user;
@@ -96,14 +101,14 @@ export const NavigationBar = (): React.JSX.Element => {
                 callbackUrl: '/listings'
             });
         } catch (error) {
-            router.replace('/listings');
+            replace('/listings');
         } finally {
             setIsSigningOut(false);
         }
     };
 
     const handleLoginClick = () => {
-        router.push('/login');
+        push('/login');
     };
 
     const showMenu = menuPageIsOpen;
@@ -111,6 +116,17 @@ export const NavigationBar = (): React.JSX.Element => {
         if (!route) return false;
         return route === href || route.startsWith(`${href}/`);
     };
+
+    useEffect(() => {
+        if (!showMenu) return;
+        const onMouseDown = (e: MouseEvent) => {
+            const t = e.target as HTMLElement;
+            if (t.closest('[data-nav-panel]')) return;
+            toggleMenuPage(false);
+        };
+        document.addEventListener('mousedown', onMouseDown);
+        return () => document.removeEventListener('mousedown', onMouseDown);
+    }, [showMenu, toggleMenuPage]);
 
     if (isMobile) {
         return (
@@ -148,21 +164,15 @@ export const NavigationBar = (): React.JSX.Element => {
                     <NavigationBarToggle menuPageIsOpen={showMenu} />
                 </div>
             </div>
-            <div className={classNames({[styles.navigationWrapper]: showMenu})} onClick={() => {
-                toggleMenuPage(false);
-            }}>
-                <div className={classNames(styles.navigation, {[styles.openNav]: showMenu})} onClick={(e) => {
-                    e.stopPropagation();
-                }}>
-                    <Menu 
-                        onClick={(e) => {
-                            e.stopPropagation();
-                        }}
-                        isClosed={showMenu}
-                        isMobile={isMobile}
-                    >
-                        {MenuItems.map((item, index) => (
-                            <MenuItem {...item} key={index} active={route ?? ""} isClosed={showMenu}/>
+            <div className={classNames({ [styles.navigationWrapper]: showMenu })}>
+                <div
+                    id="nav-side-panel"
+                    data-nav-panel
+                    className={classNames(styles.navigation, { [styles.openNav]: showMenu })}
+                >
+                    <Menu isClosed={showMenu} isMobile={isMobile}>
+                        {MenuItems.map((item) => (
+                            <MenuItem {...item} key={item.href ?? item.name} active={route ?? ""} isClosed={showMenu}/>
                         ))}
                     </Menu>
                 </div>
@@ -179,13 +189,16 @@ export const NavigationBar = (): React.JSX.Element => {
                                 onClick={() => toggleMenuPage(false)}
                             >
                                 <div className={styles.avatar}>
-                                    <img
+                                    <Image
                                         src={typeof session.user.image === 'string' && session.user.image ? session.user.image : '/users/user_1.webp'}
                                         alt="Аватар"
+                                        width={40}
+                                        height={40}
                                     />
                                 </div>
                             </Link>
                             <button
+                                type="button"
                                 onClick={handleSignOut}
                                 className={styles.signOutIconBtn}
                                 aria-label="Выйти"
@@ -212,9 +225,11 @@ export const NavigationBar = (): React.JSX.Element => {
                                 onClick={() => toggleMenuPage(false)}
                             >
                                 <div className={styles.avatarFull}>
-                                    <img
+                                    <Image
                                         src={typeof session.user.image === 'string' && session.user.image ? session.user.image : '/users/user_1.webp'}
                                         alt="Аватар"
+                                        width={56}
+                                        height={56}
                                     />
                                 </div>
                             </Link>
@@ -228,7 +243,8 @@ export const NavigationBar = (): React.JSX.Element => {
                                 {session.user.isAdmin ? 'Администратор' :
                                  session.user.isHost ? 'Арендодатель' : 'Гость'}
                             </div>
-                            <button 
+                            <button
+                                type="button"
                                 onClick={handleSignOut}
                                 className={styles.signOutButton}
                                 disabled={isSigningOut}
@@ -249,7 +265,8 @@ export const NavigationBar = (): React.JSX.Element => {
                     </div>
                 ) : (
                     <div className={styles.userInfo}>
-                        <button 
+                        <button
+                            type="button"
                             onClick={handleLoginClick}
                             className={classNames(styles.loginLink, {[styles.loginLinkClosed]: showMenu})}
                         >

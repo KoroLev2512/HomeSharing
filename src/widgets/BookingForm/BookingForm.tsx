@@ -28,9 +28,13 @@ const tomorrow = (): string => {
     return new Date(d.getTime() - tz * 60_000).toISOString().slice(0, 10);
 };
 
+const priceFormatter = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 });
+const dateFormatter  = new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' });
+const monthTitleFormatter = new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric' });
+
 const formatPriceCompact = (n: number): string => {
     if (!Number.isFinite(n)) return '—';
-    return new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format(n) + ' ₽';
+    return priceFormatter.format(n) + ' ₽';
 };
 
 const toMonthKey = (d: Date): string => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
@@ -42,13 +46,8 @@ const toYmd = (d: Date): string =>
     `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
 const formatHumanDate = (ymd: string): string => {
-    try {
-        return new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' }).format(
-            new Date(`${ymd}T00:00:00`),
-        );
-    } catch {
-        return ymd;
-    }
+    try { return dateFormatter.format(new Date(`${ymd}T00:00:00`)); }
+    catch { return ymd; }
 };
 
 interface IDateFieldProps {
@@ -82,7 +81,7 @@ const DateField: React.FC<IDateFieldProps> = ({ label, value, min, max, onChange
 
     const monthDate = fromMonthKey(monthKey);
     const firstDay = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
-    const monthLabel = new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric' }).format(firstDay);
+    const monthLabel = monthTitleFormatter.format(firstDay);
     const jsWeekday = firstDay.getDay(); // 0=Sun..6=Sat
     const mondayFirstOffset = (jsWeekday + 6) % 7;
     const gridStart = new Date(firstDay);
@@ -165,10 +164,10 @@ const DateField: React.FC<IDateFieldProps> = ({ label, value, min, max, onChange
 
 export const BookingForm: React.FC<IProps> = ({ listing }) => {
     const { data: session, status } = useSession();
-    const router = useRouter();
+    const { push } = useRouter();
 
-    const [startDate, setStartDate] = useState<string>(today());
-    const [endDate, setEndDate] = useState<string>(tomorrow());
+    const [startDate, setStartDate] = useState<string>(() => today());
+    const [endDate,   setEndDate]   = useState<string>(() => tomorrow());
     const [guests, setGuests] = useState<number>(1);
     const [notes, setNotes] = useState<string>('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -209,7 +208,7 @@ export const BookingForm: React.FC<IProps> = ({ listing }) => {
             });
             setSuccess('Заявка на бронирование создана. Перенаправляем...');
             setTimeout(() => {
-                router.push('/bookings');
+                push('/bookings');
             }, 600);
             void booking;
         } catch (err) {

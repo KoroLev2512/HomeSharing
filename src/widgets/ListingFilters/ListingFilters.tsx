@@ -28,17 +28,25 @@ const numberOrUndefined = (v: string): number | undefined => {
     return Number.isFinite(n) ? n : undefined;
 };
 
+type RangeDraft = {
+    priceMin: string;
+    priceMax: string;
+    areaMin: string;
+    areaMax: string;
+};
+
+const rangeDraftFromValue = (v: IListingsFilters): RangeDraft => ({
+    priceMin: v.priceMin ? String(v.priceMin) : '',
+    priceMax: v.priceMax ? String(v.priceMax) : '',
+    areaMin: v.areaMin ? String(v.areaMin) : '',
+    areaMax: v.areaMax ? String(v.areaMax) : '',
+});
+
 export const ListingFilters: React.FC<IProps> = ({ value, onChange, cities, className }) => {
-    const [priceMin, setPriceMin] = useState<string>(value.priceMin ? String(value.priceMin) : '');
-    const [priceMax, setPriceMax] = useState<string>(value.priceMax ? String(value.priceMax) : '');
-    const [areaMin, setAreaMin] = useState<string>(value.areaMin ? String(value.areaMin) : '');
-    const [areaMax, setAreaMax] = useState<string>(value.areaMax ? String(value.areaMax) : '');
+    const [rangeDraft, setRangeDraft] = useState<RangeDraft>(() => rangeDraftFromValue(value));
 
     useEffect(() => {
-        setPriceMin(value.priceMin ? String(value.priceMin) : '');
-        setPriceMax(value.priceMax ? String(value.priceMax) : '');
-        setAreaMin(value.areaMin ? String(value.areaMin) : '');
-        setAreaMax(value.areaMax ? String(value.areaMax) : '');
+        setRangeDraft(rangeDraftFromValue(value));
     }, [value.priceMin, value.priceMax, value.areaMin, value.areaMax]);
 
     const toggleRoom = (room: number) => {
@@ -48,10 +56,10 @@ export const ListingFilters: React.FC<IProps> = ({ value, onChange, cities, clas
         onChange({ ...value, rooms: current.size ? Array.from(current).sort() : undefined });
     };
 
-    const commitPriceMin = () => onChange({ ...value, priceMin: numberOrUndefined(priceMin) });
-    const commitPriceMax = () => onChange({ ...value, priceMax: numberOrUndefined(priceMax) });
-    const commitAreaMin = () => onChange({ ...value, areaMin: numberOrUndefined(areaMin) });
-    const commitAreaMax = () => onChange({ ...value, areaMax: numberOrUndefined(areaMax) });
+    const commitPriceMin = () => onChange({ ...value, priceMin: numberOrUndefined(rangeDraft.priceMin) });
+    const commitPriceMax = () => onChange({ ...value, priceMax: numberOrUndefined(rangeDraft.priceMax) });
+    const commitAreaMin = () => onChange({ ...value, areaMin: numberOrUndefined(rangeDraft.areaMin) });
+    const commitAreaMax = () => onChange({ ...value, areaMax: numberOrUndefined(rangeDraft.areaMax) });
 
     const handleCity = (city: string | undefined) => {
         onChange({ ...value, city });
@@ -86,19 +94,19 @@ export const ListingFilters: React.FC<IProps> = ({ value, onChange, cities, clas
                         type="text"
                         inputMode="numeric"
                         placeholder="от"
-                        value={priceMin}
-                        onChange={(e) => setPriceMin(e.target.value)}
+                        value={rangeDraft.priceMin}
+                        onChange={(e) => setRangeDraft((d) => ({ ...d, priceMin: e.target.value }))}
                         onBlur={commitPriceMin}
                         onKeyDown={(e) => e.key === 'Enter' && commitPriceMin()}
                         className={styles.rangeInput}
                     />
-                    <span className={styles.rangeDash}>—</span>
+                    <span className={styles.rangeDash}>–</span>
                     <input
                         type="text"
                         inputMode="numeric"
                         placeholder="до"
-                        value={priceMax}
-                        onChange={(e) => setPriceMax(e.target.value)}
+                        value={rangeDraft.priceMax}
+                        onChange={(e) => setRangeDraft((d) => ({ ...d, priceMax: e.target.value }))}
                         onBlur={commitPriceMax}
                         onKeyDown={(e) => e.key === 'Enter' && commitPriceMax()}
                         className={styles.rangeInput}
@@ -113,19 +121,19 @@ export const ListingFilters: React.FC<IProps> = ({ value, onChange, cities, clas
                         type="text"
                         inputMode="numeric"
                         placeholder="от"
-                        value={areaMin}
-                        onChange={(e) => setAreaMin(e.target.value)}
+                        value={rangeDraft.areaMin}
+                        onChange={(e) => setRangeDraft((d) => ({ ...d, areaMin: e.target.value }))}
                         onBlur={commitAreaMin}
                         onKeyDown={(e) => e.key === 'Enter' && commitAreaMin()}
                         className={styles.rangeInput}
                     />
-                    <span className={styles.rangeDash}>—</span>
+                    <span className={styles.rangeDash}>–</span>
                     <input
                         type="text"
                         inputMode="numeric"
                         placeholder="до"
-                        value={areaMax}
-                        onChange={(e) => setAreaMax(e.target.value)}
+                        value={rangeDraft.areaMax}
+                        onChange={(e) => setRangeDraft((d) => ({ ...d, areaMax: e.target.value }))}
                         onBlur={commitAreaMax}
                         onKeyDown={(e) => e.key === 'Enter' && commitAreaMax()}
                         className={styles.rangeInput}

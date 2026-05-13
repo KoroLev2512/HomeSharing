@@ -143,6 +143,8 @@ export class OutboxWorker {
         }
         if (!events || events.length === 0) return 0;
 
+        // Process sequentially — each event acquires a CAS lock, so concurrent
+        // processing of the same batch would race on status updates.
         let processed = 0;
         for (const event of events) {
             await this.processEvent(event);

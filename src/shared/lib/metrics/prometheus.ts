@@ -82,7 +82,7 @@ export const metrics = {
             if (values.length === 0) continue;
             const metricName = key.split('{')[0];
             const labels = key.includes('{') ? key.slice(key.indexOf('{')) : '';
-            const sorted = [...values].sort((a, b) => a - b);
+            const sorted = values.toSorted((a, b) => a - b);
             const sum    = values.reduce((a, b) => a + b, 0);
             const count  = values.length;
             const p50    = sorted[Math.floor(count * 0.5)] ?? 0;

@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import React, { forwardRef, useState } from "react";
+import React, { useState } from "react";
 import { CancelIcon, CheckCircleIcon, ErrorIcon, VisibilityIcon, VisibilityOffIcon } from "@/shared/icons";
 import styles from "./style.module.scss";
 
@@ -32,7 +32,8 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
     successMessage?: string;
 }
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(({
+export const Input = ({
+    ref,
     label,
     hint,
     state = "enabled",
@@ -52,7 +53,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
     onFocus,
     onBlur,
     ...restProps
-}, ref) => {
+}: InputProps & { ref?: React.Ref<HTMLInputElement> }) => {
     const [isFocused, setIsFocused] = useState(false);
     const [internalValue, setInternalValue] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -86,7 +87,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
         onBlur?.(e);
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const propagateInputChangeFromEvent = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (value === undefined) {
             setInternalValue(e.target.value);
         }
@@ -121,11 +122,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
     const inputType = isPassword && showPassword ? "text" : type;
 
     return (
-        <div className={classNames(
-            styles.container, 
-            isDisabled && styles.disabled,
-            className
-        )}>
+        <div
+            className={classNames(
+                styles.container,
+                isDisabled && styles.disabled,
+                className
+            )}
+            data-input-focused={isFocused ? "" : undefined}
+        >
             {label && (
                 <label className={styles.label}>
                     {label}
@@ -150,7 +154,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
                     className={styles.input}
                     type={inputType}
                     value={displayValue}
-                    onChange={handleChange}
+                    onChange={propagateInputChangeFromEvent}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                     disabled={isDisabled}
@@ -235,6 +239,4 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
             )}
         </div>
     );
-});
-
-Input.displayName = "Input";
+};

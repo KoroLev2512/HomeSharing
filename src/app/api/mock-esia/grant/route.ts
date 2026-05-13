@@ -1,14 +1,48 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { serverEnv } from "@/shared/configs/serverEnv";
 import {
     MOCK_ESIA_CLIENT_ID,
     issueAuthCode,
     type MockEsiaUser,
 } from "@/shared/lib/mockEsiaStore";
 
-const isAllowedRedirect = (origin: string, redirectUri: string): boolean => {
+const LOOPBACK = new Set(["localhost", "127.0.0.1", "::1"]);
+
+const effectivePort = (u: URL): string =>
+    u.port || (u.protocol === "https:" ? "443" : "80");
+
+/**
+ * Разрешаем redirect_uri, если он на том же «логическом» origin, что и запрос к grant,
+ * или что и NEXTAUTH_URL (appUrl). Иначе вход ломается при смеси localhost / 127.0.0.1
+ * или при расхождении публичного URL и того, с которого открыта страница ЕСИА.
+ */
+const isAllowedRedirect = (requestOrigin: string, redirectUri: string): boolean => {
     try {
         const target = new URL(redirectUri);
-        return target.origin === origin;
+        const candidates: string[] = [requestOrigin];
+        try {
+            candidates.push(new URL(serverEnv.appUrl.replace(/\/$/, "")).origin);
+        } catch {
+            /* ignore malformed NEXTAUTH_URL */
+        }
+
+        for (const base of candidates) {
+            try {
+                const ref = new URL(base);
+                if (target.origin === ref.origin) return true;
+                if (
+                    LOOPBACK.has(target.hostname) &&
+                    LOOPBACK.has(ref.hostname) &&
+                    target.protocol === ref.protocol &&
+                    effectivePort(target) === effectivePort(ref)
+                ) {
+                    return true;
+                }
+            } catch {
+                continue;
+            }
+        }
+        return false;
     } catch {
         return false;
     }

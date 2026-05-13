@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import React, { forwardRef, useState } from "react";
+import React, { useState } from "react";
 import { CancelIcon, SearchIcon } from "@/shared/icons";
 import styles from "./style.module.scss";
 
@@ -20,7 +20,8 @@ export interface SearchInputProps extends Omit<React.InputHTMLAttributes<HTMLInp
     showClearButton?: boolean;
 }
 
-export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(({
+export const SearchInput = ({
+    ref,
     state = "enabled",
     size = "small",
     onClear,
@@ -32,7 +33,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(({
     onFocus,
     onBlur,
     ...restProps
-}, ref) => {
+}: SearchInputProps & { ref?: React.Ref<HTMLInputElement> }) => {
     const [isFocused, setIsFocused] = useState(false);
     const [internalValue, setInternalValue] = useState("");
 
@@ -68,7 +69,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(({
         onBlur?.(e);
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const propagateSearchValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (value === undefined) {
             setInternalValue(e.target.value);
         }
@@ -99,6 +100,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(({
                 isDisabled && styles.disabled,
                 className
             )}
+            data-search-focused={isFocused || undefined}
         >
             <div className={styles.iconLeading}>
                 <SearchIcon width={24} height={24} color="#000" />
@@ -109,7 +111,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(({
                 className={styles.input}
                 type="text"
                 value={displayValue}
-                onChange={handleChange}
+                onChange={propagateSearchValueChange}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 disabled={isDisabled}
@@ -128,6 +130,4 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(({
             )}
         </div>
     );
-});
-
-SearchInput.displayName = "SearchInput";
+};

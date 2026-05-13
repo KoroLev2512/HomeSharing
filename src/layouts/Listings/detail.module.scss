@@ -1,3 +1,7 @@
+$listing-detail-max: 87.5rem;
+$listing-hero-inner-max: calc(#{$listing-detail-max} + 48px);
+$listing-hero-sticky-offset: 5.8125rem;
+
 .root {
   width: 100%;
   flex: 1;
@@ -13,7 +17,7 @@
 
 .content {
   width: 100%;
-  max-width: 150rem; // 2400px
+  max-width: $listing-detail-max;
   margin: 0 auto;
   flex: 1;
   min-height: 0;
@@ -26,17 +30,28 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-  min-height: 5.8125rem;
-  padding: 0.625rem 1.25rem;
+  display: block;
+  height: 5.8125rem;
+  padding: 0;
+  width: calc(100% + 3rem);
   margin-inline: -1.5rem;
   border-bottom: 0.0625rem solid var(--Grey-200, #E2E2E2);
   box-sizing: border-box;
   background: #fff;
+}
+
+.heroBarInner {
+  max-width: $listing-hero-inner-max;
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: nowrap;
 }
 
 .heroTitle {
@@ -163,6 +178,10 @@
   grid-template-columns: 1fr 26rem;
   gap: 1.5rem;
   align-items: flex-start;
+  width: 100%;
+  max-width: $listing-detail-max;
+  margin-inline: auto;
+  box-sizing: border-box;
 }
 
 .leftColumn {
@@ -175,7 +194,11 @@
 .gallery {
   position: relative;
   width: 100%;
-  height: 30rem;
+  /* На широких экранах — пропорция к ширине колонки, без «растянутой полоски» */
+  aspect-ratio: 16 / 10;
+  min-height: 22.5rem;
+  max-height: min(52vh, 48rem);
+  height: auto;
   background: #f3f3f3;
   border-radius: 1rem;
   overflow: hidden;
@@ -441,7 +464,12 @@
   flex-direction: column;
   gap: 1rem;
   position: sticky;
-  top: 1.5rem;
+  /* Не заезжать под липкий heroBar (z-index ниже, чем у шапки) */
+  top: $listing-hero-sticky-offset;
+  z-index: 10;
+  align-self: flex-start;
+  max-height: calc(100vh - #{$listing-hero-sticky-offset} - 1rem);
+  overflow-y: auto;
 }
 
 .priceBox {
@@ -659,9 +687,15 @@
 
   .rightColumn {
     position: static;
+    top: auto;
+    z-index: auto;
+    max-height: none;
+    overflow-y: visible;
   }
 
   .gallery {
+    aspect-ratio: unset;
+    max-height: none;
     height: 22.5rem;
   }
 }
@@ -676,11 +710,23 @@
   }
 
   .heroBar {
+    width: calc(100% + 2rem);
     margin-inline: -1rem;
+    height: auto;
+    min-height: 5.8125rem;
+  }
+
+  .heroBarInner {
+    height: auto;
+    min-height: 5.8125rem;
+    padding-inline: 1rem;
+    flex-wrap: wrap;
   }
 
   .gallery {
     height: 16.25rem;
+    aspect-ratio: unset;
+    max-height: none;
   }
 
   .specsGrid {

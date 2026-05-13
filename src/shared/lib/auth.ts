@@ -149,6 +149,16 @@ export const authOptions: AuthOptions = {
                         token.isAdmin = dbUser.isAdmin ?? false
                         token.isHost = dbUser.isService ?? false
                         token.isUser = dbUser.isUser ?? true
+                    } else if (user) {
+                        // Не выходим из jwt до общего merge: при сбое Supabase иначе токен остаётся пустым и OAuth падает → редирект на /login.
+                        token.id = user.id
+                        token.name = user.name
+                        token.email = user.email
+                        token.image = user.image
+                        token.picture = user.image
+                        token.isAdmin = user.isAdmin ?? false
+                        token.isHost = user.isHost ?? false
+                        token.isUser = user.isUser ?? true
                     }
                     return token
                 } catch (err) {

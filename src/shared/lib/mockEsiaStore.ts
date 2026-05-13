@@ -41,7 +41,7 @@ if (!globalScope.__mockEsiaStore) {
 
 const store = globalScope.__mockEsiaStore;
 
-const CODE_TTL_MS = 60 * 1000;
+const CODE_TTL_MS = 5 * 60 * 1000;
 const TOKEN_TTL_MS = 60 * 60 * 1000;
 
 const purgeExpired = () => {

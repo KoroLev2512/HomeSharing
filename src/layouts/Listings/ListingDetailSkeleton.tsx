@@ -6,8 +6,10 @@ export const ListingDetailSkeleton: React.FC = () => {
     return (
         <div className={styles.root} aria-hidden>
             <div className={styles.heroBar}>
-                <div className={classNames(styles.heroTitle, styles.shimmer)} />
-                <div className={classNames(styles.heroBackButton, styles.shimmer)} />
+                <div className={styles.heroBarInner}>
+                    <div className={classNames(styles.heroTitle, styles.shimmer)} />
+                    <div className={classNames(styles.heroBackButton, styles.shimmer)} />
+                </div>
             </div>
 
             <div className={styles.headerBlock}>

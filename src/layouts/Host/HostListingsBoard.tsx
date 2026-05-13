@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { HostListingsService } from '@/shared/lib/hostListingsService';
 import type { IListing } from '@/shared/types/listing';
 import { dealLabel, formatPrice } from '@/shared/lib/formatListing';
@@ -67,7 +68,7 @@ export const HostListingsBoard: React.FC = () => {
             {listings && listings.length === 0 ? (
                 <div className={styles.empty}>
                     <h3>Разместите первое объявление</h3>
-                    <p>Заполните карточку объекта — гости смогут забронировать его прямо на сайте.</p>
+                    <p>Заполните карточку объекта. Гости смогут забронировать его прямо на сайте.</p>
                     <Link href="/host/listings/new" className={styles.primaryBtn}>
                         Создать объявление
                     </Link>
@@ -80,8 +81,14 @@ export const HostListingsBoard: React.FC = () => {
                         const cover = l.images?.[0] ?? '/rooms/room.png';
                         return (
                             <article key={l.id} className={styles.card}>
-                                <Link href={`/listings/${l.id}`} className={styles.cover}>
-                                    <img src={cover} alt={l.title} loading="lazy" />
+                                <Link href={`/listings/${l.id}`} className={styles.cover} style={{ position: 'relative' }}>
+                                    <Image
+                                        src={cover}
+                                        alt={l.title}
+                                        fill
+                                        sizes="(max-width: 48rem) 40vw, 10rem"
+                                        style={{ objectFit: 'cover' }}
+                                    />
                                 </Link>
                                 <div className={styles.body}>
                                     <div className={styles.cardHead}>

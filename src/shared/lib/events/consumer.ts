@@ -159,10 +159,12 @@ export class EventConsumer {
             },
         });
 
-        // Subscribe to all event types
-        for (const eventType of this.handlers.keys()) {
-            await ch.bindQueue(QUEUE_NAME, EXCHANGE, eventType);
-        }
+        // Bind all routing keys concurrently — independent queue bind operations
+        await Promise.all(
+            [...this.handlers.keys()].map((eventType) =>
+                ch.bindQueue(QUEUE_NAME, EXCHANGE, eventType),
+            ),
+        );
 
         ch.prefetch(10); // process up to 10 messages concurrently
 

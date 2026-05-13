@@ -2,8 +2,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Input } from "@/widgets/Input";
 import Loader from "@/shared/ui/Loader/Loader";
 import { MeService } from "@/shared/lib/meService";
@@ -13,7 +13,6 @@ import styles from "./styles.module.scss";
 type LegalMode = "ip" | "ooo";
 
 export default function SettingsPage(): React.JSX.Element | null {
-  const router = useRouter();
   const { data: session, status, update: updateSession } = useSession();
 
   const [isSaved, setIsSaved] = useState(false);
@@ -88,12 +87,6 @@ export default function SettingsPage(): React.JSX.Element | null {
     kppOoo: "",
     innOoo: "",
   });
-
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.replace("/login");
-    }
-  }, [router, status]);
 
   useEffect(() => {
     setForm((prev) => ({
@@ -232,7 +225,7 @@ export default function SettingsPage(): React.JSX.Element | null {
                   }}
                 >
                   <span className={styles.avatarRing}>
-                    <img src={avatarUrl} alt="" />
+                    <Image src={avatarUrl} alt="" width={104} height={104} />
                     {avatarUploading && (
                       <span className={styles.avatarUploadOverlay} aria-live="polite">
                         <span className={styles.avatarUploadSpinner} />

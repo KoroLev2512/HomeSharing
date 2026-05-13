@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import classNames from 'classnames';
 import { AdminService } from '@/shared/lib/adminService';
 import type { IListing } from '@/shared/types/listing';
@@ -17,6 +18,26 @@ const DEAL_FILTERS: { value: DealFilter; label: string }[] = [
     { value: 'rent_short', label: 'Аренда (посуточно)' },
     { value: 'sale',       label: 'Продажа' },
 ];
+
+const LISTING_THUMB_SIZES = '(max-width: 48rem) 40vw, 10rem';
+
+function buildPaginationEntries(
+    page: number,
+    totalPages: number,
+): Array<{ kind: 'page'; value: number } | { kind: 'ellipsis'; id: string }> {
+    const pages = Array.from({ length: totalPages }, (_, i) => i + 1).filter(
+        (p) => Math.abs(p - page) <= 2 || p === 1 || p === totalPages,
+    );
+    const out: Array<{ kind: 'page'; value: number } | { kind: 'ellipsis'; id: string }> = [];
+    for (let i = 0; i < pages.length; i++) {
+        const p = pages[i]!;
+        if (i > 0 && p - pages[i - 1]! > 1) {
+            out.push({ kind: 'ellipsis', id: `gap-${pages[i - 1]}-${p}` });
+        }
+        out.push({ kind: 'page', value: p });
+    }
+    return out;
+}
 
 export const AdminListingsBoard: React.FC = () => {
     const [items, setItems]         = useState<IListing[] | null>(null);
@@ -91,8 +112,14 @@ export const AdminListingsBoard: React.FC = () => {
                             const thumb = l.images?.[0] ?? '/rooms/room.png';
                             return (
                                 <div key={l.id} className={styles.card}>
-                                    <Link href={`/listings/${l.id}`} className={styles.cover}>
-                                        <img src={thumb} alt="" />
+                                    <Link href={`/listings/${l.id}`} className={styles.cover} style={{ position: 'relative' }}>
+                                        <Image
+                                            src={thumb}
+                                            alt=""
+                                            fill
+                                            sizes={LISTING_THUMB_SIZES}
+                                            style={{ objectFit: 'cover' }}
+                                        />
                                     </Link>
                                     <div className={styles.body}>
                                         <div className={styles.cardHead}>
@@ -151,27 +178,20 @@ export const AdminListingsBoard: React.FC = () => {
                             >
                                 ←
                             </button>
-                            {Array.from({ length: totalPages }, (_, i) => i + 1)
-                                .filter((p) => Math.abs(p - page) <= 2 || p === 1 || p === totalPages)
-                                .reduce<(number | '…')[]>((acc, p, i, arr) => {
-                                    if (i > 0 && (p as number) - (arr[i - 1] as number) > 1) acc.push('…');
-                                    acc.push(p);
-                                    return acc;
-                                }, [])
-                                .map((p, i) =>
-                                    p === '…' ? (
-                                        <span key={`el-${i}`} className={styles.pageBtn} style={{ cursor: 'default', border: 'none' }}>…</span>
-                                    ) : (
-                                        <button
-                                            key={p}
-                                            type="button"
-                                            className={classNames(styles.pageBtn, { [styles.pageBtnActive]: p === page })}
-                                            onClick={() => setPage(p as number)}
-                                        >
-                                            {p}
-                                        </button>
-                                    ),
-                                )}
+                            {buildPaginationEntries(page, totalPages).map((entry) =>
+                                entry.kind === 'ellipsis' ? (
+                                    <span key={entry.id} className={styles.pageBtn} style={{ cursor: 'default', border: 'none' }}>…</span>
+                                ) : (
+                                    <button
+                                        key={`page-${entry.value}`}
+                                        type="button"
+                                        className={classNames(styles.pageBtn, { [styles.pageBtnActive]: entry.value === page })}
+                                        onClick={() => setPage(entry.value)}
+                                    >
+                                        {entry.value}
+                                    </button>
+                                ),
+                            )}
                             <button
                                 type="button"
                                 className={styles.pageBtn}

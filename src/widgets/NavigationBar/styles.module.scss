@@ -147,6 +147,12 @@
 
 .burger {
   cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: 0;
+  display: block;
+  font: inherit;
+  color: inherit;
 }
 
 

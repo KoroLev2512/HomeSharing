@@ -61,7 +61,17 @@ export async function POST(req: NextRequest) {
     if (!consumed) {
         return NextResponse.json({ error: "invalid_grant" }, { status: 400 });
     }
-    if (consumed.redirectUri !== redirectUri) {
+    const normalizeRedirect = (uri: string): string => {
+        try {
+            const u = new URL(uri);
+            u.hash = "";
+            const path = u.pathname.endsWith("/") && u.pathname.length > 1 ? u.pathname.slice(0, -1) : u.pathname;
+            return `${u.origin}${path}${u.search}`;
+        } catch {
+            return uri;
+        }
+    };
+    if (normalizeRedirect(consumed.redirectUri) !== normalizeRedirect(String(redirectUri ?? ""))) {
         return NextResponse.json({ error: "invalid_grant" }, { status: 400 });
     }
 

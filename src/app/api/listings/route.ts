@@ -27,17 +27,14 @@ export async function GET(req: Request) {
 
     const roomsRaw = searchParams.get('rooms');
     const rooms = roomsRaw
-        ? roomsRaw
-              .split(',')
-              .map((s) => parseInt(s, 10))
-              .filter((n) => Number.isFinite(n))
+        ? roomsRaw.split(',').flatMap((s) => { const n = parseInt(s, 10); return Number.isFinite(n) ? [n] : []; })
         : undefined;
 
     const idsRaw = searchParams.get('ids');
-    const ids = idsRaw ? idsRaw.split(',').map((s) => s.trim()).filter(Boolean) : undefined;
+    const ids = idsRaw ? idsRaw.split(',').flatMap((s) => { const t = s.trim(); return t ? [t] : []; }) : undefined;
     const excludeIdsRaw = searchParams.get('excludeIds');
     const excludeIds = excludeIdsRaw
-        ? excludeIdsRaw.split(',').map((s) => s.trim()).filter(Boolean)
+        ? excludeIdsRaw.split(',').flatMap((s) => { const t = s.trim(); return t ? [t] : []; })
         : undefined;
 
     if (ids && ids.length === 0) {

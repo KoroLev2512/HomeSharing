@@ -34,6 +34,10 @@ interface IProps<T extends string = string> {
     /** Минимальная ширина панели в пикселях (по умолчанию равна ширине триггера). */
     minPanelWidth?: number;
     disabled?: boolean;
+    /** `id` триггера — для связи с `<label htmlFor="…">`. */
+    triggerId?: string;
+    /** `id` элемента с подписью поля — для `aria-labelledby` на триггере. */
+    ariaLabelledBy?: string;
 }
 
 export const Select = <T extends string = string>({
@@ -46,6 +50,8 @@ export const Select = <T extends string = string>({
     partsClassNames,
     minPanelWidth,
     disabled,
+    triggerId,
+    ariaLabelledBy,
 }: IProps<T>): React.JSX.Element => {
     const [open, setOpen] = useState(false);
     const [activeIndex, setActiveIndex] = useState<number>(-1);
@@ -118,6 +124,7 @@ export const Select = <T extends string = string>({
         <div ref={rootRef} className={classNames(styles.root, className)}>
             <button
                 type="button"
+                id={triggerId}
                 className={classNames(
                     styles.trigger,
                     partsClassNames?.trigger,
@@ -130,6 +137,7 @@ export const Select = <T extends string = string>({
                 onClick={() => !disabled && setOpen((v) => !v)}
                 aria-haspopup="listbox"
                 aria-expanded={open}
+                aria-labelledby={ariaLabelledBy}
                 disabled={disabled}
             >
                 <span

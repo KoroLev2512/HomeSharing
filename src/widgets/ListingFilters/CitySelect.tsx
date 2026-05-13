@@ -27,6 +27,8 @@ export const CitySelect: React.FC<IProps> = ({
     const rootRef = useRef<HTMLDivElement | null>(null);
     const inputRef = useRef<HTMLInputElement | null>(null);
     const listRef = useRef<HTMLDivElement | null>(null);
+    const onChangeRef = useRef(onChange);
+    onChangeRef.current = onChange;
 
     const options = useMemo(() => {
         const q = search.trim().toLowerCase();
@@ -59,7 +61,7 @@ export const CitySelect: React.FC<IProps> = ({
                 if (activeIndex >= 0 && activeIndex < options.length) {
                     e.preventDefault();
                     const opt = options[activeIndex];
-                    onChange(opt.value || undefined);
+                    onChangeRef.current(opt.value || undefined);
                     setOpen(false);
                 }
             }
@@ -70,15 +72,14 @@ export const CitySelect: React.FC<IProps> = ({
             document.removeEventListener('mousedown', onClick);
             document.removeEventListener('keydown', onKey);
         };
-    }, [open, options, activeIndex, onChange]);
+    }, [open, options, activeIndex]);
 
     useEffect(() => {
-        if (open) {
-            setSearch('');
-            setActiveIndex(value ? Math.max(0, options.findIndex((o) => o.value === value)) : 0);
-            // фокус на инпут после открытия
-            setTimeout(() => inputRef.current?.focus(), 0);
-        }
+        if (!open) return;
+        setSearch('');
+        setActiveIndex(value ? Math.max(0, options.findIndex((o) => o.value === value)) : 0);
+        const id = setTimeout(() => inputRef.current?.focus(), 0);
+        return () => clearTimeout(id);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open]);
 

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { getProviders, signIn, useSession } from 'next-auth/react'
+import { getProviders, signIn } from 'next-auth/react'
 import type { ClientSafeProvider } from 'next-auth/react'
 import Image from 'next/image'
 import { Input } from '@/widgets/Input'
@@ -12,7 +12,6 @@ import { supportedOAuthProviders, type SupportedOAuthProvider } from '@/shared/c
 import { EsiaIcon } from '@/shared/icons/EsiaIcon'
 
 export default function RegisterPage() {
-    const { data: session, status } = useSession()
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -24,7 +23,7 @@ export default function RegisterPage() {
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
     const [oauthProviders, setOauthProviders] = useState<Record<string, ClientSafeProvider> | null>(null)
-    const router = useRouter()
+    const { push } = useRouter()
 
     useEffect(() => {
         let cancelled = false
@@ -40,17 +39,11 @@ export default function RegisterPage() {
         }
     }, [])
 
-    useEffect(() => {
-        if (status === 'authenticated' && session?.user) {
-            router.replace('/')
-        }
-    }, [router, session, status])
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({
-            ...formData,
+    const applyRegisterFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData(prev => ({
+            ...prev,
             [e.target.name]: e.target.value
-        })
+        }))
     }
 
     const handleOAuthRegister = async (provider: SupportedOAuthProvider) => {
@@ -112,7 +105,7 @@ export default function RegisterPage() {
             if (result && result.success) {
                 setSuccess('Регистрация успешна! Теперь вы можете войти в систему.')
                 setTimeout(() => {
-                    router.push('/login')
+                    push('/login')
                 }, 2000)
             } else {
                 setError(result?.error || 'Ошибка регистрации')
@@ -155,7 +148,7 @@ export default function RegisterPage() {
                         type="text"
                         name="name"
                         value={formData.name}
-                        onChange={handleChange}
+                        onChange={applyRegisterFieldChange}
                         placeholder="Иванов Иван Иванович"
                         required
                         disabled={isLoading}
@@ -170,7 +163,7 @@ export default function RegisterPage() {
                         type="email"
                         name="email"
                         value={formData.email}
-                        onChange={handleChange}
+                        onChange={applyRegisterFieldChange}
                         placeholder="example@email.com"
                         required
                         disabled={isLoading}
@@ -185,7 +178,7 @@ export default function RegisterPage() {
                         type="password"
                         name="password"
                         value={formData.password}
-                        onChange={handleChange}
+                        onChange={applyRegisterFieldChange}
                         placeholder="••••••••"
                         required
                         disabled={isLoading}
@@ -201,7 +194,7 @@ export default function RegisterPage() {
                         type="password"
                         name="confirmPassword"
                         value={formData.confirmPassword}
-                        onChange={handleChange}
+                        onChange={applyRegisterFieldChange}
                         placeholder="••••••••"
                         required
                         disabled={isLoading}

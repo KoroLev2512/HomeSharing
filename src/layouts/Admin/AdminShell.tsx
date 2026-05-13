@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useLayoutEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import classNames from 'classnames';
@@ -26,12 +26,12 @@ const shellSkeletonVariant = (pathname: string | null): AdminShellSkeletonVarian
 
 export const AdminShell: React.FC<IProps> = ({ children }) => {
     const pathname = usePathname();
-    const router = useRouter();
+    const { replace } = useRouter();
     const { data: session, status } = useSession();
 
-    useEffect(() => {
-        if (status === 'unauthenticated') router.replace('/login');
-    }, [status, router]);
+    useLayoutEffect(() => {
+        if (status === 'unauthenticated') replace('/login');
+    }, [status, replace]);
 
     if (status === 'loading') {
         return <AdminShellSessionSkeleton variant={shellSkeletonVariant(pathname)} />;

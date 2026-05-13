@@ -1,8 +1,9 @@
 'use client'
-import { useEffect, useState } from 'react'
+
+import { useEffect, useReducer } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { getProviders, signIn, useSession } from 'next-auth/react'
+import { getProviders, signIn } from 'next-auth/react'
 import type { ClientSafeProvider } from 'next-auth/react'
 import Image from 'next/image'
 import { Input } from '@/widgets/Input'
@@ -10,84 +11,145 @@ import { supportedOAuthProviders, type SupportedOAuthProvider } from '@/shared/c
 import { EsiaIcon } from '@/shared/icons/EsiaIcon'
 import styles from './styles.module.scss'
 
+function oauthCallbackErrorMessage(code: string | null): string | null {
+    if (!code) return null
+    const map: Record<string, string> = {
+        Configuration: 'Сервер не настроен для этого способа входа (OAuth).',
+        AccessDenied: 'Вход отменён или доступ запрещён.',
+        Verification: 'Ссылка входа устарела или уже использована.',
+        OAuthSignin: 'Не удалось начать OAuth-вход.',
+        OAuthCallback:
+            'Ошибка после ответа провайдера (OAuth). Проверьте логи сервера, Supabase и переменные NEXTAUTH_URL / DATABASE_URL.',
+        OAuthCreateAccount: 'Не удалось создать аккаунт через OAuth.',
+        OAuthAccountNotLinked: 'Аккаунт уже привязан к другому способу входа.',
+        Callback: 'Ошибка callback.',
+        Default: 'Ошибка входа. Попробуйте снова.',
+    }
+    return map[code] ?? map.Default
+}
+
+type LoginState = {
+    email: string
+    password: string
+    error: string
+    oauthProviders: Record<string, ClientSafeProvider> | null
+    isSubmitting: boolean
+}
+
+const initialLoginState: LoginState = {
+    email: '',
+    password: '',
+    error: '',
+    oauthProviders: null,
+    isSubmitting: false,
+}
+
+type LoginAction =
+    | { type: 'setEmail'; value: string }
+    | { type: 'setPassword'; value: string }
+    | { type: 'setError'; value: string }
+    | { type: 'clearError' }
+    | { type: 'setOauthProviders'; value: Record<string, ClientSafeProvider> | null }
+    | { type: 'setSubmitting'; value: boolean }
+
+function loginReducer(state: LoginState, action: LoginAction): LoginState {
+    switch (action.type) {
+        case 'setEmail':
+            return { ...state, email: action.value }
+        case 'setPassword':
+            return { ...state, password: action.value }
+        case 'setError':
+            return { ...state, error: action.value }
+        case 'clearError':
+            return { ...state, error: '' }
+        case 'setOauthProviders':
+            return { ...state, oauthProviders: action.value }
+        case 'setSubmitting':
+            return { ...state, isSubmitting: action.value }
+        default:
+            return state
+    }
+}
+
 export default function LoginPage() {
-    const { data: session, status } = useSession()
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState('')
-    const [oauthProviders, setOauthProviders] = useState<Record<string, ClientSafeProvider> | null>(null)
-    const router = useRouter()
+    const [state, dispatch] = useReducer(loginReducer, initialLoginState)
+    const { push } = useRouter()
+
+    useEffect(() => {
+        const sp = new URLSearchParams(window.location.search)
+        const msg = oauthCallbackErrorMessage(sp.get('error'))
+        if (msg) dispatch({ type: 'setError', value: msg })
+    }, [])
 
     useEffect(() => {
         let cancelled = false
         getProviders()
             .then((p) => {
-                if (!cancelled) setOauthProviders(p)
+                if (!cancelled) dispatch({ type: 'setOauthProviders', value: p })
             })
             .catch(() => {
-                if (!cancelled) setOauthProviders(null)
+                if (!cancelled) dispatch({ type: 'setOauthProviders', value: null })
             })
         return () => {
             cancelled = true
         }
     }, [])
 
-    useEffect(() => {
-        if (status === 'authenticated' && session?.user) {
-            router.replace('/')
-        }
-    }, [router, session, status])
-
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
-        setIsLoading(true)
-        setError('')
+        dispatch({ type: 'setSubmitting', value: true })
+        dispatch({ type: 'clearError' })
         try {
             const result = await signIn('credentials', {
-                email,
-                password,
+                email: state.email,
+                password: state.password,
                 redirect: false,
             })
-            
+
             if (result?.error) {
-                setError('Неверная почта или пароль')
+                dispatch({ type: 'setError', value: 'Неверная почта или пароль' })
             } else if (result?.ok) {
-                router.push('/')
+                push('/')
             }
         } catch (err) {
-            setError('Ошибка при входе: ' + (err instanceof Error ? err.message : ''))
+            dispatch({
+                type: 'setError',
+                value: 'Ошибка при входе: ' + (err instanceof Error ? err.message : ''),
+            })
         } finally {
-            setIsLoading(false)
+            dispatch({ type: 'setSubmitting', value: false })
         }
     }
 
     const handleOAuthLogin = async (provider: SupportedOAuthProvider) => {
-        setIsLoading(true)
-        setError('')
+        dispatch({ type: 'setSubmitting', value: true })
+        dispatch({ type: 'clearError' })
         try {
             const result = await signIn(provider, { callbackUrl: '/', redirect: false })
             if (result?.error) {
-                setError(
-                    result.error === 'Configuration'
-                        ? `Вход через ${provider} не настроен на сервере (проверьте переменные окружения).`
-                        : `Не удалось войти через ${provider}: ${result.error}`,
-                )
-                setIsLoading(false)
+                dispatch({
+                    type: 'setError',
+                    value:
+                        result.error === 'Configuration'
+                            ? `Вход через ${provider} не настроен на сервере (проверьте переменные окружения).`
+                            : `Не удалось войти через ${provider}: ${result.error}`,
+                })
+                dispatch({ type: 'setSubmitting', value: false })
                 return
             }
             if (result?.url) {
                 window.location.assign(result.url)
                 return
             }
-            setIsLoading(false)
-        } catch (err) {
-            setError('Ошибка при входе через ' + provider)
-            setIsLoading(false)
+            dispatch({ type: 'setSubmitting', value: false })
+        } catch {
+            dispatch({ type: 'setError', value: 'Ошибка при входе через ' + provider })
+            dispatch({ type: 'setSubmitting', value: false })
         }
     }
 
-    const visibleOAuth = supportedOAuthProviders.filter((p) => oauthProviders && oauthProviders[p.id])
+    const visibleOAuth = supportedOAuthProviders.filter((p) => state.oauthProviders && state.oauthProviders[p.id])
+    const { email, password, error, isSubmitting } = state
 
     return (
         <div className={styles.wrapper}>
@@ -98,7 +160,7 @@ export default function LoginPage() {
                     </svg>
                     <span>Назад</span>
                 </Link>
-                
+
                 <div className={styles.header}>
                     <h1 className={styles.title}>Войдите в аккаунт</h1>
                     <p className={styles.description}>
@@ -115,13 +177,13 @@ export default function LoginPage() {
                         label="Почта"
                         type="email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => dispatch({ type: 'setEmail', value: e.target.value })}
                         placeholder="example@email.com"
                         required
-                        disabled={isLoading}
+                        disabled={isSubmitting}
                         autoComplete="username"
                         size="medium"
-                        state={isLoading ? "disabled" : error && email ? "error" : "enabled"}
+                        state={isSubmitting ? "disabled" : error && email ? "error" : "enabled"}
                         errorMessage={error && email ? "Неверная почта или пароль" : undefined}
                     />
 
@@ -129,23 +191,23 @@ export default function LoginPage() {
                         label="Пароль"
                         type="password"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => dispatch({ type: 'setPassword', value: e.target.value })}
                         placeholder="••••••••"
                         required
-                        disabled={isLoading}
+                        disabled={isSubmitting}
                         autoComplete="current-password"
                         size="medium"
                         showPasswordToggle={true}
-                        state={isLoading ? "disabled" : error && password ? "error" : "enabled"}
+                        state={isSubmitting ? "disabled" : error && password ? "error" : "enabled"}
                         errorMessage={error && password ? "Неверная почта или пароль" : undefined}
                     />
 
-                    <button 
-                        className={styles.loginButton} 
+                    <button
+                        className={styles.loginButton}
                         type="submit"
-                        disabled={isLoading}
+                        disabled={isSubmitting}
                     >
-                        {isLoading ? 'Вход...' : 'Войти'}
+                        {isSubmitting ? 'Вход...' : 'Войти'}
                     </button>
                 </form>
 
@@ -161,8 +223,8 @@ export default function LoginPage() {
                                     key={provider.id}
                                     type="button"
                                     className={styles.oauthButton}
-                                    onClick={() => handleOAuthLogin(provider.id)}
-                                    disabled={isLoading}
+                                    onClick={() => void handleOAuthLogin(provider.id)}
+                                    disabled={isSubmitting}
                                 >
                                     {provider.id === 'esia' ? (
                                         <EsiaIcon />

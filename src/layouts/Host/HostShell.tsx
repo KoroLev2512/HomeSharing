@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useLayoutEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import classNames from 'classnames';
@@ -19,14 +19,14 @@ const TABS = [
 
 export const HostShell: React.FC<IProps> = ({ children }) => {
     const pathname = usePathname();
-    const router = useRouter();
+    const { replace } = useRouter();
     const { data: session, status } = useSession();
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (status === 'unauthenticated') {
-            router.replace('/login');
+            replace('/login');
         }
-    }, [status, router]);
+    }, [status, replace]);
 
     if (status === 'loading') {
         const variant = pathname?.startsWith('/host/bookings') ? 'bookings' : 'listings';

@@ -1,38 +1,38 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { MOCK_ESIA_CLIENT_ID } from "@/shared/lib/mockEsiaStore";
 
+// OAuth 2.0 authorize endpoint — GET is required by RFC 6749 §3.1.
+// No server state is mutated; redirect builds a URL only.
 export async function GET(req: NextRequest) {
-    const url = new URL(req.url);
-    const params = url.searchParams;
+    const { searchParams, origin } = new URL(req.url);
 
-    const clientId = params.get("client_id");
-    const redirectUri = params.get("redirect_uri");
-    const responseType = params.get("response_type");
-    const state = params.get("state");
-    const scope = params.get("scope") ?? "openid fullname email";
-    const codeChallenge = params.get("code_challenge");
-    const codeChallengeMethod = params.get("code_challenge_method");
+    const clientId            = searchParams.get("client_id");
+    const redirectUri         = searchParams.get("redirect_uri");
+    const responseType        = searchParams.get("response_type");
+    const state               = searchParams.get("state");
+    const scope               = searchParams.get("scope") ?? "openid fullname email";
+    const codeChallenge       = searchParams.get("code_challenge");
+    const codeChallengeMethod = searchParams.get("code_challenge_method");
 
     if (clientId !== MOCK_ESIA_CLIENT_ID) {
         return NextResponse.json({ error: "invalid_client" }, { status: 400 });
     }
-
     if (!redirectUri) {
         return NextResponse.json({ error: "missing_redirect_uri" }, { status: 400 });
     }
-
     if (responseType !== "code") {
         return NextResponse.json({ error: "unsupported_response_type" }, { status: 400 });
     }
 
-    const loginUrl = new URL("/esia/login", url.origin);
-    loginUrl.searchParams.set("client_id", clientId);
-    loginUrl.searchParams.set("redirect_uri", redirectUri);
-    loginUrl.searchParams.set("response_type", responseType);
-    loginUrl.searchParams.set("scope", scope);
-    if (state) loginUrl.searchParams.set("state", state);
-    if (codeChallenge) loginUrl.searchParams.set("code_challenge", codeChallenge);
-    if (codeChallengeMethod) loginUrl.searchParams.set("code_challenge_method", codeChallengeMethod);
+    const query = new URLSearchParams({
+        client_id:     clientId,
+        redirect_uri:  redirectUri,
+        response_type: responseType,
+        scope,
+        ...(state               ? { state }                                           : {}),
+        ...(codeChallenge       ? { code_challenge:        codeChallenge }            : {}),
+        ...(codeChallengeMethod ? { code_challenge_method: codeChallengeMethod }      : {}),
+    });
 
-    return NextResponse.redirect(loginUrl);
+    return NextResponse.redirect(new URL(`/esia/login?${query}`, origin));
 }

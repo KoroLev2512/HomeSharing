@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import classNames from 'classnames';
 import { AdminService } from '@/shared/lib/adminService';
 import {
@@ -13,14 +14,17 @@ import {
 import { AdminCardsSkeletonList } from '@/layouts/Admin/AdminBoardSkeletons';
 import styles from './table.module.scss';
 
+const adminBookingDateFmt  = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+const adminBookingPriceFmt = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 });
+
 const formatDate = (s: string) => {
     try {
-        return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(s));
+        return adminBookingDateFmt.format(new Date(s));
     } catch { return s; }
 };
 
 const formatPrice = (n: number) =>
-    Number.isFinite(n) ? new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format(n) + ' ₽' : '—';
+    Number.isFinite(n) ? adminBookingPriceFmt.format(n) + ' ₽' : '—';
 
 type StatusFilter = 'all' | BookingStatus;
 
@@ -96,8 +100,14 @@ export const AdminBookingsBoard: React.FC = () => {
                         const tone = BOOKING_STATUS_TONE[b.status];
                         return (
                             <div key={b.id} className={styles.card}>
-                                <Link href={`/listings/${b.listingId}`} className={styles.cover}>
-                                    <img src={thumb} alt="" />
+                                <Link href={`/listings/${b.listingId}`} className={styles.cover} style={{ position: 'relative' }}>
+                                    <Image
+                                        src={thumb}
+                                        alt=""
+                                        fill
+                                        sizes="(max-width: 48rem) 40vw, 10rem"
+                                        style={{ objectFit: 'cover' }}
+                                    />
                                 </Link>
                                 <div className={styles.body}>
                                     <div className={styles.cardHead}>
@@ -112,7 +122,7 @@ export const AdminBookingsBoard: React.FC = () => {
                                         <span className={styles.metaItem}>{b.listing.city}, {b.listing.address}</span>
                                     </div>
                                     <div className={styles.metaRow}>
-                                        <span className={styles.metaItem}><strong>{formatDate(b.startDate)} — {formatDate(b.endDate)}</strong></span>
+                                        <span className={styles.metaItem}><strong>{formatDate(b.startDate)} – {formatDate(b.endDate)}</strong></span>
                                         <span className={styles.metaItem}>Гостей: {b.guestsCount}</span>
                                         <span className={styles.metaItem}>Итого: <strong>{formatPrice(b.totalPrice)}</strong></span>
                                     </div>
@@ -122,19 +132,24 @@ export const AdminBookingsBoard: React.FC = () => {
                                     </div>
                                     {b.notes && <div className={styles.metaRow}><span className={styles.metaItem}>Заметка: {b.notes}</span></div>}
                                     <div className={styles.cardActions}>
-                                        {ALL_STATUSES.filter((s) => s !== b.status).map((s) => (
-                                            <button
-                                                key={s}
-                                                type="button"
-                                                disabled={pendingId === b.id}
-                                                className={classNames(styles.actionBtn, {
-                                                    [styles.actionBtnDanger]: s === 'cancelled' || s === 'rejected',
-                                                })}
-                                                onClick={() => setStatus(b.id, s)}
-                                            >
-                                                → {BOOKING_STATUS_LABEL[s]}
-                                            </button>
-                                        ))}
+                                        {ALL_STATUSES.flatMap((s) =>
+                                            s === b.status
+                                                ? []
+                                                : [
+                                                      <button
+                                                          key={s}
+                                                          type="button"
+                                                          disabled={pendingId === b.id}
+                                                          className={classNames(styles.actionBtn, {
+                                                              [styles.actionBtnDanger]:
+                                                                  s === 'cancelled' || s === 'rejected',
+                                                          })}
+                                                          onClick={() => setStatus(b.id, s)}
+                                                      >
+                                                          → {BOOKING_STATUS_LABEL[s]}
+                                                      </button>,
+                                                  ],
+                                        )}
                                     </div>
                                 </div>
                             </div>
