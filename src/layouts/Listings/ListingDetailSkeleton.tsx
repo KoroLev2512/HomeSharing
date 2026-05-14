@@ -12,14 +12,15 @@ export const ListingDetailSkeleton: React.FC = () => {
                 </div>
             </div>
 
-            <div className={styles.headerBlock}>
-                <div className={classNames(styles.badge, styles.shimmer)} />
-                <div className={classNames(styles.title, styles.shimmer)} />
-                <div className={classNames(styles.subtitle, styles.shimmer)} />
-                <div className={classNames(styles.address, styles.shimmer)} />
-            </div>
+            <div className={styles.content}>
+                <div className={styles.headerBlock}>
+                    <div className={classNames(styles.badge, styles.shimmer)} />
+                    <div className={classNames(styles.title, styles.shimmer)} />
+                    <div className={classNames(styles.subtitle, styles.shimmer)} />
+                    <div className={classNames(styles.address, styles.shimmer)} />
+                </div>
 
-            <div className={styles.layout}>
+                <div className={styles.layout}>
                 <div className={styles.leftColumn}>
                     <div className={classNames(styles.gallery, styles.shimmer)} />
 
@@ -76,6 +77,7 @@ export const ListingDetailSkeleton: React.FC = () => {
                         <div className={classNames(styles.button, styles.shimmer)} />
                     </div>
                 </aside>
+            </div>
             </div>
         </div>
     );

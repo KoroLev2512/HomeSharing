@@ -256,7 +256,7 @@ export const ListingDetail: React.FC<IProps> = ({ id }) => {
                             <div className={styles.specRow}>
                                 <span className={styles.specKey}>Тип</span>
                                 <span className={styles.specValue}>
-                                    {listing.propertyType === 'studio' ? 'Студия' : listing.propertyType === 'house' ? 'Дом' : listing.propertyType === 'room' ? 'Комната' : 'Квартира'}
+                                    {listing.propertyType === 'house' ? 'Дом' : listing.propertyType === 'room' ? 'Комната' : 'Квартира'}
                                 </span>
                             </div>
                             <div className={styles.specRow}>

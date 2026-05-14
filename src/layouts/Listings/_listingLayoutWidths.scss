@@ -1,0 +1,3 @@
+// Общая ширина контента с карточкой объявления (детальная страница).
+$listing-detail-max: 87.5rem;
+$listing-hero-inner-max: calc(#{$listing-detail-max} + 48px);

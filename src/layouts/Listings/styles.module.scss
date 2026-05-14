@@ -1,3 +1,8 @@
+@use "listingLayoutWidths" as lw;
+
+$listing-detail-max: lw.$listing-detail-max;
+$listing-hero-inner-max: lw.$listing-hero-inner-max;
+
 .root {
   width: 100%;
   min-width: 0;
@@ -14,7 +19,7 @@
 
 .content {
   width: 100%;
-  max-width: 140rem;
+  max-width: $listing-detail-max;
   min-width: 0;
   margin: 0 auto;
   flex: 1;
@@ -35,6 +40,7 @@
   display: block;
   height: 5.8125rem;
   padding: 0;
+  width: calc(100% + 3rem);
   border-bottom: 0.0625rem solid var(--Grey-200, #E2E2E2);
   box-sizing: border-box;
   margin-inline: -1.5rem;
@@ -49,7 +55,7 @@
 
 .heroBarInner {
   width: 100%;
-  max-width: 143rem;
+  max-width: $listing-hero-inner-max;
   height: 100%;
   margin: 0 auto;
   padding: 0 1.5rem;
@@ -513,6 +519,7 @@
   }
 
   .heroBar {
+    width: calc(100% + 2rem);
     margin-inline: -1rem;
     height: auto;
     min-height: 5.8125rem;

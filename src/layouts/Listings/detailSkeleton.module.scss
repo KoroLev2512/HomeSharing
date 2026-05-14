@@ -1,5 +1,7 @@
-$listing-detail-max: 87.5rem;
-$listing-hero-inner-max: calc(#{$listing-detail-max} + 48px);
+@use "listingLayoutWidths" as lw;
+
+$listing-detail-max: lw.$listing-detail-max;
+$listing-hero-inner-max: lw.$listing-hero-inner-max;
 $listing-hero-sticky-offset: 5.8125rem;
 
 .root {
@@ -10,6 +12,17 @@ $listing-hero-sticky-offset: 5.8125rem;
   padding: 0 1.5rem 4rem;
   box-sizing: border-box;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+
+.content {
+  width: 100%;
+  max-width: $listing-detail-max;
+  margin: 0 auto;
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 1.125rem;
@@ -312,6 +325,10 @@ $listing-hero-sticky-offset: 5.8125rem;
 @media (max-width: 45rem) {
   .root {
     padding: 0 1rem 3rem;
+  }
+
+  .content {
+    gap: 1rem;
   }
 
   .heroBar {

@@ -83,22 +83,25 @@ export const FavoritesBoard: React.FC = () => {
     return (
         <div className={styles.root}>
             <div className={styles.heroBar}>
-                <div className={styles.heroLeft}>
-                    {hasNavbar ? (
-                        <h1 className={styles.heroTitle}>Избранное</h1>
-                    ) : (
-                        <Link href="/listings" className={styles.heroLogo} aria-label="HomeSharing">
-                            <Logotype />
+                <div className={styles.heroBarInner}>
+                    <div className={styles.heroLeft}>
+                        {hasNavbar ? (
+                            <h1 className={styles.heroTitle}>Избранное</h1>
+                        ) : (
+                            <Link href="/listings" className={styles.heroLogo} aria-label="HomeSharing">
+                                <Logotype />
+                            </Link>
+                        )}
+                    </div>
+                    <div className={styles.heroActions}>
+                        <Link href="/listings" className={styles.backLink}>
+                            К объявлениям
                         </Link>
-                    )}
-                </div>
-                <div className={styles.heroActions}>
-                    <Link href="/listings" className={styles.backLink}>
-                        К объявлениям
-                    </Link>
+                    </div>
                 </div>
             </div>
 
+            <div className={styles.content}>
             <Section margin={0}>
                 {!hasNavbar && <h1 className={styles.title}>Избранное</h1>}
                 {count > 0 && (
@@ -157,6 +160,7 @@ export const FavoritesBoard: React.FC = () => {
                     </div>
                 ) : null}
             </Section>
+            </div>
         </div>
     );
 };
