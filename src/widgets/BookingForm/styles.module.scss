@@ -59,6 +59,10 @@
   }
 }
 
+.dateTriggerEmpty {
+  color: #9f9f9f;
+}
+
 .calendarPopover {
   position: absolute;
   top: calc(100% + 0.375rem);
@@ -70,6 +74,11 @@
   border-radius: 0.75rem;
   box-shadow: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.12);
   padding: 0.625rem;
+}
+
+.calendarPopoverRight {
+  left: auto;
+  right: 0;
 }
 
 .calendarHead {
@@ -140,6 +149,13 @@
 .calendarDaySelected {
   background: #1a1a1a;
   color: #fff;
+}
+
+.calendarDayBooked {
+  background: #f5f5f5;
+  color: #c2c2c2;
+  text-decoration: line-through;
+  cursor: not-allowed;
 }
 
 .fieldLabel {
@@ -298,6 +314,100 @@
   100% {
     background-position: -200% 0;
   }
+}
+
+/* ── Month picker ─────────────────────────────────────────────── */
+
+.monthPopover {
+  width: 14rem;
+}
+
+.monthGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.25rem;
+  padding-top: 0.25rem;
+}
+
+.monthCell {
+  height: 2.25rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #1a1a1a;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-transform: lowercase;
+
+  &:hover:not(:disabled) {
+    background: #f3f3f3;
+  }
+}
+
+.monthCellSelected {
+  background: #1a1a1a;
+  color: #fff;
+
+  &:hover {
+    background: #1a1a1a;
+  }
+}
+
+.monthCellDisabled {
+  color: #c2c2c2;
+  cursor: not-allowed;
+}
+
+.monthCellBooked {
+  background: #f5f5f5;
+  color: #c2c2c2;
+  text-decoration: line-through;
+}
+
+/* ── Duration stepper ─────────────────────────────────────────── */
+
+.durationRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: 2.5rem;
+  border: 0.0625rem solid #d6d6d6;
+  border-radius: 0.625rem;
+  padding: 0 0.25rem;
+}
+
+.durationBtn {
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  font-size: 1.125rem;
+  font-family: inherit;
+  color: #1a1a1a;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &:hover:not(:disabled) {
+    background: #f3f3f3;
+  }
+
+  &:disabled {
+    color: #c2c2c2;
+    cursor: not-allowed;
+  }
+}
+
+.durationValue {
+  flex: 1;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #1a1a1a;
+  font-weight: 500;
 }
 
 @media (max-width: 40rem) {

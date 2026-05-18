@@ -15,7 +15,8 @@ import styles from './styles.module.scss';
 const SIMILAR_LIMIT = 6;
 
 export const FavoritesBoard: React.FC = () => {
-    const { data: session, status } = useSession();
+    const { status } = useSession();
+    const isAuthenticated = status === 'authenticated';
     const { favorites, count } = useFavorites();
     const [items, setItems] = useState<IListing[] | null>(null);
     const [similar, setSimilar] = useState<IListing[] | null>(null);
@@ -78,12 +79,12 @@ export const FavoritesBoard: React.FC = () => {
     }, [loadSimilar]);
 
     const isEmpty = items !== null && items.length === 0;
-    const hasNavbar = status === 'authenticated' && Boolean(session?.user);
+    const hasNavbar = isAuthenticated;
 
     return (
         <div className={styles.root}>
             <div className={styles.heroBar}>
-                <div className={styles.heroBarInner}>
+                <div className={classNames(styles.heroBarInner, { [styles.heroBarInnerFull]: isAuthenticated })}>
                     <div className={styles.heroLeft}>
                         {hasNavbar ? (
                             <h1 className={styles.heroTitle}>Избранное</h1>
@@ -101,7 +102,7 @@ export const FavoritesBoard: React.FC = () => {
                 </div>
             </div>
 
-            <div className={styles.content}>
+            <div className={classNames(styles.content, { [styles.contentFull]: isAuthenticated })}>
             <Section margin={0}>
                 {!hasNavbar && <h1 className={styles.title}>Избранное</h1>}
                 {count > 0 && (

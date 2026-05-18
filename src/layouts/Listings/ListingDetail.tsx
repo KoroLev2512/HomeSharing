@@ -23,6 +23,7 @@ import {
 } from '@/shared/icons';
 import { useFavorites } from '@/shared/lib/favorites';
 import { BookingForm } from '@/widgets/BookingForm';
+import { MapView } from '@/widgets/MapView';
 import Image from 'next/image';
 import styles from './detail.module.scss';
 
@@ -320,6 +321,18 @@ export const ListingDetail: React.FC<IProps> = ({ id }) => {
                         <h3 className={styles.sectionTitle}>Описание</h3>
                         <p className={styles.descriptionText}>{listing.description}</p>
                     </div>
+
+                    {listing.latitude && listing.longitude && (
+                        <div className={styles.mapSection}>
+                            <h3 className={styles.sectionTitle}>На карте</h3>
+                            <MapView
+                                apiKey={process.env.NEXT_PUBLIC_YANDEX_MAPS_API_KEY ?? ''}
+                                latitude={listing.latitude}
+                                longitude={listing.longitude}
+                                address={listing.address}
+                            />
+                        </div>
+                    )}
                 </div>
 
                     <aside className={styles.rightColumn}>
@@ -382,7 +395,7 @@ export const ListingDetail: React.FC<IProps> = ({ id }) => {
                         )}
                         </div>
 
-                        {listing.dealType !== 'sale' && <BookingForm listing={listing} />}
+                        <BookingForm listing={listing} />
                     </aside>
                 </div>
 

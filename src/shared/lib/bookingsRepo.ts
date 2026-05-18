@@ -141,6 +141,22 @@ export class BookingsRepo {
         return data ? toBooking(data as BookingRow) : null;
     }
 
+    static async getBookedRanges(listingId: string): Promise<Array<{ startDate: string; endDate: string }>> {
+        const supabase = getServiceClient();
+        const today = new Date().toISOString().slice(0, 10);
+        const { data, error } = await supabase
+            .from('bookings')
+            .select('start_date, end_date')
+            .eq('listing_id', listingId)
+            .in('status', ['pending', 'confirmed'])
+            .gt('end_date', today);
+        if (error) throw error;
+        return (data ?? []).map((r: { start_date: string; end_date: string }) => ({
+            startDate: r.start_date,
+            endDate:   r.end_date,
+        }));
+    }
+
     static async hasOverlap(
         listingId: string,
         startDate: string,

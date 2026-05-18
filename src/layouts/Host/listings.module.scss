@@ -9,7 +9,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 0.75rem;
+  column-gap: 1.25rem;
+  row-gap: 0.75rem;
   flex-wrap: wrap;
 }
 
@@ -170,6 +171,15 @@
   }
 }
 
+.toolbar .primaryBtn {
+  flex-shrink: 0;
+  margin-inline-start: 1rem;
+}
+
+.empty .primaryBtn {
+  margin-top: 0.75rem;
+}
+
 .secondaryBtn {
   height: 2.5rem;
   padding: 0 1rem;
@@ -213,6 +223,10 @@
 }
 
 @media (max-width: 40rem) {
+  .toolbar .primaryBtn {
+    margin-inline-start: 0;
+  }
+
   .card {
     grid-template-columns: 1fr;
   }

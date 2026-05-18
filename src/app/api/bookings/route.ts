@@ -112,34 +112,44 @@ export async function POST(req: Request) {
         // DB function returns the full hs_bookings row
         const bookingId = (fnResult as { id?: string } | null)?.id ?? String(fnResult);
 
-        // Publish outbox event (written to DB — at-least-once delivery via OutboxWorker)
         const resolvedId = typeof bookingId === 'string' ? bookingId : String(bookingId);
-        await EventPublisher.publish(
-            Events.bookingCreated(
-                {
-                    bookingId:  resolvedId,
-                    propertyId: listingId,
-                    guestId:    session.userId,
-                    hostId:     listing.user_id ?? '',
-                    dateFrom:   startDate as string,
-                    dateTo:     endDate as string,
-                    totalPrice: total,
-                    currency:   'RUB',
-                },
-                correlationId,
-            ),
-        );
+        try {
+            await EventPublisher.publish(
+                Events.bookingCreated(
+                    {
+                        bookingId:  resolvedId,
+                        propertyId: listingId,
+                        guestId:    session.userId,
+                        hostId:     listing.user_id ?? '',
+                        dateFrom:   startDate as string,
+                        dateTo:     endDate as string,
+                        totalPrice: total,
+                        currency:   'RUB',
+                    },
+                    correlationId,
+                ),
+            );
+        } catch (publishErr) {
+            const e = publishErr as { message?: string };
+            log.warn('Outbox publish failed (non-fatal)', { error: e?.message });
+        }
 
         log.info('Booking created via DB function', { bookingId });
         return NextResponse.json({ booking: { id: bookingId } }, { status: 201 });
 
     } catch (fnCallErr) {
         // hs_create_booking function not yet deployed — fall back to application-level path
-        const err = fnCallErr as { code?: string; message?: string };
-        const isMissingFn = err?.code === '42883' || err?.message?.includes('does not exist');
+        const err = fnCallErr as { code?: string; message?: string; details?: string; hint?: string };
+        const isMissingFn =
+            err?.code === '42883' ||          // PostgreSQL: undefined_function
+            err?.code === 'PGRST202' ||       // PostgREST: RPC not found
+            err?.message?.includes('does not exist') ||
+            err?.message?.includes('Could not find the function');
 
         if (!isMissingFn) {
-            log.error('Unexpected error from hs_create_booking', fnCallErr as Error);
+            log.error('Unexpected error from hs_create_booking', undefined, {
+                error: { code: err?.code, message: err?.message, details: err?.details, hint: err?.hint },
+            });
             return NextResponse.json({ error: 'Failed to create booking' }, { status: 500 });
         }
 
@@ -153,8 +163,9 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'These dates are already booked' }, { status: 409 });
     }
 
+    let booking: Awaited<ReturnType<typeof BookingsRepo.create>>;
     try {
-        const booking = await BookingsRepo.create({
+        booking = await BookingsRepo.create({
             listingId,
             guestId:    session.userId,
             hostId:     (listing.user_id as string | null) ?? null,
@@ -164,7 +175,12 @@ export async function POST(req: Request) {
             totalPrice: total,
             notes,
         });
+    } catch (e) {
+        log.error('Booking create failed', e as Error);
+        return NextResponse.json({ error: 'Failed to create booking' }, { status: 500 });
+    }
 
+    try {
         await EventPublisher.publish(
             Events.bookingCreated(
                 {
@@ -180,11 +196,11 @@ export async function POST(req: Request) {
                 correlationId,
             ),
         );
-
-        log.info('Booking created via fallback path', { bookingId: booking.id });
-        return NextResponse.json({ booking }, { status: 201 });
-    } catch (e) {
-        log.error('Booking create failed', e as Error);
-        return NextResponse.json({ error: 'Failed to create booking' }, { status: 500 });
+    } catch (publishErr) {
+        const e = publishErr as { message?: string };
+        log.warn('Outbox publish failed (non-fatal)', { error: e?.message });
     }
+
+    log.info('Booking created via fallback path', { bookingId: booking.id });
+    return NextResponse.json({ booking }, { status: 201 });
 }

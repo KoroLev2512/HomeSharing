@@ -28,6 +28,10 @@ $listing-hero-inner-max: lw.$listing-hero-inner-max;
   gap: 1rem;
 }
 
+.contentFull {
+  max-width: none;
+}
+
 .heroBar {
   display: block;
   height: 5.8125rem;
@@ -57,6 +61,10 @@ $listing-hero-inner-max: lw.$listing-hero-inner-max;
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: nowrap;
+}
+
+.heroBarInnerFull {
+  max-width: none;
 }
 
 .heroLeft {

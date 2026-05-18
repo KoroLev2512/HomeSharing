@@ -29,6 +29,10 @@ $listing-hero-inner-max: lw.$listing-hero-inner-max;
   gap: 1rem;
 }
 
+.contentFull {
+  max-width: none;
+}
+
 .contentMainSection {
   flex: 1;
   min-height: 0;
@@ -65,6 +69,10 @@ $listing-hero-inner-max: lw.$listing-hero-inner-max;
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: nowrap;
+}
+
+.heroBarInnerFull {
+  max-width: none;
 }
 
 .heroLeft {

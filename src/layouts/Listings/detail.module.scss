@@ -400,7 +400,8 @@ $listing-hero-sticky-offset: 5.8125rem;
 
 .specs,
 .amenities,
-.description {
+.description,
+.mapSection {
   background: #fff;
   border: 0.0625rem solid #ebebeb;
   border-radius: 1rem;
@@ -466,12 +467,9 @@ $listing-hero-sticky-offset: 5.8125rem;
   flex-direction: column;
   gap: 1rem;
   position: sticky;
-  /* Не заезжать под липкий heroBar (z-index ниже, чем у шапки) */
   top: $listing-hero-sticky-offset;
   z-index: 10;
   align-self: flex-start;
-  max-height: calc(100vh - #{$listing-hero-sticky-offset} - 1rem);
-  overflow-y: auto;
 }
 
 .priceBox {

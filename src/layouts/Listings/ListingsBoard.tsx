@@ -53,7 +53,8 @@ const readSavedView = (): 'list' | 'grid' => {
 };
 
 export const ListingsBoard: React.FC = () => {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
+    const isAuthenticated = status === 'authenticated';
     const { count: favoritesCount } = useFavorites();
     const [filters, setFilters] = useState<IListingsFilters>({});
     const [sort, setSort] = useState<ListingsSort>('new');
@@ -137,9 +138,9 @@ export const ListingsBoard: React.FC = () => {
     return (
         <div className={styles.root}>
             <div className={styles.heroBar}>
-                <div className={styles.heroBarInner}>
+                <div className={classNames(styles.heroBarInner, { [styles.heroBarInnerFull]: isAuthenticated })}>
                     <div className={styles.heroLeft}>
-                        {session?.user ? (
+                        {isAuthenticated ? (
                             <h1 className={styles.heroTitle}>Объявления</h1>
                         ) : (
                             <Link href="/listings" className={styles.heroLogo} aria-label="HomeSharing">
@@ -176,7 +177,7 @@ export const ListingsBoard: React.FC = () => {
                                 </span>
                             )}
                         </Link>
-                        {!session?.user && (
+                        {!isAuthenticated && (
                             <>
                                 <Link href="/login" className={styles.loginLink}>
                                     Войти
@@ -190,8 +191,8 @@ export const ListingsBoard: React.FC = () => {
                 </div>
             </div>
 
-            <div className={styles.content}>
-                {!session?.user && (
+            <div className={classNames(styles.content, { [styles.contentFull]: isAuthenticated })}>
+                {!isAuthenticated && (
                     <Section margin={0}>
                         <h1 className={styles.title}>Объявления</h1>
                     </Section>
