@@ -233,7 +233,7 @@ export default function RegisterPage() {
                         type="submit"
                         disabled={isLoading}
                     >
-                        {isLoading ? 'Подтверждение...' : 'Подтвердить эл. почту'}
+                        {isLoading ? 'Подтверждение...' : 'Зарегистрироваться'}
                     </button>
                 </form>
 
