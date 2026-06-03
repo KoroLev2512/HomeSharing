@@ -324,6 +324,18 @@ export const HostListingFormPage: React.FC<IProps> = ({ mode, listingId }) => {
                     <span>Полный адрес</span>
                     <input id={fid('address')} className={styles.input} value={form.address} onChange={set('address')} required placeholder="Невский проспект, 28" />
                 </label>
+                <label htmlFor={fid('cadastralNumber')} className={styles.field}>
+                    <span>Кадастровый номер <span style={{ fontWeight: 400, color: '#8a8a8a' }}>(необязательно, пример: 77:01:0001001:1234)</span></span>
+                    <input
+                        id={fid('cadastralNumber')}
+                        className={styles.input}
+                        value={form.cadastralNumber}
+                        onChange={set('cadastralNumber')}
+                        placeholder="NN:NN:NNNNNNN:NNN"
+                        pattern="\d{2}:\d{2}:\d{6,7}:\d+"
+                        title="Формат: NN:NN:NNNNNNN:NNN"
+                    />
+                </label>
                 <div className={styles.field}>
                     <YandexMapPicker
                         apiKey={publicEnv.yandexMapsApiKey}

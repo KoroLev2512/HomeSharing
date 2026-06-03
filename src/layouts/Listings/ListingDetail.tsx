@@ -135,7 +135,10 @@ export const ListingDetail: React.FC<IProps> = ({ id }) => {
                 <div className={styles.heroBarInner}>
                     <h1 className={styles.heroTitle}>{heroTitle}</h1>
                     <Link href="/listings" className={styles.heroBackLink}>
-                        Все объявления
+                        <svg className={styles.heroBackArrow} width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10 13L5 8L10 3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        <span className={styles.heroBackText}>Все объявления</span>
                     </Link>
                 </div>
             </div>
@@ -146,7 +149,7 @@ export const ListingDetail: React.FC<IProps> = ({ id }) => {
                     <div className={styles.addressRow}>
                         <LocationIcon width={18} height={18} color="#1a1a1a" />
                         <span>{listing.address}</span>
-                        {buildListingLocation(listing) && <span className={styles.metaInline}> · {buildListingLocation(listing)}</span>}
+                        {buildListingLocation(listing) && <span className={styles.metaInline}>{buildListingLocation(listing)}</span>}
                     </div>
                 </div>
 

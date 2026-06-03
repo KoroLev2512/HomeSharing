@@ -10,6 +10,9 @@ declare module 'next-auth' {
             isAdmin?: boolean
             isHost?: boolean
             isUser?: boolean
+            // ЕСИА верификация (§4.1 диплома)
+            esiaSub?: string | null
+            esiaVerifiedAt?: string | null
         }
     }
 
@@ -18,6 +21,8 @@ declare module 'next-auth' {
         isAdmin?: boolean
         isHost?: boolean
         isUser?: boolean
+        esiaSub?: string | null
+        esiaVerifiedAt?: string | null
     }
 }
 
@@ -31,5 +36,7 @@ declare module 'next-auth/jwt' {
         isAdmin?: boolean
         isHost?: boolean
         isUser?: boolean
+        esiaSub?: string | null
+        esiaVerifiedAt?: string | null
     }
 }

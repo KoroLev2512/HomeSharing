@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { loadSession } from '@/shared/lib/sessionGuards';
 import { BookingsRepo } from '@/shared/lib/bookingsRepo';
+import { RentalEventLog } from '@/shared/lib/rentalEventLog';
 
 /**
  * Guest endpoint: cancel own booking. Only allowed while still pending/confirmed.
@@ -33,5 +34,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
 
     const updated = await BookingsRepo.setStatus(id, 'cancelled');
+    void RentalEventLog.write({
+        eventType: 'booking.cancelled',
+        aggregateType: 'booking',
+        aggregateId: id,
+        actorUserId: session.userId,
+        payload: { fromStatus: existing.status, reason: 'guest_cancelled' },
+    });
     return NextResponse.json({ booking: updated }, { status: 200 });
 }

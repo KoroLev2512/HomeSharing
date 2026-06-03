@@ -1,7 +1,15 @@
 import { handle } from '@/shared/lib/bookingsService';
 import type { IAdminUser } from '@/shared/types/admin';
-import type { IListing } from '@/shared/types/listing';
+import type { IListing, RosreestrObjectData, RosreestrStatus } from '@/shared/types/listing';
 import type { IBooking, IBookingWithListing, BookingStatus } from '@/shared/types/booking';
+
+export interface RosreestrCheckResult {
+    found: boolean;
+    cn: string;
+    data?: RosreestrObjectData;
+    layerName?: string;
+    error?: string;
+}
 
 export type AdminUserPatch = Partial<{ isAdmin: boolean; isHost: boolean; isUser: boolean }>;
 
@@ -50,5 +58,36 @@ export class AdminService {
         });
         const data = (await handle(res)) as { booking: IBooking };
         return data.booking;
+    }
+
+    static async checkRosreestr(cadastralNumber: string): Promise<RosreestrCheckResult> {
+        const res = await fetch('/api/admin/rosreestr', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cadastralNumber }),
+        });
+        const data = await res.json() as RosreestrCheckResult & { error?: string };
+        if (!res.ok) throw new Error(data.error ?? 'Ошибка запроса к Росреестру');
+        return data;
+    }
+
+    static async verifyListing(
+        id: string,
+        patch: {
+            isVerified?: boolean;
+            cadastralNumber?: string | null;
+            rosreestrStatus?: RosreestrStatus;
+            rosreestrData?: RosreestrObjectData | null;
+        },
+    ): Promise<void> {
+        const res = await fetch(`/api/admin/listings/${encodeURIComponent(id)}/verify`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(patch),
+        });
+        if (!res.ok) {
+            const data = await res.json() as { error?: string };
+            throw new Error(data.error ?? 'Не удалось обновить объявление');
+        }
     }
 }

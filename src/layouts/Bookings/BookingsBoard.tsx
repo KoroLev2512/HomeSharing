@@ -11,8 +11,10 @@ import { BookingsBoardSkeleton } from '@/layouts/Bookings/BookingsBoardSkeleton'
 import {
     BOOKING_STATUS_LABEL,
     BOOKING_STATUS_TONE,
+    bookingStatusToProcess,
     type IBookingWithListing,
 } from '@/shared/types/booking';
+import { RentalProcessTimeline } from '@/widgets/RentalProcessTimeline/RentalProcessTimeline';
 import styles from './styles.module.scss';
 
 const bookingPriceFmt = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 });
@@ -163,10 +165,25 @@ export const BookingsBoard: React.FC = () => {
                                             {b.notes}
                                         </div>
                                     )}
+                                    {(b.status === 'confirmed' || b.status === 'completed') && (
+                                        <div style={{ marginTop: '0.75rem' }}>
+                                            <RentalProcessTimeline
+                                                currentStatus={b.processStatus ?? bookingStatusToProcess(b.status)}
+                                                ownershipVerifiedAt={b.ownershipVerifiedAt}
+                                                accessGrantedAt={b.accessGrantedAt}
+                                                accessRevokedAt={b.accessRevokedAt}
+                                            />
+                                        </div>
+                                    )}
                                     <div className={styles.actions}>
                                         <Link href={`/listings/${b.listingId}`} className={styles.secondaryBtn}>
                                             Открыть объявление
                                         </Link>
+                                        {b.status === 'confirmed' && (
+                                            <Link href={`/bookings/${b.id}/access`} className={styles.secondaryBtn}>
+                                                🔐 Цифровой ключ
+                                            </Link>
+                                        )}
                                         {cancellable && (
                                             <button
                                                 type="button"

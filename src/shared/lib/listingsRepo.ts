@@ -8,6 +8,8 @@ import type {
     ListingsSort,
     PricePeriod,
     PropertyType,
+    RosreestrObjectData,
+    RosreestrStatus,
 } from '@/shared/types/listing';
 
 interface ListingRow {
@@ -43,6 +45,10 @@ interface ListingRow {
     owner_avatar: string | null;
     owner_type: 'owner' | 'agency';
     owner_phone_masked: string | null;
+    cadastral_number: string | null;
+    rosreestr_status: RosreestrStatus | null;
+    rosreestr_checked_at: string | null;
+    rosreestr_data: RosreestrObjectData | null;
 }
 
 const toListing = (row: ListingRow): IListing => ({
@@ -73,6 +79,10 @@ const toListing = (row: ListingRow): IListing => ({
     reviewsCount: row.reviews_count ?? undefined,
     publishedAt: row.published_at,
     isVerified: row.is_verified,
+    cadastralNumber: row.cadastral_number ?? null,
+    rosreestrStatus: row.rosreestr_status ?? 'pending',
+    rosreestrCheckedAt: row.rosreestr_checked_at ?? null,
+    rosreestrData: row.rosreestr_data ?? null,
     ownerUserId: row.user_id ?? null,
     owner: {
         name: row.owner_name,

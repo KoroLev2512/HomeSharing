@@ -16,11 +16,13 @@ const TABS = [
     { href: '/admin/users', label: 'Пользователи' },
     { href: '/admin/listings', label: 'Объявления' },
     { href: '/admin/bookings', label: 'Бронирования' },
+    { href: '/admin/events', label: 'Журнал событий' },
 ];
 
 const shellSkeletonVariant = (pathname: string | null): AdminShellSkeletonVariant => {
     if (pathname?.startsWith('/admin/bookings')) return 'bookings';
     if (pathname?.startsWith('/admin/listings')) return 'listings';
+    if (pathname?.startsWith('/admin/events')) return 'listings'; // reuse listings skeleton
     return 'users';
 };
 

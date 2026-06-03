@@ -13,6 +13,10 @@
   padding: 0.625rem 1.25rem;
   border-bottom: 0.0625rem solid var(--Grey-200, #E2E2E2);
   box-sizing: border-box;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #fff;
 }
 
 .title {
@@ -699,6 +703,25 @@
   &:hover {
     background: #fdecec;
   }
+}
+
+.pwBlock {
+  padding: 1rem;
+  border: 0.0625rem solid var(--Grey-200, #E2E2E2);
+  border-radius: 1rem;
+}
+
+.pwForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.pwFooter {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 @media (max-width: 45rem) {

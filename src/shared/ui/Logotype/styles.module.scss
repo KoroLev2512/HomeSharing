@@ -30,3 +30,9 @@
   overflow: hidden;
 }
 
+@media (max-width: 25rem) {
+  .logotext {
+    display: none;
+  }
+}
+

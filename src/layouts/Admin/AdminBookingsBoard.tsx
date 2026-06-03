@@ -146,7 +146,7 @@ export const AdminBookingsBoard: React.FC = () => {
                                                           })}
                                                           onClick={() => setStatus(b.id, s)}
                                                       >
-                                                          → {BOOKING_STATUS_LABEL[s]}
+                                                          {BOOKING_STATUS_LABEL[s]}
                                                       </button>,
                                                   ],
                                         )}

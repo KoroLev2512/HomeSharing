@@ -1,5 +1,40 @@
 export type DealType = 'rent_long' | 'rent_short' | 'sale';
 
+/**
+ * Расширенные статусы верификации через Росреестр (§4.2 диплома, Таблица 4).
+ * - verified:               право подтверждено однозначно
+ * - not_verified:           право не подтверждено (данные есть, вывод отрицательный)
+ * - inconclusive:           данные получены, но неоднозначны (несовпадение площади > 10% и т.п.)
+ * - technical_failure:      ошибка при обращении к внешнему контуру
+ * - manual_review_required: требуется ручная проверка модератором
+ * Старые: 'found' → 'verified', 'not_found' → 'not_verified', 'error' → 'technical_failure'
+ */
+export type RosreestrStatus =
+    | 'pending'
+    | 'verified'
+    | 'not_verified'
+    | 'inconclusive'
+    | 'technical_failure'
+    | 'manual_review_required'
+    // Legacy — оставляем для обратной совместимости с данными в БД
+    | 'found'
+    | 'not_found'
+    | 'error';
+
+export interface RosreestrObjectData {
+    cn: string;
+    address?: string;
+    areaValue?: string;
+    name?: string;
+    purposeName?: string;
+    statecd?: string;
+    statecdLabel?: string;
+    floors?: string;
+    yearBuilt?: string;
+    cadCost?: string;
+    layerType?: number;
+}
+
 export type PropertyType = 'flat' | 'room' | 'house' | 'studio';
 
 export type PricePeriod = 'month' | 'day';
@@ -42,6 +77,10 @@ export interface IListing {
     owner: IListingOwner;
     ownerUserId?: string | null;
     isVerified?: boolean;
+    cadastralNumber?: string | null;
+    rosreestrStatus?: RosreestrStatus;
+    rosreestrCheckedAt?: string | null;
+    rosreestrData?: RosreestrObjectData | null;
 }
 
 export interface IListingsFilters {

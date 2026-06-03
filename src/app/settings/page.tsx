@@ -161,6 +161,38 @@ export default function SettingsPage(): React.JSX.Element | null {
     void uploadFile(file);
   };
 
+  const [pwForm, setPwForm] = useState({ current: "", next: "", repeat: "" });
+  const [pwStatus, setPwStatus] = useState<{ error: string; success: boolean; loading: boolean }>({
+    error: "",
+    success: false,
+    loading: false,
+  });
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPwStatus({ error: "", success: false, loading: true });
+    try {
+      const res = await fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          currentPassword: pwForm.current,
+          newPassword: pwForm.next,
+          newPasswordRepeat: pwForm.repeat,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPwStatus({ error: data.error ?? "Ошибка сервера", success: false, loading: false });
+      } else {
+        setPwForm({ current: "", next: "", repeat: "" });
+        setPwStatus({ error: "", success: true, loading: false });
+      }
+    } catch {
+      setPwStatus({ error: "Не удалось отправить запрос", success: false, loading: false });
+    }
+  };
+
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
@@ -399,6 +431,32 @@ export default function SettingsPage(): React.JSX.Element | null {
           </section>
         )}
 
+        {/* Блок 5: ЕСИА верификация (§4.1 диплома) */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Верификация личности (ЕСИА)</h2>
+          <div className={styles.hostBlock}>
+            <div className={styles.hostInfo}>
+              <div className={styles.hostTitle}>
+                {session?.user?.esiaVerifiedAt
+                  ? `✓ Личность подтверждена через ЕСИА`
+                  : 'Личность не подтверждена'}
+              </div>
+              <p className={styles.hostText}>
+                {session?.user?.esiaVerifiedAt
+                  ? `Подтверждено ${new Date(session.user.esiaVerifiedAt as string).toLocaleDateString('ru-RU')} · Повышенный уровень доверия.`
+                  : 'Подтвердите личность через Госуслуги (ЕСИА) для расширенного доступа и повышения доверия к профилю.'}
+              </p>
+            </div>
+            <div className={styles.hostActions}>
+              {!session?.user?.esiaVerifiedAt && (
+                <a href="/login" className={styles.hostBtnPrimary} style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
+                  Войти через ЕСИА
+                </a>
+              )}
+            </div>
+          </div>
+        </section>
+
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Роль арендодателя</h2>
           <div className={styles.hostBlock}>
@@ -429,10 +487,85 @@ export default function SettingsPage(): React.JSX.Element | null {
               </button>
               {isHost && (
                 <Link href="/host/listings" className={styles.hostBtnLink}>
-                  Перейти в кабинет →
+                  Перейти в кабинет
                 </Link>
               )}
             </div>
+          </div>
+        </section>
+
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Безопасность</h2>
+          <div className={styles.pwBlock}>
+            <form onSubmit={handleChangePassword} className={styles.pwForm}>
+              <div className={styles.grid2}>
+                <div className={styles.field}>
+                  <Input
+                    label="Текущий пароль"
+                    type="password"
+                    value={pwForm.current}
+                    onChange={(e) => {
+                      setPwStatus((s) => ({ ...s, error: "", success: false }));
+                      setPwForm((f) => ({ ...f, current: e.target.value }));
+                    }}
+                    placeholder="••••••••"
+                    size="medium"
+                    showPasswordToggle
+                    disabled={pwStatus.loading}
+                    state={pwStatus.loading ? "disabled" : "enabled"}
+                    autoComplete="current-password"
+                  />
+                </div>
+                <div />
+              </div>
+              <div className={styles.grid2}>
+                <div className={styles.field}>
+                  <Input
+                    label="Новый пароль"
+                    type="password"
+                    value={pwForm.next}
+                    onChange={(e) => {
+                      setPwStatus((s) => ({ ...s, error: "", success: false }));
+                      setPwForm((f) => ({ ...f, next: e.target.value }));
+                    }}
+                    placeholder="••••••••"
+                    size="medium"
+                    showPasswordToggle
+                    disabled={pwStatus.loading}
+                    state={pwStatus.loading ? "disabled" : "enabled"}
+                    autoComplete="new-password"
+                  />
+                </div>
+                <div className={styles.field}>
+                  <Input
+                    label="Повторите новый пароль"
+                    type="password"
+                    value={pwForm.repeat}
+                    onChange={(e) => {
+                      setPwStatus((s) => ({ ...s, error: "", success: false }));
+                      setPwForm((f) => ({ ...f, repeat: e.target.value }));
+                    }}
+                    placeholder="••••••••"
+                    size="medium"
+                    showPasswordToggle
+                    disabled={pwStatus.loading}
+                    state={pwStatus.loading ? "disabled" : "enabled"}
+                    autoComplete="new-password"
+                  />
+                </div>
+              </div>
+              {pwStatus.error && <div className={styles.hostError}>{pwStatus.error}</div>}
+              {pwStatus.success && <div className={styles.hostMessage}>Пароль успешно изменён</div>}
+              <div className={styles.pwFooter}>
+                <button
+                  type="submit"
+                  className={styles.saveBtn}
+                  disabled={pwStatus.loading || !pwForm.current || !pwForm.next || !pwForm.repeat}
+                >
+                  {pwStatus.loading ? "Сохранение..." : "Изменить пароль"}
+                </button>
+              </div>
+            </form>
           </div>
         </section>
 

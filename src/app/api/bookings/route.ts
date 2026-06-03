@@ -5,6 +5,7 @@ import { getServiceClient } from '@/shared/utils/supabase/service';
 import { computeBookingTotal, isValidDateString } from '@/shared/lib/bookingPricing';
 import { EventPublisher } from '@/shared/lib/events/publisher';
 import { Events } from '@/shared/lib/events/types';
+import { RentalEventLog } from '@/shared/lib/rentalEventLog';
 import { logger } from '@/shared/lib/logger/logger';
 import { metrics } from '@/shared/lib/metrics/prometheus';
 import type { DealType } from '@/shared/types/listing';
@@ -134,6 +135,14 @@ export async function POST(req: Request) {
             log.warn('Outbox publish failed (non-fatal)', { error: e?.message });
         }
 
+        void RentalEventLog.write({
+            eventType: 'booking.created',
+            aggregateType: 'booking',
+            aggregateId: resolvedId,
+            correlationId,
+            actorUserId: session.userId,
+            payload: { listingId, startDate, endDate, guestsCount, total, currency: 'RUB' },
+        });
         log.info('Booking created via DB function', { bookingId });
         return NextResponse.json({ booking: { id: bookingId } }, { status: 201 });
 
@@ -201,6 +210,14 @@ export async function POST(req: Request) {
         log.warn('Outbox publish failed (non-fatal)', { error: e?.message });
     }
 
+    void RentalEventLog.write({
+        eventType: 'booking.created',
+        aggregateType: 'booking',
+        aggregateId: booking.id,
+        correlationId,
+        actorUserId: session.userId,
+        payload: { listingId, startDate, endDate, guestsCount, total, currency: 'RUB' },
+    });
     log.info('Booking created via fallback path', { bookingId: booking.id });
     return NextResponse.json({ booking }, { status: 201 });
 }

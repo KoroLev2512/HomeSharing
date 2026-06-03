@@ -170,7 +170,7 @@ export const ListingsBoard: React.FC = () => {
                                     strokeLinejoin="round"
                                 />
                             </svg>
-                            <span>Избранное</span>
+                            <span className={styles.favoritesText}>Избранное</span>
                             {favoritesCount > 0 && (
                                 <span className={styles.favoritesCount}>
                                     {favoritesCount > 99 ? '99+' : favoritesCount}

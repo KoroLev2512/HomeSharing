@@ -5,18 +5,33 @@
  */
 
 export type EventType =
+    // Бронирование
     | 'booking.created'
     | 'booking.confirmed'
     | 'booking.cancelled'
     | 'booking.completed'
+    | 'booking.rejected'
+    // Оплата
     | 'payment.completed'
     | 'payment.failed'
+    // Объявление
     | 'property.created'
     | 'property.updated'
     | 'property.deleted'
+    // Верификация права собственности (§4.2)
+    | 'verification.started'
     | 'verification.completed'
-    | 'notification.created'
-    | 'user.registered';
+    | 'verification.failed'
+    // Пользователь
+    | 'user.registered'
+    | 'user.esia_verified'
+    // Цифровой доступ IoT (§4.3)
+    | 'access.granted'
+    | 'access.revoked'
+    | 'access.used'
+    | 'access.failed'
+    // Системные
+    | 'notification.created';
 
 export interface DomainEvent<T = unknown> {
     /** Unique event ID (UUID) — used for idempotency checks */

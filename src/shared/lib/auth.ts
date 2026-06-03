@@ -6,6 +6,7 @@ import bcrypt from "bcrypt"
 import { getServiceClient } from "@/shared/utils/supabase/service"
 import { serverEnv } from "@/shared/configs/serverEnv"
 import { createEsiaMockProvider } from "@/shared/lib/esiaProvider"
+import { RentalEventLog } from "@/shared/lib/rentalEventLog"
 
 const oauthProviders = []
 
@@ -149,6 +150,25 @@ export const authOptions: AuthOptions = {
                         token.isAdmin = dbUser.isAdmin ?? false
                         token.isHost = dbUser.isService ?? false
                         token.isUser = dbUser.isUser ?? true
+
+                        // Сохраняем esia_sub и esia_verified_at (§4.1 диплома)
+                        const esiaSub = user.id ?? null
+                        if (esiaSub && !dbUser.esia_sub) {
+                            const now = new Date().toISOString()
+                            await getServiceClient().from("User").update({
+                                esia_sub: esiaSub,
+                                esia_verified_at: now,
+                            }).eq("id", dbUser.id)
+
+                            // Событие в аудит-журнал (§3.4, §4.1)
+                            void RentalEventLog.write({
+                                eventType: 'user.esia_verified',
+                                aggregateType: 'user',
+                                aggregateId: dbUser.id,
+                                actorUserId: dbUser.id,
+                                payload: { esiaSub, email, verifiedAt: now },
+                            })
+                        }
                     } else if (user) {
                         // Не выходим из jwt до общего merge: при сбое Supabase иначе токен остаётся пустым и OAuth падает → редирект на /login.
                         token.id = user.id

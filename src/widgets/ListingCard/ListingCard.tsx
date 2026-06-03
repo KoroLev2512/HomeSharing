@@ -174,7 +174,7 @@ export const ListingCard: React.FC<IProps> = ({ listing, layout = 'list', classN
                 <PhotoCarousel photos={photos} alt={listing.title} />
 
                 <div className={styles.imageBadges}>
-                    {listing.isVerified && <span className={styles.badgeVerified}>Проверено</span>}
+                    {listing.isVerified && <span className={styles.badgeVerified}>Проверено в Росреестре</span>}
                 </div>
 
                 <FavoriteButton listingId={listing.id} />

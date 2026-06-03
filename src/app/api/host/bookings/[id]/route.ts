@@ -1,7 +1,15 @@
 import { NextResponse } from 'next/server';
 import { loadSession } from '@/shared/lib/sessionGuards';
 import { BookingsRepo } from '@/shared/lib/bookingsRepo';
+import { RentalEventLog } from '@/shared/lib/rentalEventLog';
 import type { BookingStatus } from '@/shared/types/booking';
+
+const STATUS_TO_EVENT: Partial<Record<BookingStatus, 'booking.confirmed' | 'booking.cancelled' | 'booking.completed' | 'booking.rejected'>> = {
+    confirmed: 'booking.confirmed',
+    cancelled: 'booking.cancelled',
+    completed: 'booking.completed',
+    rejected:  'booking.rejected',
+};
 
 const HOST_ALLOWED_STATUSES: BookingStatus[] = ['confirmed', 'rejected', 'completed', 'cancelled'];
 
@@ -47,5 +55,16 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
 
     const updated = await BookingsRepo.setStatus(id, status as BookingStatus);
+    const eventType = STATUS_TO_EVENT[status as BookingStatus];
+    if (eventType) {
+        void RentalEventLog.write({
+            eventType,
+            aggregateType: 'booking',
+            aggregateId: id,
+            actorUserId: session.userId,
+            subjectUserId: existing.guestId,
+            payload: { fromStatus: existing.status, toStatus: status, changedBy: 'host' },
+        });
+    }
     return NextResponse.json({ booking: updated }, { status: 200 });
 }

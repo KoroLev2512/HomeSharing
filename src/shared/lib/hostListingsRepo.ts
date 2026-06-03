@@ -5,6 +5,8 @@ import type {
     IListing,
     PricePeriod,
     PropertyType,
+    RosreestrObjectData,
+    RosreestrStatus,
 } from '@/shared/types/listing';
 
 const DEAL_TYPES: DealType[] = ['rent_long', 'rent_short', 'sale'];
@@ -38,6 +40,7 @@ export interface IListingDraft {
     ownerType: 'owner' | 'agency';
     ownerAvatar?: string | null;
     ownerPhoneMasked?: string | null;
+    cadastralNumber?: string | null;
 }
 
 export interface HostListingRow {
@@ -73,6 +76,10 @@ export interface HostListingRow {
     owner_avatar: string | null;
     owner_type: 'owner' | 'agency';
     owner_phone_masked: string | null;
+    cadastral_number: string | null;
+    rosreestr_status: RosreestrStatus | null;
+    rosreestr_checked_at: string | null;
+    rosreestr_data: RosreestrObjectData | null;
     created_at: string;
     updated_at: string;
 }
@@ -105,6 +112,10 @@ export const rowToListing = (row: HostListingRow): IListing => ({
     reviewsCount: row.reviews_count ?? undefined,
     publishedAt: row.published_at,
     isVerified: row.is_verified,
+    cadastralNumber: row.cadastral_number ?? null,
+    rosreestrStatus: row.rosreestr_status ?? 'pending',
+    rosreestrCheckedAt: row.rosreestr_checked_at ?? null,
+    rosreestrData: row.rosreestr_data ?? null,
     ownerUserId: row.user_id ?? null,
     owner: {
         name: row.owner_name,
@@ -225,6 +236,7 @@ const draftToInsertRow = (draft: IListingDraft, userId: string, id?: string) => 
     owner_avatar: draft.ownerAvatar ?? null,
     owner_type: draft.ownerType,
     owner_phone_masked: draft.ownerPhoneMasked ?? null,
+    cadastral_number: draft.cadastralNumber?.trim() || null,
 });
 
 export class HostListingsRepo {

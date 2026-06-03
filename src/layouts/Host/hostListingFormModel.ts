@@ -36,6 +36,7 @@ export type FormState = {
     ownerType: 'owner' | 'agency';
     ownerAvatar: string;
     ownerPhoneMasked: string;
+    cadastralNumber: string;
 };
 
 export const DEAL_OPTIONS: Array<ISelectOption<DealType>> = [
@@ -96,6 +97,7 @@ export const EMPTY: FormState = {
     ownerType: 'owner',
     ownerAvatar: '',
     ownerPhoneMasked: '',
+    cadastralNumber: '',
 };
 
 /** Значение селекта «комнат»: 0 — студия, 1–4 — число, 6 — «5 и более» (в т.ч. было ровно 5). */
@@ -132,6 +134,7 @@ export const fromListing = (l: IListing): FormState => ({
     ownerType: l.owner.type,
     ownerAvatar: l.owner.avatar ?? '',
     ownerPhoneMasked: l.owner.phoneMasked ?? '',
+    cadastralNumber: l.cadastralNumber ?? '',
 });
 
 export const parseInt0 = (s: string): number => {
@@ -184,5 +187,6 @@ export const toDraft = (f: FormState): IListingDraft => {
         ownerType: f.ownerType,
         ownerAvatar: f.ownerAvatar.trim() || null,
         ownerPhoneMasked: f.ownerPhoneMasked.trim() || null,
+        cadastralNumber: f.cadastralNumber.trim() || null,
     };
 };
