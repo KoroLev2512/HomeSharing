@@ -1,117 +1,208 @@
 # HomeSharing
 
-HomeSharing is a `Next.js` application for rental listings, favorites, and a private owner dashboard.
+Прототип веб-платформы автоматизации аренды недвижимости с интеграцией государственных систем идентификации (ЕСИА), Росреестра и IoT-устройств. Разработан в рамках дипломного исследования (Королёв Ю.А.).
 
-## Current product shape
+## Функциональность
 
-- Public area:
-  - `/listings` listing catalog
-  - `/listings/[id]` listing details
-  - `/favorites`
-- Auth:
-  - credentials login
-  - optional OAuth via `Google` and `GitHub`
-- Private area:
-  - `/` owner dashboard with "Мои объекты"
-  - `/settings`
-  - `/users/[id]` minimal profile page
+### Публичная зона
+- `/listings` — каталог объявлений: поиск, фильтры, сортировка, карта (Яндекс.Карты), пагинация
+- `/listings/[id]` — карточка объявления с галереей и формой бронирования
+- `/favorites` — избранные объявления
+- `/architecture` — диаграмма архитектуры платформы (§3.1 диплома)
+- `/recommendations` — практические рекомендации по проектированию
 
-## Stack
+### Аутентификация
+- Вход по email/паролю
+- OAuth: Google, GitHub (при наличии env-переменных)
+- ЕСИА — мок Госуслуг (OIDC/OAuth 2.0, §4.1 диплома)
+- Сброс и смена пароля (Nodemailer)
 
-- `Next.js 16`
-- `React 19`
-- `TypeScript`
-- `SCSS Modules`
-- `next-auth` v4 with JWT sessions
-- `Supabase`
-- `Zustand`
+### Кабинет арендатора
+- `/bookings` — мои бронирования со state machine (§3.1) и timeline-компонентом
+- `/bookings/[id]/access` — цифровой ключ (QR-код, код доступа, временное окно, §4.3)
+- `/messages` — сообщения с арендодателем
+- `/notifications` — уведомления платформы
+- `/settings` — профиль, смена пароля, роль хоста, статус ЕСИА-верификации
 
-## Data model
+### Кабинет арендодателя (`/host`)
+- `/host/listings` — управление объявлениями (CRUD, фото)
+- `/host/listings/new` и `/host/listings/[id]/edit` — форма объявления с картой
+- `/host/listings/[id]/verify` — верификация права собственности через Росреестр (§4.2)
+- `/host/bookings` — входящие заявки: подтверждение, отклонение, завершение
 
-Current runtime data access goes through Supabase tables and route handlers.
+### Панель администратора (`/admin`)
+- `/admin/users` — список пользователей, управление ролями
+- `/admin/listings` — объявления с inline-верификацией через Росреестр
+- `/admin/bookings` — все бронирования, управление статусами
+- `/admin/events` — **аудит-журнал событий аренды** (§3.4 диплома)
 
-`Prisma` is kept in the repository as a fallback layer for a possible future return, but it is not the active runtime path.
+## Стек
 
-## Environment variables
+| Слой | Технология |
+|---|---|
+| Frontend + BFF | Next.js 16, React 19, TypeScript, SCSS Modules |
+| Аутентификация | next-auth v4 (JWT), ESIA mock (OIDC) |
+| База данных | Supabase PostgreSQL |
+| Кэш / сессии | Redis (опционально) |
+| Событийная шина | RabbitMQ (опционально, через amqplib) |
+| Карты | Яндекс.Карты API |
+| Email | Nodemailer |
+| Стор | Zustand (минимально, для темы/sidebar) |
 
-Use [`.env.example`](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/.env.example) as the template.
+## Архитектура
 
-Required for the current runtime:
+Платформа реализует событийно-ориентированную архитектуру, описанную в дипломной работе:
+
+- **BFF (Backend for Frontend)** — Next.js App Router выступает единой точкой входа для пользовательского интерфейса
+- **Domain Events** — ключевые переходы состояний фиксируются в `rental_event_log` (аудит-журнал) и опционально публикуются в RabbitMQ через Outbox-паттерн
+- **Интеграция с Росреестром** — anti-corruption layer с нормализацией кадастровых номеров и Interpretation Engine (5 статусов: verified / not_verified / inconclusive / technical_failure / manual_review_required)
+- **Интеграция с ЕСИА** — OIDC-поток с обработкой state/nonce, валидацией JWKS, записью события `user.esia_verified`
+- **IoT-доступ** — Device Registry, Access Policy Manager, цифровой ключ с QR для подтверждённых бронирований (§4.3)
+- **State machine аренды** — расширенные статусы процесса: `initiated → ownership_pending → ownership_verified → contract_ready → payment_pending → access_granted → active → completed`
+
+Интерактивная диаграмма доступна на странице `/architecture` запущенного приложения. Подробная документация — в [ARCHITECTURE.md](ARCHITECTURE.md).
+
+## Переменные окружения
+
+Скопируйте `.env.example` в `.env.local` и заполните значения.
+
+### Обязательные
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="your-supabase-anon-key"
-SUPABASE_SERVICE_ROLE_KEY="your-supabase-service-role-key"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
+SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
+
 NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="generate-a-random-secret"
+NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
 ```
 
-Optional OAuth providers:
+### Карты
 
 ```env
-GITHUB_ID=""
-GITHUB_SECRET=""
+NEXT_PUBLIC_YANDEX_MAPS_API_KEY=""
+```
+
+### ЕСИА (мок Госуслуг)
+
+```env
+ESIA_MOCK_ENABLED="true"
+```
+
+### OAuth-провайдеры (опционально)
+
+```env
 GOOGLE_CLIENT_ID=""
 GOOGLE_CLIENT_SECRET=""
+
+GITHUB_ID=""
+GITHUB_SECRET=""
 ```
 
-Important:
+> Укажите оба значения для провайдера или оставьте оба пустыми.
 
-- set both values for a provider or leave both empty
-- `SUPABASE_SERVICE_ROLE_KEY` is expected by server-side data access
-- `DATABASE_URL` is retained only for the Prisma fallback layer
+### Email / сброс пароля
 
-## Local setup
+```env
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT="587"
+SMTP_SECURE="false"
+SMTP_USER=""
+SMTP_PASS=""
+SMTP_FROM="noreply@homesharing.ru"
+```
 
-1. Install dependencies:
+### Redis (кэш, опционально)
+
+```env
+REDIS_URL=""
+```
+
+### RabbitMQ (событийная шина, опционально)
+
+```env
+RABBITMQ_URL=""
+RABBITMQ_EXCHANGE="homesharing.events"
+```
+
+## Локальный запуск
 
 ```bash
+# 1. Зависимости
 npm install
+
+# 2. Создать .env.local из примера
+cp .env.example .env.local
+# Заполнить обязательные переменные
+
+# 3. Запустить миграции в Supabase (см. раздел ниже)
+
+# 4. Запустить dev-сервер
+npm run dev
+
+# Открыть http://localhost:3000
 ```
 
-2. Create `.env.local` from `.env.example`
+Гостевой сценарий начинается с `/listings`.  
+Авторизованные пользователи попадают на `/` (дашборд).
 
-3. Start the dev server:
+## Миграции базы данных
+
+Выполните SQL-файлы из директории `sql/` в Supabase → SQL Editor в указанном порядке:
+
+| Файл | Описание |
+|---|---|
+| `sql/add_rosreestr_fields.sql` | Поля верификации через Росреестр в таблице listings |
+| `sql/create_rental_event_log.sql` | Аудит-журнал событий аренды (§3.4) |
+| `sql/add_rental_process_status.sql` | Расширенные статусы процесса аренды (§3.1) |
+| `sql/create_iot_access.sql` | Реестр IoT-устройств и политики доступа (§4.3) |
+| `sql/add_esia_fields.sql` | Поля ЕСИА-верификации в таблице User (§4.1) |
+| `sql/create_messages_notifications.sql` | Сообщения и уведомления (§3.2) |
+
+Подробнее о схеме Supabase — в [SUPABASE_SETUP.md](SUPABASE_SETUP.md).
+
+## Скрипты
 
 ```bash
-npm run dev
+npm run dev        # dev-сервер с hot reload
+npm run build      # production сборка
+npm run start      # запуск production сборки
+npm run lint       # ESLint
+npm run typecheck  # tsc --noEmit
+npm test           # тесты
 ```
 
-4. Open `http://localhost:3000`
+## Аутентификация
 
-Guest flow starts at `/listings`.
-Authenticated users can use `/` as the private dashboard.
+- `next-auth` — единый источник истины для состояния сессии
+- Конфигурация: [`src/shared/lib/auth.ts`](src/shared/lib/auth.ts)
+- Credentials-аутентификация читает пользователей из Supabase (`User` таблица, bcrypt)
+- OAuth-провайдеры активируются при наличии полной пары env-переменных
+- ЕСИА-провайдер: [`src/shared/lib/esiaProvider.ts`](src/shared/lib/esiaProvider.ts) — мок OIDC на базе `/api/mock-esia/*`
+- После входа через ЕСИА публикуется событие `user.esia_verified` в аудит-журнал
 
-## Scripts
+## Мок ЕСИА
 
-```bash
-npm run dev
-npm run build
-npm run start
-npm run lint
-npm run typecheck
-npm test
-```
+Платформа включает мок-провайдер идентификации (Госуслуги / ЕСИА):
 
-## Auth notes
+1. Установите `ESIA_MOCK_ENABLED=true` в `.env.local`
+2. Нажмите «Войти через ЕСИА» на странице входа
+3. Выберите тестовую личность на `/esia/login`
+4. После успешного входа в аудит-журнал записывается событие `user.esia_verified`
 
-- `next-auth` is the single source of truth for session state
-- active auth config lives in [src/shared/lib/auth.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/shared/lib/auth.ts)
-- credentials auth reads users from Supabase
-- OAuth providers are enabled only when the full env pair is present
+## Supabase
 
-## Supabase notes
+Основные хелперы:
 
-Main helpers:
+- [`src/shared/utils/supabase/client.ts`](src/shared/utils/supabase/client.ts) — браузерный клиент
+- [`src/shared/utils/supabase/server.ts`](src/shared/utils/supabase/server.ts) — серверный клиент (cookies)
+- [`src/shared/utils/supabase/service.ts`](src/shared/utils/supabase/service.ts) — сервисный клиент (service role key)
 
-- [src/shared/utils/supabase/client.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/shared/utils/supabase/client.ts)
-- [src/shared/utils/supabase/server.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/shared/utils/supabase/server.ts)
-- [src/shared/utils/supabase/service.ts](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/src/shared/utils/supabase/service.ts)
+`getServiceClient()` использует `SUPABASE_SERVICE_ROLE_KEY` для серверных операций (API routes, admin).
 
-`getServiceClient()` uses `SUPABASE_SERVICE_ROLE_KEY` when available and falls back to anon key with a warning.
+> **Примечание.** Prisma сохранён в репозитории как резервный слой, но не является активным runtime-путём.
 
-## Deployment
+## Деплой
 
-For Vercel env setup, see [VERCEL_ENV_SETUP.md](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/VERCEL_ENV_SETUP.md).
-
-For Supabase schema and operational notes, see [SUPABASE_SETUP.md](/Users/qwerty/WebstormProjects/HomeSharing/homesharing/SUPABASE_SETUP.md).
+- Vercel: [VERCEL_ENV_SETUP.md](VERCEL_ENV_SETUP.md)
+- Supabase schema: [SUPABASE_SETUP.md](SUPABASE_SETUP.md)

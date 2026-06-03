@@ -46,8 +46,9 @@ export const serverEnv = {
   ),
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
   databaseUrl: process.env.DATABASE_URL,
+  // Мок ЕСИА включён по умолчанию — для демонстрации в рамках диплома.
+  // Чтобы отключить на сервере: ESIA_MOCK_ENABLED=false
   esiaMockEnabled:
-    (process.env.ESIA_MOCK_ENABLED ?? "").toLowerCase() === "true" ||
-    process.env.NODE_ENV !== "production",
+    (process.env.ESIA_MOCK_ENABLED ?? "").toLowerCase() !== "false",
   appUrl: process.env.NEXTAUTH_URL ?? "http://localhost:3000",
 };
