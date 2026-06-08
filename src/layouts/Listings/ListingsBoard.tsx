@@ -24,6 +24,8 @@ import { dealLabelShort } from '@/shared/lib/formatListing';
 import { FilterIcon } from '@/shared/icons';
 import styles from './styles.module.scss';
 
+const LCP_PRIORITY_COUNT = 3;
+
 const sortOptions: Array<{ value: ListingsSort; label: string }> = [
     { value: 'new', label: 'Новые' },
     { value: 'cheap', label: 'Дешевле' },
@@ -52,7 +54,11 @@ const readSavedView = (): 'list' | 'grid' => {
     }
 };
 
-export const ListingsBoard: React.FC = () => {
+interface IProps {
+    initialData?: IListingsResponse;
+}
+
+export const ListingsBoard: React.FC<IProps> = ({ initialData }) => {
     const { data: session, status } = useSession();
     const isAuthenticated = status === 'authenticated';
     const { count: favoritesCount } = useFavorites();
@@ -63,8 +69,8 @@ export const ListingsBoard: React.FC = () => {
     // На клиенте после mount подтягиваем сохранённое значение.
     const [view, setView] = useState<'list' | 'grid'>('list');
     const [searchQ, setSearchQ] = useState<string>('');
-    const [data, setData] = useState<IListingsResponse | null>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [data, setData] = useState<IListingsResponse | null>(initialData ?? null);
+    const [isLoading, setIsLoading] = useState<boolean>(!initialData);
     const [showFiltersMobile, setShowFiltersMobile] = useState(false);
 
     useEffect(() => {
@@ -311,8 +317,8 @@ export const ListingsBoard: React.FC = () => {
                                         [styles.listingsLoading]: isLoading,
                                     })}
                                 >
-                                    {data.items.map((item: IListing) => (
-                                        <ListingCard key={item.id} listing={item} layout={view} />
+                                    {data.items.map((item: IListing, idx: number) => (
+                                        <ListingCard key={item.id} listing={item} layout={view} priority={idx < LCP_PRIORITY_COUNT} />
                                     ))}
                                 </div>
                             ) : (

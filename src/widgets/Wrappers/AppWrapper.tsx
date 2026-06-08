@@ -1,6 +1,5 @@
 "use client";
 
-import Head from "next/head";
 import React, {useEffect} from "react";
 import {ContentWrapper} from "@/widgets/ContentWraper"
 import {NavigationBar} from "@/widgets/NavigationBar";
@@ -45,9 +44,6 @@ const AppWrapper = (props: Layout) => {
 
     return (
         <PageWrapper>
-            <Head>
-                <title>LockBox: Личный кабинет</title>
-            </Head>
             {showNavBar && <NavigationBar />}
             <ContentWrapper>{children}</ContentWrapper>
         </PageWrapper>

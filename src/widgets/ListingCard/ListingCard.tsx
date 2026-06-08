@@ -20,6 +20,7 @@ interface IProps {
     listing: IListing;
     layout?: 'list' | 'grid';
     className?: string;
+    priority?: boolean;
 }
 
 interface IFavoriteButtonProps {
@@ -57,9 +58,10 @@ const FavoriteButton: React.FC<IFavoriteButtonProps> = ({ listingId }) => {
 interface ICarouselProps {
     photos: string[];
     alt: string;
+    priority?: boolean;
 }
 
-const PhotoCarousel: React.FC<ICarouselProps> = ({ photos, alt }) => {
+const PhotoCarousel: React.FC<ICarouselProps> = ({ photos, alt, priority }) => {
     const [index, setIndex] = useState(0);
     const [loaded, setLoaded] = useState<Set<number>>(new Set());
 
@@ -101,7 +103,8 @@ const PhotoCarousel: React.FC<ICarouselProps> = ({ photos, alt }) => {
                             alt={i === 0 ? alt : ''}
                             sizes="(max-width: 48rem) 100vw, 20rem"
                             className={classNames(styles.image, { [styles.imageLoaded]: loaded.has(i) })}
-                            loading={i === 0 ? 'eager' : 'lazy'}
+                            loading={i === 0 && !priority ? 'eager' : i !== 0 ? 'lazy' : undefined}
+                            priority={i === 0 && priority}
                             onLoad={() => markLoaded(i)}
                             draggable={false}
                             aria-hidden={i !== 0 || undefined}
@@ -162,7 +165,7 @@ const PhotoCarousel: React.FC<ICarouselProps> = ({ photos, alt }) => {
     );
 };
 
-export const ListingCard: React.FC<IProps> = ({ listing, layout = 'list', className }) => {
+export const ListingCard: React.FC<IProps> = ({ listing, layout = 'list', className, priority }) => {
     const photos = listing.images.length > 0 ? listing.images : ['/rooms/room.png'];
 
     return (
@@ -171,7 +174,7 @@ export const ListingCard: React.FC<IProps> = ({ listing, layout = 'list', classN
             className={classNames(styles.card, styles[`layout-${layout}`], className)}
         >
             <div className={styles.imageWrapper}>
-                <PhotoCarousel photos={photos} alt={listing.title} />
+                <PhotoCarousel photos={photos} alt={listing.title} priority={priority} />
 
                 <div className={styles.imageBadges}>
                     {listing.isVerified && <span className={styles.badgeVerified}>Проверено в Росреестре</span>}
