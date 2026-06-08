@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import classNames from 'classnames';
@@ -29,7 +29,9 @@ interface IFavoriteButtonProps {
 
 const FavoriteButton: React.FC<IFavoriteButtonProps> = ({ listingId }) => {
     const { isFavorite, toggle } = useFavorites();
-    const active = isFavorite(listingId);
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => { setMounted(true); }, []);
+    const active = mounted && isFavorite(listingId);
     const handleClick = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
